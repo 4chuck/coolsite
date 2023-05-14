@@ -320,7 +320,7 @@ h6 {
   position: absolute;
   top: 55px;
   right: 15px;
-  bottom: 15px;
+  bottom: 120px;
   left: 15px;
   padding: 10px 0;
   border-radius: 10px;
@@ -892,7 +892,7 @@ section {
 # Cta
 --------------------------------------------------------------*/
 .cta {
-  background: linear-gradient(rgba(40, 58, 90, 0.9), rgba(40, 58, 90, 0.9)), url("../img/cta-bg.jpg") fixed center center;
+  background: linear-gradient(rgba(40, 58, 90, 0.2), rgba(40, 58, 90, 0.2)), url("images/cpu.jpg") fixed center center;
   background-size: cover;
   padding: 120px 0;
 }
