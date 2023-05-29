@@ -39,6 +39,103 @@
       <h1 class="logo me-auto"><a href="index.html">Infotech</a></h1>
       <!-- Uncomment below if you prefer to use an image logo -->
       <!-- <a href="index.html" class="logo me-auto"><img src="images/logo.png" alt="" class="img-fluid"></a>-->
+        <button id="d" onclick="document.getElementById('id02').style.display='block'"style="width:auto;
+
+outline:none;">Login</button>
+
+<div id="id02" class="modal">
+
+  
+
+  <form class="modal-content animate">
+
+    <div class="imgcontainer">
+
+      <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">&times;</span>
+
+      <img src="file:///storage/4134-19FD/images/github.jpg" alt="Avatar" class="avatar">
+
+    </div>
+
+    <div class="container">
+
+      <label for="uname"><b>Username</b></label>
+
+      <input type="text" placeholder="Enter Username" name="uname"id="e" required>
+
+      <label for="psw"><b>Password</b></label>
+
+      <input type="password" placeholder="Enter Password" name="psw" required>
+
+        
+
+     <center> 
+
+         
+
+         <p onclick="myFunction(),document.getElementById('id02').style.display='none'""  style="background-color: #2094d8;
+
+  outline: none;
+
+  color: white;
+
+  padding: 10px 20px;
+
+  margin: 8px 0;
+
+  border: none;
+
+  cursor: pointer;
+
+  width: 100%;">Login</p></center>
+
+  
+
+  <script>function myFunction() {   var x = document.getElementById("e");   document.getElementById("d").innerHTML = x.value;}
+
+  </script>
+
+  
+
+      <label>
+
+        <input type="checkbox" checked="checked" name="remember"> Remember me
+
+      </label>
+
+    </div>
+
+    <div class="container" style="background-color:#f1f1f1">
+
+      <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn">Cancel</button>
+
+      <span class="psw">Forgot <a href="#">password?</a></span>
+
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+
+// Get the modal
+
+var modal = document.getElementById('id02');
+
+// When the user clicks anywhere outside of the modal, close it
+
+window.onclick = function(event) {
+
+    if (event.target == modal) {
+
+        modal.style.display = "none";
+
+    }
+
+}
+
+</script>
 
       <nav id="navbar" class="navbar">
         <ul>
@@ -46,8 +143,7 @@
           <li><a  href="https://tony24.unaux.com/about/">About</a></li>
           <li><a  href="https://tony24.unaux.com/contact/">Contact</a></li>
           
-          <li class="dropdown"><a href="#"><span><p id="demo">sign in🌐</p></span> <i class="bi bi-chevron-down"></i></a>
-          
+                    
             <ul>
               
                <!-- sign in --> 
@@ -110,7 +206,23 @@
        <form>
                 
               <input type="search" id="name" name="person"placeholder="search ... "style="font-family:times new roman;">
-              <input type="submit" value="Search">
+              <input type="Reset"value="search" onclick="document.getElementById('id01').style.display='block'"
+
+  style="
+
+  background: #47b2e4;
+
+  outline: none;
+
+  border: 0;
+
+  padding: 8px 25px;
+
+  color: #fff;
+
+  transition: 0.4s;
+
+  border-radius: 50px;">
               
               <script src="search.js"></script>
             </form>
@@ -280,8 +392,67 @@ build your own website.
 
   <!-- Template Main JS File -->
   <script src="assets/main.js"></script>
+                              
   
+  <div id="id01" class="modal">
+
   
+
+  <form class="modal-content animate" action="go.html" method="post">
+
+    <div class="imgcontainer">
+
+      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+
+      
+
+    </div>
+
+   &nbsp; Try:
+
+      <ol>
+
+ <li>go</li>
+
+<li>dog</li>
+
+<li>search</li>
+
+<li>blackboard</li> 
+
+<li>calci</li>
+
+<li>cat</li>
+
+<li>ironman</li>
+
+<li>nature</li></ol>
+
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+
+// Get the modal
+
+var modal = document.getElementById('id01');
+
+// When the user clicks anywhere outside of the modal, close it
+
+window.onclick = function(event) {
+
+    if (event.target == modal) {
+
+        modal.style.display = "none";
+
+    }
+
+}
+
+</script>
   
   
 </body>
