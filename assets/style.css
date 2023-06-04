@@ -1799,7 +1799,7 @@ section {
 #footer .footer-newsletter form input[type=search] {
   border: transparent;
   padding: 6px 16px;
-  width: calc(100% - 150px);
+  width: calc(100% - 135px);
   border-radius:50px;
   outline: none;
   
