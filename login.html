@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page title</title>
+    <link rel="stylesheet" href="log.css">
+</head>
+<body>
+    <script src="log.js"></script>
+    <div class="login">
+    <form name='form-login'>
+
+        <h1>SIGN IN</h1>
+
+        <label for="userName">Email</label>
+        <input type="email" id="userName" placeholder="Username" required>
+
+        <label for="userPw">Password</label>
+        <input type="password" id= "userPw" placeholder="Password" required>
+
+        <div id="remember">
+            <input type="checkbox" value="lsRememberMe" id="rememberMe"
+                   style="display: inline-block;">
+            <label>Remember me</label>
+        </div>
+
+        <input id= "login_btn" type="submit" value="Login" onclick="check()">
+
+    </form>
+</div>
+</body>
+</html>
