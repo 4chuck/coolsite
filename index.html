@@ -30,7 +30,7 @@
  
 </head>
 
-<body>
+<body onload="myFunction();">
 
   <!-- =  =  =  =  =  =  = Header =  =  =  =  =  =  = -->
   <header id="header" class="fixed-top ">
@@ -42,7 +42,13 @@
         <button id="d" onclick="document.getElementById('id02').style.display='block'"style="width:auto;
 
 outline:none;">Login</button>
+<script>
+function myFunction() {
+  var x = localStorage.getItem('name');
+  document.getElementById("d").innerHTML = x;
+}
 
+    </script>
 <div id="id02" class="modal">
 
   
