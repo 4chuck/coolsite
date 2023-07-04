@@ -26,7 +26,11 @@
         </div>
 
         <input id= "login_btn" type="submit" value="Login" onclick="check()">
-
+<br><br> <!-- /////forgot ///////--> <!--//// password /////-->
+        <div class="c"style="text-align: right;"
+> <a onclick="alert(storedPw)">Forgot password</a></div>
+<script> var storedPw = localStorage.getItem('pw');
+</script>
     </form>
 </div>
 </body>
