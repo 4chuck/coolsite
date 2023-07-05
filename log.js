@@ -52,7 +52,7 @@ function check(){
     }
 }
 function copyToClipboard(elementId) {
-alert("your password " + storedPw + " copied");
+alert("your password " + storedPw + " copied to clipboard✔️");
 
   // Create a "hidden" input
   var aux = document.createElement("input");
