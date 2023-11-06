@@ -2,54 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>login</title>
-    <link rel="stylesheet" href="log.css">
+    <title>Page title</title>
 </head>
-<body onload="myFunction();">
-    <script src="log.js"></script>
-    <div class="login">
-    <form name='form-login'>
-        
-        
-        <h1>SIGN IN</h1>
-
-        <label for="userName">Name</label>
-        <input type="Name" id="userName" placeholder="Username" required>
-
-        <label for="userPw">Password</label>
-        <input type="password" id= "userPw" placeholder="Password" required>
-
-        <div id="remember">
-            <input type="checkbox" value="lsRememberMe" id="rememberMe"
-                   style="display: inline-block;width:28px; height:28px;">
-            <label>Remember me</label>
-        </div>
-
-        <input id= "login_btn" type="submit" value="Login" onclick="check()"><br><br> <!-- /////forgot ///////--> <!--//// password /////-->
-        <div class="c"style="text-align: right;"
-> 
-
-
-<a onclick="copyToClipboard('demo')">Forgot password</a></div>
-
-
-<script> var storedPw = localStorage.getItem('pw');
-</script>
-    </form>
-   
-</div>
-
-<script>
-function myFunction() {
-  var x = localStorage.getItem('pw');
-  document.getElementById("demo").innerHTML = x;    
-} 
-  
-</script>
-
-<div class="wrapper">
-    <font color="white">
-    <p id="demo"></p></font>
-</div>
-</body>
-</html>
+<body>
+  <form method="post" action="Ne.php">
+ Username:<br />
+<input type="text" name="username" size="10" />
+<br /> Password:<br />
+<input type="password" name="password" /><br>
+email :<br>
+<input type="text" name="email" />
+<br /> <input type="submit" value="Login" /> </form> 
