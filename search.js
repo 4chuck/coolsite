@@ -3,7 +3,7 @@ function opener() {
     var targetNames = {
 
 
-        codepen : "https://marvel24.000webhostapp.com/codepen/dist6"
+        codepen : "https://marvel24.000webhostapp.com/codepen/dist6",
         blog : "https://be-marvel.blogspot.com",
         dog : "DOG.html",
         cat : "cat.html",
