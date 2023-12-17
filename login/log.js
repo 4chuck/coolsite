@@ -10,7 +10,7 @@ function store(){
       else{
         localStorage.setItem('name', name.value);
         localStorage.setItem('pw', pw.value);
-        alert('Your account has been created');
+        alert('success</br>redirecting to home page');
     }
 }
 
