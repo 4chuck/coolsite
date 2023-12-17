@@ -10,7 +10,7 @@ function store(){
       else{
         localStorage.setItem('name', name.value);
         localStorage.setItem('pw', pw.value);
-        alert('success 😊 redirecting to home page');
+        alert('success redirecting to home page');
     }
 }
 
