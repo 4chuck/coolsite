@@ -515,12 +515,12 @@ span.psw {
 --------------------------------------------------------------*/
 #hero {
   width: 100%;
-  height: 80vh;
+  height: 84vh;
   background: #209dd8;
 }
 
 #hero .container {
-  padding-top: 720px;
+  padding-top: 72px;
 }
 
 #hero h1 {
