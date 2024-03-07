@@ -6,15 +6,18 @@
 <title>Display Local Storage Value</title>
 </head>
 <body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
 
 <p id="display"></p>
 
 <script>
 // Retrieve the value from local storage
-var storedValue = localStorage.getItem('pw');
+var encryptedPassword = CryptoJS.AES.encrypt(document.getElementById('pw').value, 'VjG6e$hN9@Lp2*qZ
+').toString();
+
 
 // Display the retrieved value
-document.getElementById('display').textContent = 'Value from Local Storage: ' + storedValue;
+document.getElementById('display').textContent = 'Value from Local Storage: ' + encryptedPassword;
 </script>
 
 </body>
