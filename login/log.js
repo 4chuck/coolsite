@@ -9,14 +9,21 @@ function store(){
     }
       else{
         localStorage.setItem('name', name.value);
-        localStorage.setItem('pw', pw.value);
+        var encryptedPassword = CryptoJS.AES.encrypt(document.getElementById('pw').value, 'VjG6e$hN9@Lp2*qZ
+').toString();
+    localStorage.setItem('pw', encryptedPassword);
+    
         alert('success redirecting to home page');
     }
 }
 
 function check(){
     var storedName = localStorage.getItem('name');
-    var storedPw = localStorage.getItem('pw');
+    var stp = localStorage.getItem('pw');
+
+// Decrypt the password using the secret key
+var storedPw = CryptoJS.AES.decrypt(stp, 'VjG6e$hN9@Lp2*qZ').toString(CryptoJS.enc.Utf8);
+    
 }
 
 function copyToClipboard(elementId) {
