@@ -19,7 +19,7 @@ function check() {
     storedPw = CryptoJS.AES.decrypt(stp, 'VjG6e$hN9@Lp2*qZ').toString(CryptoJS.enc.Utf8);
 }
 
-function copyToClipboard(elementId) {
+function copyToClipboard(pw) {
     check(); // Retrieve decrypted password before copying
     alert("Your password: " + storedPw + " copied");
     // Copy to clipboard 
