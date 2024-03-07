@@ -152,9 +152,10 @@ window.onclick = function(event) {
 
 outline:none;">Login</button>
 <script>
-function myFunction() {
-  var x = localStorage.getItem('name');
-  document.getElementById("v").innerHTML = x;
+if(localStorage.getItem('name') === null) {
+    document.getElementById('v').textContent = 'login';
+} else {
+    document.getElementById('v').textContent = localStorage.getItem('name');
 }
 
     </script>
