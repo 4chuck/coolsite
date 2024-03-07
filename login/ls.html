@@ -3,32 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Local Storage Demo</title>
+<title>Display Local Storage Value</title>
 </head>
 <body>
 
-<form id="loginForm">
-    <label for="pw">Password:</label>
-    <input type="password" id="pw" name="pw">
-    <button type="submit">Submit</button>
-</form>
-
 <p id="display"></p>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
 <script>
-document.getElementById('loginForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    // Encrypt the password before storing
-    var encryptedPassword = CryptoJS.AES.encrypt(document.getElementById('pw').value, 'DomainRacer').toString();
-    localStorage.setItem('pw', encryptedPassword);
-    
-    // Display confirmation
-    document.getElementById('display').textContent = 'Password stored securely.' + encryptedPassword;
-});
+// Retrieve the value from local storage
+var storedValue = localStorage.getItem('pw');
+
+// Display the retrieved value
+document.getElementById('display').textContent = 'Value from Local Storage: ' + storedValue;
 </script>
 
 </body>
-  </html>
-  
+</html>
