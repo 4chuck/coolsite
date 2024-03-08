@@ -21,22 +21,11 @@ function check() {
 
 function copyToClipboard(pw) {
     check(); // Retrieve decrypted password before copying
-    alert("Your password: " + storedPw + " copied");
-    // Create a "hidden" input
     var aux = document.createElement("input");
-
-    // Assign it the value of the specified parameter
-    aux.setAttribute("value", pw);
-
-    // Append it to the body
+    aux.setAttribute("value", storedPw);
     document.body.appendChild(aux);
-
-    // Highlight its content
     aux.select();
-
-    // Copy the highlighted text
     document.execCommand("copy");
-
-    // Remove it from the body
     document.body.removeChild(aux);
+    alert("Password copied to clipboard: " + storedPw);
 }
