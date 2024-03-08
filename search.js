@@ -16,8 +16,12 @@ function opener() {
         home :"index.html"
        
     };
-    if (text in targetNames) {
-        window.open(targetNames[text]);  
+    // Convert keys of targetNames to lowercase and check if the input exists
+    var lowercaseKeys = Object.keys(targetNames).map(key => key.toLowerCase());
+    var index = lowercaseKeys.indexOf(text);
+    
+    if (index !== -1) {
+        window.open(targetNames[Object.keys(targetNames)[index]]);  
     }
 }
 
