@@ -13,7 +13,8 @@ function opener() {
        blackboard :"black%20board.html",
         search :"search.html",
         calci :"calci.html",
-        home :"index.html"
+        home :"index.html",
+       camera:"camera.html"
        
     };
     // Convert keys of targetNames to lowercase and check if the input exists
