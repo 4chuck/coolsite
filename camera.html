@@ -43,7 +43,7 @@
 
         // Request access to the camera
         function requestCameraAccess() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
     .then((stream) => {
       video.srcObject = stream;
     })
