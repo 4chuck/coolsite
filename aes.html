@@ -1,0 +1,18 @@
+<html>
+<head><title>aes</title>
+<body>
+<input type="text"id="pw"></input>
+<button onclick="aes();">en</button>
+<p id="display"></p>
+<script src="aes.js"></script>
+<script>
+function aes()
+    {
+var pw = document.getElementById('pw').value;
+var ep = CryptoJS.AES.encrypt(pw, 'VjG6e$hN9@Lp2*qZ').toString();
+var dp = CryptoJS.AES.decrypt(stp, 'VjG6e$hN9@Lp2*qZ').toString(CryptoJS.enc.Utf8);       
+document.getElementById('display').textContent = ep;
+}
+</script>
+</body>
+</html>
