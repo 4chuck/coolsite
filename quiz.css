@@ -36,7 +36,16 @@ h1 {
 }
 
 .hide {
-    display: none;
+    opacity: 0;
+      transition: opacity 1s ease;
+      animation: showAfterDelay 0s 4s forwards;
+    }
+
+    /* Keyframe to change opacity */
+    @keyframes showAfterDelay {
+      to {
+        opacity: 1;
+      }
 }
 
 .btn:disabled {
