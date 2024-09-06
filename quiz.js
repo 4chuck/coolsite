@@ -101,3 +101,11 @@ nextButton.addEventListener('click', () => {
         questionContainer.classList.add('hide');
     }
 });
+
+document.addEventListener("click", function() {
+    // Select the hidden button
+    const button = document.getElementById("hb");
+    
+    // Show the button by changing its display style
+    button.style.display = "block";
+});
