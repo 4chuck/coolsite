@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Encryption Tool</h2>
+
+        <label for="encryptionMethod">Select Encryption Method:</label>
+        <select id="encryptionMethod">
+            <option value="AES">AES</option>
+            <option value="DES">DES</option>
+            <option value="TripleDES">TripleDES</option>
+            <option value="Rabbit">Rabbit</option>
+            <option value="RC4">RC4</option>
+        </select>
+
+        <label for="plaintext">Enter Text to Encrypt:</label>
+        <textarea id="plaintext" rows="4"></textarea>
+
+        <label for="key">Enter Encryption Key:</label>
+        <input type="text" id="key" placeholder="Your encryption key(secret key)">
+
+        <button onclick="encryptText()">Encrypt</button>
+
+        <h3>Encrypted Output:</h3>
+        <textarea id="encryptedOutput" rows="4" readonly></textarea>
+    </div>
+
+    <script>
+        function encryptText() {
+            var plaintext = document.getElementById("plaintext").value;
+            var key = document.getElementById("key").value;
+            var method = document.getElementById("encryptionMethod").value;
+
+            if (!plaintext || !key) {
+                alert("Please enter both text and a key.");
+                return;
+            }
+
+            var encrypted;
+            switch (method) {
+                case 'AES':
+                    encrypted = CryptoJS.AES.encrypt(plaintext, key).toString();
+                    break;
+                case 'DES':
+                    encrypted = CryptoJS.DES.encrypt(plaintext, key).toString();
+                    break;
+                case 'TripleDES':
+                    encrypted = CryptoJS.TripleDES.encrypt(plaintext, key).toString();
+                    break;
+                case 'Rabbit':
+                    encrypted = CryptoJS.Rabbit.encrypt(plaintext, key).toString();
+                    break;
+                case 'RC4':
+                    encrypted = CryptoJS.RC4.encrypt(plaintext, key).toString();
+                    break;
+                default:
+                    alert("Invalid encryption method selected.");
+                    return;
+            }
+
+            // Display the encrypted output
+            document.getElementById("encryptedOutput").value = encrypted;
+        }
+    </script>
+</body>
+</html>
