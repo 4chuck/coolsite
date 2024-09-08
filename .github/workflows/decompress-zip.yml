@@ -1,0 +1,20 @@
+name: Decompress ZIP
+
+on:
+  push:
+    paths:
+      - '**/*.zip'   # Trigger the action when any ZIP file is pushed
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Find and unzip files
+        run: |
+          for file in $(find . -name '*.zip'); do
+            unzip -o "$file" -d "${file%*.zip}"
+          done
