@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.7">
+    <style>
+        #video {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        #captureBtn {
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #capturedImage {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 100%;
+        }
+    </style>
+  
+</head>
+<body>
+<div id="rgb-border">
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+    <center><button id="captureBtn" style="font-size:100px;background:transparent;border:none;">🔘</button>
+   <button id="switchCameraBtn" style="font-size:100px;background:transparent;border:none;">🔁</button>
+ </center></div>
+    <div id="capturedImageContainer"></div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const capturedImageContainer = document.getElementById('capturedImageContainer');
+
+        // Request access to the camera
+        function requestCameraAccess() {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    .then((stream) => {
+      video.srcObject = stream;
+    })
+    .catch((error) => {
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        // Permission denied, ask again
+        requestCameraAccess();
+      } else {
+        console.error('Error accessing the camera:', error);
+      }
+    });
+}
+
+requestCameraAccess();
+
+
+        // Capture and save the image when the button is clicked
+        captureBtn.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Save the image (you can replace 'image.jpg' with your desired file name)
+            const imageDataURL = canvas.toDataURL('image/jpeg');
+            const capturedImage = new Image();
+            capturedImage.src = imageDataURL;
+            capturedImageContainer.innerHTML = ''; // Clear previous image if any
+            capturedImageContainer.appendChild(capturedImage);
+            window.alert('scroll down to see image');
+        });
+        
+    </script>
+
+<script>
+const switchCameraBtn = document.getElementById('switchCameraBtn');
+let facingMode = 'user'; // start with front camera
+
+switchCameraBtn.addEventListener('click', () => {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  navigator.mediaDevices.getUserMedia({ video: { facingMode } })
+    .then((stream) => {
+      video.srcObject = stream;
+    })
+    .catch((error) => {
+      console.error('Error accessing the camera:', error);
+    });
+});
+</script>
+ <script>
+const rgbBorder = document.getElementById('rgb-border');
+let hue = 0;
+
+setInterval(() => {
+  rgbBorder.style.border = `10px solid hsl(${hue}, 100%, 50%)`;
+  hue = (hue + 1) % 360;
+}, 16); // 16ms = approximately 60fps
+</script>
+    
+
+</body>
+</html>
