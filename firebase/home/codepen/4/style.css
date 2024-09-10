@@ -1,0 +1,152 @@
+@import url("https://fonts.cdnfonts.com/css/alarm-clock");
+
+@import url("https://fonts.googleapis.com/css2?family=Gidugu&family=Michroma&display=swap");
+@font-face {
+  font-family: "DSEG7 Classic";
+  src: url(https://manzdev.github.io/twitch-casio/dseg7-bold.woff2)
+      format("woff2"),
+    url(https://manzdev.github.io/twitch-casio/dseg7-bold.woff) format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DSEG14 Classic";
+  src: url(https://manzdev.github.io/twitch-casio/dseg14-bold.woff2)
+      format("woff2"),
+    url(https://manzdev.github.io/twitch-casio/dseg14-bold.woff) format("woff");
+  font-display: swap;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "DSEG14 Classic", "alarm clock", sans-serif;
+  font-size: 16px;
+  border: none;
+  outline: 0;
+}
+body {
+  height: 100vh;
+  opacity:0.9;
+  background-color:whitesmoke;
+    background-image:-webkit-radial-gradient(50% 30% ellipse at center top, #e5e5e5, rgba(0, 0, 0, 0)),
+radial-gradient(60% 50% ellipse at center bottom, #e6e6e6, rgb(179, 179, 179));
+  background-image:radial-gradient(50% 30% ellipse at center top, #e5e5e5, rgba(0, 0, 0, 0)),
+radial-gradient(60% 50% ellipse at center bottom, #e6e6e6, rgb(179, 179, 179));
+  background-repeat: no-repeat;
+  height: 100vh;
+  background-size: cover;
+  display: grid;
+  background-position: center;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.highlight {
+  fill: #fff;
+}
+#watch-elements-container {
+  position: relative;
+    display: grid;
+  place-items: center;
+  gap: 50px;
+}
+#shine {
+  background-image: linear-gradient(
+    40deg,
+    #fff0 15%,
+    #fff2 30%,
+    #fff6 50%,
+    #fff2 70%,
+    #fff0 85%
+  );
+  position: absolute;
+  height: 198px;
+  width: 227px;
+  border-radius: 39px;
+  bottom: 63px;
+  z-index: 4;
+}
+#screen {
+  position: absolute;
+  bottom: 115px;
+  right: 74px;
+  height: 84px;
+  width: 172px;
+  border-radius: 9px;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.61);
+  font-size: 2rem;
+  letter-spacing: -1px;
+  line-height: 24px;
+  word-spacing: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 10px;
+  justify-content: space-between;
+  padding: 5px;
+  z-index: 3;
+}
+#Countour_1{
+  fill:url("#grad1");
+}
+p {
+  font-size: 2.25rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+}
+span {
+  font-size: 0.8rem;
+  font-family: sans-serif;
+}
+#casio {
+  z-index: 2;
+  position:relative;
+}
+small {
+  font-size: 1.5rem;
+}
+#day-name,
+#day-date {
+  font-size: 18px;
+  font-family: "DSEG14 Classic", "alarm clock", sans-serif;
+}
+#format {
+  display: flex;
+  align-items: end;
+}
+#btn1,#btn2,#btn3{
+opacity:0;
+}
+#button1,#button2,#button3{
+          background: linear-gradient(to bottom, #4f4a42 10%, #fbfbfa 50%, #4f4a42);
+  height:17px;
+  aspect-ratio:1/1;
+  position:absolute;
+    z-index:1;
+  border-radius:2px;
+}
+#button1{
+  left:0px;
+  bottom:193px;
+}
+#button2{
+left: 0;
+bottom: 118px;
+}
+#button3 {
+right: 0;
+bottom: 118px;
+}
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  body{
+    background-image:radial-gradient(50% 30% ellipse at center top, #323232, rgba(48, 48, 48, 0)),
+radial-gradient(60% 50% ellipse at center bottom, #363636, rgb(16, 16, 16));
+    background-image:-webkit-radial-gradient(50% 30% ellipse at center top, #e5e5e5, rgba(0, 0, 0, 0)),
+radial-gradient(60% 50% ellipse at center bottom, #e6e6e6, rgb(179, 179, 179));
+  }
+}

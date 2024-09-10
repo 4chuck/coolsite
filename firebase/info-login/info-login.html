@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+            authDomain: "login-b6382.firebaseapp.com",
+            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+            projectId: "login-b6382",
+            storageBucket: "login-b6382.appspot.com",
+            messagingSenderId: "482805184778",
+            appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+            measurementId: "G-ZHXBBZHN3W"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            // Get form values
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Sign in the user
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Logged in successfully
+                    const user = userCredential.user;
+                    console.log('User logged in:', user);
+                    alert('Login successful!');
+                // Redirect to another page after successful signup
+                    window.location.href = "welcome.html"; // Change this to your desired URL         
+            })
+                .catch((error) => {
+                    // Handle login errors
+                    console.error('Error during login:', error);
+                    alert('Error during login: ' + error.message);
+                });
+        });
+    </script>
+</body>
+</html>

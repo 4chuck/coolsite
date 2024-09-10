@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science MCQ Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Science Quiz</h1>
+        <!-- Add the counter display -->
+        <div id="counter-container" class="hide">
+            <p>Question <span id="current-question">1</span> of 10</p>
+        </div>
+        <div id="question-container" class="hide">
+            <div id="question">Question text</div>
+            <div id="answer-buttons" class="btn-grid"></div>
+        </div>
+        <div id="start-container">
+            <button id="start-btn" class="btn">Start Quiz</button>
+        </div>
+        <div id="next-container" class="">
+            <button id="next-btn" class="hide btn">Next Question</button>
+        </div>
+        <!-- Icon to view score -->
+        <div id="score-container" class="hide">
+            <a href="score.html">
+                <img src="score.jpg" alt="View Score" class="score-icon">
+            </a>
+        </div>
+    </div>
+
+    <script src="quiz.js"></script>
+</body>
+</html>
