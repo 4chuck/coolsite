@@ -11,8 +11,6 @@
 <link rel="stylesheet" href="style.css">
 
 </head>
-<center>search our site</center>
-
 <body background="images/robo.jpg"style="background-repeat:no-repeat;
 
 background-attachment:fixed;
@@ -23,7 +21,15 @@ background-size:100% 100%;">
 
 <form class="search-bar"> 
   <input type="search"placeholder="search anything..." id="name" name="person" />
-
+<style>
+input{
+    width :100%;
+    padding:2px 2px 2px 2px;
+    border-radius:4px;
+    border-color:#209dd8;
+}
+</style>
+    
 <script>
 function opener() {
     var text = document.getElementById('name').value;
@@ -49,8 +55,8 @@ document.getElementById('name').addEventListener('keyup', opener, false);
 
 </form>
 
-</div>
-<font color="white">
+
+<font color="#000">
 try:
 <li>go
 <li>dog
@@ -60,7 +66,7 @@ try:
 <li>cat
 <li>ironman
 <li>nature
-
+</div>
 </body>
 
 </html>

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirect Example with Loader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.49">
+    <title>Redirecting...</title>
     <style>
         /* Center the loader on the screen */
         .loader {
@@ -36,16 +36,16 @@
         }
     </style>
     <script>
-        // Redirects to the specified URL after 3 seconds
+        // Redirects to the specified URL after 1 seconds
         function redirectToPage() {
             setTimeout(function() {
                 window.location.href = "home/Scaffold/index.html"; // Change this URL to the desired page
-            }, 3000); // Redirect after 3 seconds
+            }, 1000); // Redirect after 1 seconds
         }
     </script>
 </head>
 <body onload="redirectToPage()">
-    <div class="loader"></div>
+   <div class="loader"></div>
     <h1>Redirecting, please wait...</h1>
 </body>
 </html>
