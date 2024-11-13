@@ -164,7 +164,7 @@ h6 {
   align-items: center;
   justify-content: space-between;
   padding: 10px 0 10px 30px;
-  font-size: 15px;
+  font-size: 20px;
   font-family: "Poppins", sans-serif;
   color: #fff;
   white-space: nowrap;
@@ -173,7 +173,7 @@ h6 {
 
 .navbar a i,
 .navbar a:focus i {
-  font-size: 40px;
+  font-size: 20px;
   line-height: 0;
   margin-left: 5px;
 }
@@ -182,7 +182,7 @@ h6 {
 .navbar .active,
 .navbar .active:focus,
 .navbar li:hover>a {
-  color: #009cea;
+  color: #3ecf8e;
 }
 
 .navbar .dropdown ul {
@@ -254,7 +254,7 @@ h6 {
 */
 .mobile-nav-toggle {
   color: #fff;
-  font-size: 38px;
+  font-size: 50px;
   cursor: pointer;
   display: none;
   line-height: 0;
