@@ -1,0 +1,3 @@
+token is in 
+sdcard/git keys/git-token.txt
+      
