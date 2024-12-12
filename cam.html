@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.7">
+    <style>
+        #video {
+            width: 100%;
+            max-width: 100%;
+            transform-origin: center;
+            transition: transform 0.5s;
+            perspective: 1000px;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        #captureBtn {
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #capturedImage {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* 3D Animation Styles */
+        .rotate-3d {
+            transform: rotateY(180deg);
+        }
+
+        #rgb-border {
+            border: 10px solid;
+            transition: border-color 0.16s;
+        }
+    </style>
+</head>
+<body>
+    <div id="rgb-border">
+        <video id="video" autoplay></video>
+        <canvas id="canvas"></canvas>
+        <center>
+            <button id="captureBtn" style="font-size:100px;background:transparent;border:none;">&#x1F518;</button>
+            <button id="switchCameraBtn" style="font-size:100px;background:transparent;border:none;">&#x1F501;</button>
+        </center>
+    </div>
+    <div id="capturedImageContainer"></div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const switchCameraBtn = document.getElementById('switchCameraBtn');
+        const capturedImageContainer = document.getElementById('capturedImageContainer');
+        const rgbBorder = document.getElementById('rgb-border');
+
+        let facingMode = 'user'; // Start with front camera
+        let isRotated = false;
+        let hue = 0;
+
+        // Request access to the camera
+        function requestCameraAccess() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode } })
+                .then((stream) => {
+                    video.srcObject = stream;
+                })
+                .catch((error) => {
+                    console.error('Error accessing the camera:', error);
+                });
+        }
+
+        // Initialize camera
+        requestCameraAccess();
+
+        // Capture image
+        captureBtn.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageDataURL = canvas.toDataURL('image/jpeg');
+            const capturedImage = new Image();
+            capturedImage.src = imageDataURL;
+            capturedImageContainer.innerHTML = ''; // Clear previous image if any
+            capturedImageContainer.appendChild(capturedImage);
+            window.alert('Scroll down to see the image');
+        });
+
+        // Switch camera with 3D animation
+        switchCameraBtn.addEventListener('click', () => {
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
+
+            // Toggle 3D rotation
+            isRotated = !isRotated;
+            if (isRotated) {
+                video.classList.add('rotate-3d');
+            } else {
+                video.classList.remove('rotate-3d');
+            }
+
+            requestCameraAccess();
+        });
+
+        // RGB border animation
+        setInterval(() => {
+            rgbBorder.style.borderColor = `hsl(${hue}, 100%, 50%)`;
+            hue = (hue + 1) % 360;
+        }, 16); // 16ms = approximately 60fps
+    </script>
+</body>
+</html>

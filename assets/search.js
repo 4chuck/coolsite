@@ -3,7 +3,7 @@ function opener() {
     var targetNames = {
   
         blog : "https://be-marvel.blogspot.com",
-        dog : "http://4chuck.github.io/coolsite/DOG.html",
+        dog : "https://4chuck.github.io/coolsite/DOG.html",
         cat : "https://4chuck.github.io/coolsite/cat.html",
         ironman :"https://4chuck.github.io/coolsite/iron%20man.html",
         nature :"https://4chuck.github.io/coolsite/sea.html",
