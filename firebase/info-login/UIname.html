@@ -34,7 +34,8 @@
       }
       #firebaseui-auth-container {
         background: white;
-        padding: 20px;
+        padding: 20px 20px 20px 20px;
+        margin:20px 20px 20px 20px;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       }
@@ -75,7 +76,7 @@
       const uiConfig = {
         signInSuccessUrl: "../home/Scaffold/index2.html", // Replace with your redirect URL
         signInOptions: [
-          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        //  firebase.auth.GoogleAuthProvider.PROVIDER_ID,
           firebase.auth.EmailAuthProvider.PROVIDER_ID,
         ],
         tosUrl: "/tos", // Replace with your Terms of Service URL
