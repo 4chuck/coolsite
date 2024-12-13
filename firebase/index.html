@@ -38,9 +38,13 @@
     <script>
         // Redirects to the specified URL after 1 seconds
         function redirectToPage() {
+         const nm= localStorage.getItem('name');
             setTimeout(function() {
+              if(nm==null)
                 window.location.href = "home/Scaffold/index2.html"; // Change this URL to the desired page
-            }, 1000); // Redirect after 1 seconds
+              else
+               window.location.href = "quiz/quiz-page.html";
+            }, 500); // Redirect after 0.5 seconds
         }
     </script>
 </head>

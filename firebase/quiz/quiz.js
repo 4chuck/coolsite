@@ -1,3 +1,9 @@
+        // Retrieve score from localStorage and display it on the score page
+
+        document.getElementById('total-questions').innerText = localStorage.getItem('totalQuestions');
+        document.getElementById('correct-answers').innerText = localStorage.getItem('correctAnswers');
+    
+
 const startButton = document.getElementById('start-btn');
 const nextButton = document.getElementById('next-btn');
 const questionContainer = document.getElementById('question-container');

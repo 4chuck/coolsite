@@ -5,9 +5,16 @@ body {
     padding: 20px;
 }
 
-.quiz-container, .score-container {
-    max-width: 500px;
-    margin: 0 auto;
+.quiz-container {
+    max-width: 600px;
+    border-radius:10px;
+ /* margin: 0 10px 0 10px; */
+    padding: 10px 10px 10px 10px;
+    background-color:#fff;
+}
+.score-container {
+max-width: 500px;
+margin: 0 10px;
 }
 
 h1 {
@@ -36,11 +43,12 @@ h1 {
 }
 
 .score-icon {
-  position: absolute; /* Makes the icon positionable */
-  top: 20px; /* Adjusts the icon's position from the top */
-  right: 8px; /* Aligns the icon to the right side */
-  width: 50px;
-  height: 50px;
+  position: center; /* Makes the icon positionable */
+/*  top: auto;  Adjusts the icon's position from the top */
+/*  right: 36%;
+/*  bottom:auto;/* Aligns the icon to the right side */
+  width: 80px;
+  height: 80px;
   cursor: pointer;
   border-radius:12px;
 }
