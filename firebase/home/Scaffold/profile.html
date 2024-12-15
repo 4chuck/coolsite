@@ -100,7 +100,7 @@
     <p><strong>Name:</strong> <span id="name"></span></p>
 
     <!-- Change Password -->
-    <a onclick="run()" class="btn btn-password">Logout</a>
+    <a onclick="logout()" class="btn btn-password">Logout</a>
   </div>
     
   <script>
@@ -123,6 +123,7 @@
     // Function to handle profile picture upload
     function uploadImage() {
       const fileInput = document.getElementById('upload-image');
+      const drop = document.getElementById('drop');
       const file = fileInput.files[0];
 
       if (file) {
@@ -143,55 +144,12 @@
       }
     }
   </script>
-  <script>
-  function run() {
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-      authDomain: "login-b6382.firebaseapp.com",
-    };
-
-    // Initialize Firebase (ensure it's initialized only once)
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
-    const auth = firebase.auth();
-
-    // Logout function
-    auth.signOut().then(() => {
-      alert('Logged out successfully!');
-      localStorage.setItem("name", 'login');
-      window.location.href = '../../info-login/UIname.html'; // Redirect to login page
-    }).catch(error => {
-      alert('Error: ' + error.message);
-    });
-  }
-</script>
-  <!--
 <script>
-    function run(){
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-      authDomain: "login-b6382.firebaseapp.com",
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    function logout() {
-      auth.signOut().then(() => {
-        alert('Logged out successfully!');
+    function logout(){
         localStorage.setItem("name", 'login');
-        window.location.href = '../../info-login/UIname.html'; // Redirect to login page
-      }).catch(error => {
-        alert('Error: ' + error.message);
-      });
+              window.location.href = 'index3.html'; // Redirect to login page
+        
     }
-    }
-  </script>  -->
-
+</script>
 </body>
 </html>

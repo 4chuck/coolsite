@@ -5,27 +5,28 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=0.8" name="viewport">
 
-  <title>Inner Page - Scaffold Bootstrap Template</title>
+  <title>🏆 The knowledge arena 🏆</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="../home/Scaffold/assets/img/favicon.png" rel="icon">
+  <link href="../home/Scaffold/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link href="../home/Scaffold/assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../home/Scaffold/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../home/Scaffold/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../home/Scaffold/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="../home/Scaffold/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../home/Scaffold/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
   <!-- Template Main CSS File -->
-  <link href="assets/css/style.css" rel="stylesheet">
+  <link href="../home/Scaffold/assets/css/style2.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 
   <!-- =======================================================
   * Template Name: Scaffold
@@ -36,14 +37,24 @@
   ======================================================== -->
 </head>
 
-<body>
+<body onload="verify()">
+<script>
+    function verify(){
+        const nm= localStorage.getItem('name');
+              if(nm==null)
+                window.location.href = "../home/Scaffold/index3.html"; // Change this URL to the desired page
+               
+            //else remain in same page
+             
+    }
 
+</script>
   <!-- ======= Header ======= -->
   <header id="header" class="fixed-top d-flex align-items-center">
     <div class="container d-flex align-items-center">
 
       <div class="logo me-auto">
-        <h1><a href="index3.html">Scaffold</a></h1>
+        <h1><a href="../home/Scaffold/index3.html">Scaffold</a></h1>
         <!-- Uncomment below if you prefer to use an image logo -->
         <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
       </div>
@@ -84,6 +95,7 @@
 
     </div>
   </header><!-- End Header -->
+
   <main id="main">
 
     <!-- ======= Breadcrumbs ======= -->
@@ -91,42 +103,108 @@
       <div class="container">
 
         <ol>
-          <li><a href="index.html"style="color:#009cea;">Home</a></li>
-          <li style="color:#000;">examples</li>
+          <li><a href="index.html">Home</a></li>
+          <li>quiz</li>
         </ol>
-        <h2>All from<a href="https://codepen.io/"style="color:#5533ff;font-size:28px;"> <u>codepen.io</u></a></h2>
+    <h1>Quiz</h1>
       </div>
     </section><!-- End Breadcrumbs -->
-    <style>
-    a,ol{
-        color:#fff;
-        font-size:20px;
-        
-    }
-    a:hover {
-  color: #25ddf5;
-    }
-    </style>
-    <div style="
-    background: linear-gradient(95deg, #5533ff 40%, #25ddf5 100%);
-    border-radius:20px;
-    padding:10px 0 10px 10px;
-    margin:8px 10px 8px 10px;">
-    <ol>
-    <li><a href="../codepen/1/index.html">Expanding flex cards</a></li>
-    <li><a href="../codepen/2/index.html">chill the lion</a>
-     <li><a href="../codepen/3/index.html">Online Guitar Tuner </a>
-     <li><a href="../codepen/4/index.html">Casio F-91 watch</a>
-     <li><a href="../codepen/5/index.html">3D Room </a>
-    </div>
-  </main><!-- End #main -->
+    <center>
+   
+    <section class="inner-page">
 
+
+    <div id="score-container"class="hide">
+        <h1>Your Quiz Score</h1>
+        <p>Total Questions: <span id="total-questions"></span></p>
+        <p>Correct Answers: <span id="correct-answers"></span></p>
+    </div>
+
+
+     <div class="container">
+ <!--<div class="container"style="border:8px outset #5533ff"> -->
+<!-- </></></></></></> 
+
+            <div id="score-container" class="hide">
+                  score<br>
+          <a href="score.html">
+                <img src="score.jpg" alt="View Score" class="score-icon">
+            </a>  
+        </div>  -->
+        
+  <div class="quiz-container">
+      
+            <p id="selcat"></p>
+
+
+      
+<div id="category-container">
+  <h1>Select a Category</h1>
+<!--  <label for="category-select">Category:</label>  -->
+  <select id="category-select" class="form-select" onchange="displaySelectedCategory()">
+      <option>Please select</option>
+<option value="9">General Knowledge</option>
+<option value="10">Entertainment: Books</option>
+<option value="11">Entertainment: Film</option>
+<option value="12">Entertainment: Music</option>
+<option value="13">Entertainment: Musicals & Theatres</option>
+<option value="14">Entertainment: Television</option>
+<option value="15">Entertainment: Video Games</option>
+<option value="16">Entertainment: Board Games</option>
+<option value="17">Science & Nature</option>
+<option value="18">Science: Computers</option>
+<option value="19">Science: Mathematics</option>
+<option value="20">Mythology</option>
+<option value="21">Sports</option>
+<option value="22">Geography</option>
+<option value="23">History</option>
+<option value="24">Politics</option>
+<option value="25">Art</option>
+<option value="26">Celebrities</option>
+<option value="27">Animals</option>
+<option value="28">Vehicles</option>
+<option value="29">Entertainment: Comics</option>
+<option value="30">Science: Gadgets</option>
+<option value="31">Entertainment: Japanese Anime & Manga</option>
+<option value="32">Entertainment: Cartoon & Animations</option>
+  </select>
+</div>
+
+<script>
+  function displaySelectedCategory() {
+    var selCat = document.getElementById('category-select');
+    var selectedText = selCat.options[selCat.selectedIndex].text;
+    document.getElementById('selcat').textContent = selectedText;
+  }
+</script>
+        <!-- Add the counter display -->
+      <div id="counter-container" class="hide">
+            <p>Question <span id="current-question">1</span> of 20</p>
+        </div>
+        <div id="question-container" class="hide">
+            <div id="question">Question text</div>
+            <div id="answer-buttons" class="btn-grid"></div>
+        </div>
+        <div id="start-container">
+            <button id="start-btn" class="btn">Start Quiz</button>
+        </div>
+        <div id="next-container" class="">
+            <button id="next-btn" class="hide btn">Next Question</button>
+        </div>
+        <!-- Icon to view score --> 
+
+    </div>  
+    
+      </div>
+    </section>
+    </center>
+  </main><!-- End #main -->
+    <script src="quiz4.js"></script>
   <!-- ======= Footer ======= -->
   <footer id="footer">
     <div class="footer-top">
       <div class="container">
         <div class="row">
-            
 
           <div class="col-lg-3 col-md-6">
             <div class="footer-info">
@@ -199,15 +277,15 @@
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="../home/Scaffold/assets/vendor/aos/aos.js"></script>
+  <script src="../home/Scaffold/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../home/Scaffold/assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../home/Scaffold/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="../home/Scaffold/assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="../home/Scaffold/assets/vendor/php-email-form/validate.js"></script>
 
   <!-- Template Main JS File -->
-  <script src="assets/js/main.js"></script>
+  <script src="../home/Scaffold/assets/js/main.js"></script>
 
 </body>
 

@@ -132,7 +132,7 @@ style="font-family:sans-serif;
           <div>
             <h1 style="color:#fff;">We design digital products that helps to grow your businesses</h1>
             <h2 style="color:#fff;">We are team of talented designers making websites with Bootstrap</h2>
-            <a href="../../info-login/UIname.html"
+            <a onclick="redirectToPage()"
 style="font-family:sans-serif;
   font-weight: 600;
   font-size: 18px;
@@ -161,7 +161,17 @@ style="font-family:sans-serif;
   background: #3ecf8e;">Examples</a>
           </div>
         </div>
-        
+            <script>
+        // Redirects to the specified URL after 1 seconds
+        function redirectToPage() {
+         const nm= localStorage.getItem('name');
+    
+              if(nm==null)
+                window.location.href = "../../info-login/UIname.html"; // Change this URL to the desired page
+              else
+               window.location.href = "../../quiz/quiz4.html";
+        }
+    </script>
         <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left">
           <img src="assets/img/hero-img.png" class="img-fluid" alt="">
         </div>

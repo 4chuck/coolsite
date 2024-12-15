@@ -1,13 +1,10 @@
-all this linked to web-app of firebase :infotech.
+all this linked to web-app of firebase :login.
 authentication also linked to it.
 database related file :real-time-database.html.
-real time database is currently linked to infotech web-app(can be changed)
+real time database is currently linked to login web-app(can be changed)
 
 
-firebase deploy --only hosting:site-2
+firebase deploy --only hosting
 
 site 1 : login-b6382 (fire)
-site 2 : login--b6382-4d3fd (info)
-
-note:
-(folder names)
+site 2 : ohm-shiva

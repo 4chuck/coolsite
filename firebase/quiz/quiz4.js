@@ -1,9 +1,4 @@
-        // Retrieve score from localStorage and display it on the score page
-
-        document.getElementById('total-questions').innerText = localStorage.getItem('totalQuestions');
-        document.getElementById('correct-answers').innerText = localStorage.getItem('correctAnswers');
-    
-
+const Category = document.getElementById('category-container');
 const startButton = document.getElementById('start-btn');
 const nextButton = document.getElementById('next-btn');
 const questionContainer = document.getElementById('question-container');
@@ -20,7 +15,10 @@ let currentQuestionNumber = 1;  // Track the current question number
 
 // Fetch Science Questions from Open Trivia Database (OpenTDB)
 async function fetchScienceQuestions() {
-    const response = await fetch('https://opentdb.com/api.php?amount=10&category=17&type=multiple');
+    const selectedCategory = document.getElementById('category-select').value;
+  //  const apiURL = `https://opentdb.com/api.php?amount=10&category=${selectedCategory}&type=multiple`;
+  
+    const response = await fetch(`https://opentdb.com/api.php?amount=20&category=${selectedCategory}&type=multiple`);
     const data = await response.json();
     return data.results.map(formatQuestion);
 }
@@ -40,6 +38,7 @@ function formatQuestion(questionData) {
 // Start the quiz
 startButton.addEventListener('click', async () => {
     startButton.classList.add('hide');
+    Category.classList.add('hide');
     shuffledQuestions = await fetchScienceQuestions();
     currentQuestionIndex = 0;
     correctAnswers = 0;
@@ -129,4 +128,9 @@ nextButton.addEventListener('click', () => {
         localStorage.setItem('totalQuestions', totalQuestions);
         localStorage.setItem('correctAnswers', correctAnswers);
     }
+    
+    document.getElementById('total-questions').innerText = localStorage.getItem('totalQuestions');
+        document.getElementById('correct-answers').innerText = localStorage.getItem('correctAnswers');  
+        
+    
 });
