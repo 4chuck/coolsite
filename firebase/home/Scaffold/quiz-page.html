@@ -391,7 +391,7 @@
 
     try {
       const res = await fetch(
-        `https://opentdb.com/api.php?amount=1&category=${selectedCategory}&type=multiple`
+        `https://opentdb.com/api.php?amount=10&category=${selectedCategory}&type=multiple`
       );
 
       if (!res.ok) throw new Error("Failed to fetch questions.");
