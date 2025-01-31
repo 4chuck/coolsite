@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplayer Quiz Game</title>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    #game-container {
+      padding: 20px;
+    }
+    select, input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #answers button {
+      margin: 5px;
+      width: 100%;
+      max-width: 300px;
+    }
+    #leaderboard ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #leaderboard ul li {
+      background: #f4f4f4;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .highlighted-item {
+  background-color: #B2EBF2; /* light green background */
+  padding: 10px;
+  border-radius: 5px;
+}
+
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h1>Multiplayer Quiz Game</h1>
+    <select id="category-dropdown">
+      <option value="">Select a Category</option>
+    </select>
+    <div id="player-info">
+    <!--  <input type="text" id="player-name" placeholder="Enter your name" />  -->
+      <button id="join-btn">Join Game</button>
+    </div>
+    <div id="waiting-room" style="display: none;">
+      <h2>Waiting for other players...</h2>
+      <button id="ready-btn">I'm Ready</button>
+    </div>
+    <div id="countdown" style="display: none;">Starting in <span id="countdown-timer">3</span></div>
+    <div id="quiz" style="display: none;">
+      <div id="question-container">
+        <p id="question"></p>
+        <div id="answers"></div>
+      </div>
+      <p id="timer">Time Left: <span id="time">10</span>s</p>
+    </div>
+    <div id="leaderboard" style="display: none;">
+      <h2>Leaderboard</h2>
+      <ul id="leaderboard-list"></ul>
+    </div>
+  </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+    update,
+    onValue,
+    onDisconnect,
+    get,
+  } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js";
+
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2TFxk",
+    authDomain: "login-b6382.firebaseapp.com",
+    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+    projectId: "login-b6382",
+    storageBucket: "login-b6382.appspot.com",
+    messagingSenderId: "482805184778",
+    appId: "1:482805184778:web:5dfba2587a438a5ed7a2f3",
+    measurementId: "G-S55NBV7G1T",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // DOM Elements
+  const categoryDropdown = document.getElementById("category-dropdown");
+  const joinBtn = document.getElementById("join-btn");
+  const waitingRoom = document.getElementById("waiting-room");
+  const readyBtn = document.getElementById("ready-btn");
+  const countdownDiv = document.getElementById("countdown");
+  const countdownTimer = document.getElementById("countdown-timer");
+  const quizDiv = document.getElementById("quiz");
+  const questionEl = document.getElementById("question");
+  const answersEl = document.getElementById("answers");
+  const leaderboardDiv = document.getElementById("leaderboard");
+  const leaderboardList = document.getElementById("leaderboard-list");
+  const timerEl = document.getElementById("time");
+
+  let selectedCategory;
+  let playerId;
+  let playerName = localStorage.getItem('name'); // Fetch player name from localStorage
+  let currentScore = 0;
+  let questionIndex = 0;
+  let questions = [];
+  let timer;
+
+ // playerName=localStorage.getItem('name'); // Save player name to localStorage
+   if(playerName==null)
+       window.location.href = "../home/Scaffold/index3.html"; // Change this URL to the desired page
+               
+/*  if (!playerName) {
+    playerName = prompt("Enter your name to start the game:");
+    localStorage.setItem('name', playerName); // Save player name to localStorage
+  }   */
+
+  // Fetch Categories
+  async function fetchCategories() {
+    const res = await fetch("https://opentdb.com/api_category.php");
+    const data = await res.json();
+    data.trivia_categories.forEach((category) => {
+      const option = document.createElement("option");
+      option.value = category.id;
+      option.textContent = category.name;
+      categoryDropdown.appendChild(option);
+    });
+  }
+
+  // Player Joins Game
+  joinBtn.addEventListener("click", async () => {
+    selectedCategory = categoryDropdown.value;
+
+    if (!selectedCategory) {
+      alert("Please select a category.");
+      return;
+    }
+
+    playerId = `player_${Date.now()}`;
+    const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+
+    // Check if the player already exists
+    const snapshot = await get(playersRef);
+    const players = snapshot.val() || {};
+
+    const existingPlayer = Object.values(players).find(
+      (player) => player.name === playerName
+    );
+
+    if (existingPlayer) {
+      // If the player exists, update the player ID and avoid creating duplicate entries
+      playerId = Object.keys(players).find(
+        (key) => players[key].name === playerName
+      );
+    } else {
+      // Add new player data with online status
+      const playerRef = ref(
+        db,
+        `games/category_${selectedCategory}/players/${playerId}`
+      );
+      set(playerRef, { name: playerName, ready: false, score: 0, online: true });
+    }
+
+    // Handle disconnect
+    onDisconnect(ref(db, `games/category_${selectedCategory}/players/${playerId}`)).update({ online: false, ready: false });
+
+    waitingRoom.style.display = "block";
+    alert("Player joined. Waiting for others...");
+  });
+
+  // Player Marks Ready
+  readyBtn.addEventListener("click", () => {
+    alert("Marking player as ready...");
+
+    // Mark the current player as ready in Firebase
+    const playerRef = ref(
+      db,
+      `games/category_${selectedCategory}/players/${playerId}/ready`
+    );
+    set(playerRef, true);
+
+    // Add a listener to check readiness
+    const gameRef = ref(db, `games/category_${selectedCategory}`);
+    onValue(gameRef, (snapshot) => {
+      const gameData = snapshot.val();
+      if (!gameData || !gameData.players) {
+        alert("No players found. Waiting for others...");
+        return;
+      }
+
+      const players = gameData.players;
+      const onlinePlayers = Object.values(players).filter(
+        (player) => player.online
+      );
+      const allReady = onlinePlayers.every((player) => player.ready);
+
+      if (allReady) {
+        alert("All players are ready! Starting countdown...");
+        startCountdown();
+      }
+    });
+  });
+
+  // Start Countdown
+  function startCountdown() {
+    waitingRoom.style.display = "none";
+    joinBtn.style.display = "none";
+    readyBtn.style.display = "none";
+
+    let countdown = 3;
+    countdownDiv.style.display = "block";
+    const interval = setInterval(() => {
+      countdownTimer.textContent = countdown;
+      countdown--;
+      if (countdown < 0) {
+        clearInterval(interval);
+        startQuiz();
+      }
+    }, 1000);
+  }
+
+  // Start Quiz
+  async function startQuiz() {
+    countdownDiv.style.display = "none";
+    quizDiv.style.display = "block";
+
+    const res = await fetch(
+      `https://opentdb.com/api.php?amount=1&category=${selectedCategory}&type=multiple`
+    );
+    const data = await res.json();
+    questions = data.results.map((q) => ({
+      question: q.question,
+      answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
+      correct: q.correct_answer,
+    }));
+
+    displayQuestion();
+  }
+
+  // Display Question
+  function displayQuestion() {
+    if (questionIndex >= questions.length) return endGame();
+
+    const { question, answers } = questions[questionIndex];
+    questionEl.innerHTML = question;
+    answersEl.innerHTML = "";
+
+    answers.forEach((answer) => {
+      const btn = document.createElement("button");
+      btn.textContent = answer;
+      btn.onclick = () => checkAnswer(answer);
+      answersEl.appendChild(btn);
+    });
+
+    startTimer();
+  }
+
+  // Check Answer
+  function checkAnswer(selected) {
+    clearInterval(timer);
+    const correct = questions[questionIndex].correct;
+    Array.from(answersEl.children).forEach((btn) => {
+      btn.style.backgroundColor = btn.textContent === correct ? "green" : "red";
+      btn.disabled = true;
+    });
+    if (selected === correct) currentScore += 10;
+    updatePlayerScore(currentScore);
+    questionIndex++;
+    setTimeout(displayQuestion, 2000);
+  }
+
+  // Timer for Each Question
+  function startTimer() {
+    let time = 10;
+    timerEl.textContent = time;
+    timer = setInterval(() => {
+      time--;
+      timerEl.textContent = time;
+      if (time <= 0) {
+        clearInterval(timer);
+        questionIndex++;
+        displayQuestion();
+      }
+    }, 1000);
+  }
+
+  // End Game
+  function endGame() {
+    quizDiv.style.display = "none";
+    leaderboardDiv.style.display = "block";
+
+    onValue(ref(db, `games/category_${selectedCategory}/players`), (snapshot) => {
+      const players = snapshot.val();
+      const uniquePlayers = {};
+
+      Object.values(players).forEach((player) => {
+        if (!uniquePlayers[player.name]) {
+          uniquePlayers[player.name] = player.score;
+        } else {
+          uniquePlayers[player.name] = Math.max(uniquePlayers[player.name], player.score);
+        }
+      });
+
+      const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1] - a[1]);
+      leaderboardList.innerHTML = sortedPlayers.map(([name, score]) => {
+     //   const itemClass = name === playerName ? "highlighted-item" : "";
+        return `<li style="background-color: ${
+          name === playerName ? "#007BFF" : ""
+        }"><span>${name}</span>: ${score}</li>`;
+      }).join("");
+    });
+    alert("Quiz ended! Displaying leaderboard...");
+  }
+
+  // Update Player Score
+  function updatePlayerScore(newScore) {
+    const playerRef = ref(
+      db,
+      `games/category_${selectedCategory}/players/${playerId}`
+    );
+    update(playerRef, { score: newScore });
+  }
+
+  // Utility: Shuffle Array
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  // Fetch Categories on Page Load
+  fetchCategories();
+</script>

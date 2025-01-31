@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Quiz Score</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="score-container">
+        <h1>Your Quiz Score</h1>
+        <p>Total Questions: <span id="total-questions"></span></p>
+        <p>Correct Answers: <span id="correct-answers"></span></p>
+        <button onclick="window.location.href='quiz4.html'" class="btn">Go Back to Quiz</button>
+    </div>
+
+    <script>
+        // Retrieve score from localStorage and display it on the score page
+        const totalQuestions = localStorage.getItem('totalQuestions');
+        const correctAnswers = localStorage.getItem('correctAnswers');
+
+        document.getElementById('total-questions').innerText = totalQuestions;
+        document.getElementById('correct-answers').innerText = correctAnswers;
+    </script>
+</body>
+</html>
