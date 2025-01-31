@@ -14,7 +14,8 @@ function opener() {
         search :"search.html",
         calci :"calci.html",
         home :"index.html",
-       camera:"camera.html"
+       camera:"camera.html",
+       encryption:"AES.html"
        
     };
     // Convert keys of targetNames to lowercase and check if the input exists

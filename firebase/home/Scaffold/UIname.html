@@ -8,6 +8,7 @@
     <!-- Firebase App (Core) and Auth -->
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
 
     <!-- FirebaseUI -->
     <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__en.js"></script>
@@ -15,9 +16,19 @@
   </head>
   <body>
     <style>
-      /* Add your custom styles here */
+      /* Add your custom styles here 
       body {
-  background-image: url('images/bg.jpg');
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+      } */
+      
+      body {
+  background-image: url('bg.jpg');
   background-size: cover; /* Scale the image to cover the entire screen */
   background-position: center; /* Center the image */
   background-repeat: no-repeat; /* Prevent the image from repeating */
@@ -52,9 +63,10 @@
       }
     </style>
 
-    <h1>Welcome to My Awesome App</h1>
-    <div id="firebaseui-auth-container"></div>
+    <h1>Welcome to our Awesome App</h1>
     <div id="welcome-message"></div>
+    <br>    
+    <div id="firebaseui-auth-container"></div>
 
     <script>
       // Firebase configuration
@@ -74,9 +86,9 @@
 
       // FirebaseUI config
       const uiConfig = {
-        signInSuccessUrl: "../quiz/quiz4.html", // Replace with your redirect URL
+        signInSuccessUrl: "quiz-page.html", // Replace with your redirect URL
         signInOptions: [
-        //  firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            
           firebase.auth.EmailAuthProvider.PROVIDER_ID,
         ],
         tosUrl: "/tos", // Replace with your Terms of Service URL
@@ -93,7 +105,10 @@
           // User is signed in
           const displayName = user.displayName || "";
           const firstName = displayName.split(" ")[0]; // Extract the first name
-          document.getElementById("welcome-message").innerText = `Hello, ${firstName}! Welcome to the app.`;
+          document.getElementById("welcome-message").innerText = `Hello, ${firstName}`;
+
+          // Store UID in both Realtime Database and localStorage
+          saveUserData(user);
 
           // Optionally, store the first name in localStorage
           localStorage.setItem("name", firstName);
@@ -102,6 +117,24 @@
           document.getElementById("welcome-message").innerText = "";
         }
       });
+
+      // Function to save user data to Firebase Realtime Database
+      function saveUserData(user) {
+        const userRef = firebase.database().ref('users/' + user.uid);
+        userRef.set({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          // any other data you want to store
+        }).then(() => {
+          console.log("User data saved to database");
+        }).catch((error) => {
+          console.error("Error saving user data: ", error);
+        });
+
+        // Also store UID in localStorage
+        localStorage.setItem("userUID", user.uid);
+      }
     </script>
   </body>
   <footer style="margin-top: 20px; color: white; text-align: center; font-size: 0.9rem;">
