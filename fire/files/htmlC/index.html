@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Game Server</title>
+</head>
+<body>
+    <h1>Trivia Game Dashboard</h1>
+    <div id="messages"></div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080');
+
+        socket.onopen = () => {
+            document.getElementById('messages').innerHTML += '<p>Connected to server.</p>';
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'question') {
+                document.getElementById('messages').innerHTML += `
+                    <p>${data.question.question}</p>
+                    <ul>
+                        ${data.question.options.map((opt, idx) => `<li>${idx + 1}. ${opt}</li>`).join('')}
+                    </ul>`;
+            } else {
+                document.getElementById('messages').innerHTML += `<p>${event.data}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>

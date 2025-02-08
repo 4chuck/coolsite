@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.49">
+    <title>Redirecting...</title>
+    <style>
+        /* Center the loader on the screen */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Keyframes for spinning animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Style for the message */
+        h1 {
+            text-align: center;
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+        }
+    </style>
+    <script>
+        // Redirects to the specified URL after 1 seconds
+        function redirectToPage() {
+         const nm= localStorage.getItem('name');
+            setTimeout(function() {
+              if(nm==null)
+                window.location.href = "home/Scaffold/index3.html"; // Change this URL to the desired page
+              else
+               window.location.href = "home/Scaffold/quiz-page.html";
+            }, 500); // Redirect after 0.5 seconds
+        }
+    </script>
+</head>
+<body onload="redirectToPage()">
+   <div class="loader"></div>
+    <h1>Redirecting, please wait...</h1>
+</body>
+</html>

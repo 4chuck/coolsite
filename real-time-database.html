@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Input to Firebase Realtime Database</title>
+</head>
+<body>
+    <h1>Store User Input in Firebase Realtime Database</h1>
+    
+    <!-- Input Form -->
+    <form id="inputForm">
+        <label for="userInput">Enter something:</label>
+        <input type="text" id="userInput" name="userInput" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="status"></div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js"; 
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+            authDomain: "login-b6382.firebaseapp.com",
+            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+            projectId: "login-b6382",
+            storageBucket: "login-b6382.appspot.com",
+            messagingSenderId: "482805184778",
+            appId: "1:482805184778:web:5dfba2587a438a5ed7a2f3",
+            measurementId: "G-S55NBV7G1T"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Initialize Realtime Database and get a reference to the service
+        const database = getDatabase(app);
+
+        // Get references to the form and status div
+        const form = document.getElementById('inputForm');
+        const statusDiv = document.getElementById('status');
+
+        // Handle form submission
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent page reload
+            
+            const userInput = document.getElementById('userInput').value;  // Get user input
+            
+            // Create a new reference in the database and push the user input
+            const inputRef = ref(database, 'userInputs');
+            push(inputRef, {
+                input: userInput
+            })
+            .then(() => {
+                statusDiv.innerHTML = "User input stored successfully!";
+                form.reset();  // Clear the form
+            })
+            .catch((error) => {
+                statusDiv.innerHTML = `Error: ${error.message}`;
+            });
+        });
+    </script>
+</body>
+</html>

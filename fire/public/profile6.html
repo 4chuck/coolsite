@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .profile-container {
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-upload {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .btn-password {
+      background-color: #f44336;
+      color: white;
+      margin-top: 15px;
+    }
+        .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: center;
+      background-color: white;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      z-index: 1;
+      padding: 10px;
+      width:auto;
+    }
+
+    .dropdown-content input {
+      width: auto;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+    <h1>Profile Page</h1>
+  <div id="data-container">
+  <div class="profile-container">
+    
+
+    <!-- Profile Picture -->
+    <img id="profile-pic" src="" alt="Profile Picture">
+    <br>
+  <div class="dropdown">
+    <button class="dropdown-btn">Change Pic</button>
+    <div class="dropdown-content">
+      
+    <input type="file" id="upload-image" accept="image/*"oninput="uploadImage()"class="btn btn-upload">
+    </div></div>
+    <br>
+   <!-- <button class="btn btn-upload" onclick="uploadImage()">Upload Picture</button>  -->
+
+    <!-- Profile Info -->
+    <h2><strong>Name:</strong> <span id="name"></span></h2>
+    <br>
+         <!-- Logout -->
+    <a onclick="logout()" class="btn btn-password"id="logout-btn">Logout</a>
+  </div>
+    </div>
+  <!-- Firebase App (Core) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+    // Firebase configuration
+const firebase = require('firebase/app');
+require('firebase/auth');  // Add any other Firebase services you're using
+
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+module.exports = firebase;
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // DOM Elements
+    const dataDisplay = document.getElementById("data-display");
+    const loadingMessage = document.getElementById("load");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    // Check authentication
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is authenticated
+        const userId = user.uid;
+        let dataFetched = false; // Track if data is fetched
+        let userName = ''; // To store the user's name (displayed only once)
+
+        // Loop through categories 9 to 21
+        for (let n = 9; n <= 21; n++) {
+          const userDataRef = ref(database, `games/category_${n}/players/${userId}`);
+
+          // Fetch data for the matching user ID in each category
+          get(userDataRef).then((snapshot) => {
+            if (snapshot.exists()) {
+              const data = snapshot.val();
+              const name = data.name;
+              const score = data.score;
+
+              // Display user name only once
+              if (userName === '') {
+                userName = name;
+                dataDisplay.innerHTML += `<h3>Name: ${userName}</h3>`;
+              }
+
+              // Format and display category score data
+              const formattedData = `
+                <div class="category-data">
+                  <h4>Category ${n}</h4>
+                  <p>Score: ${score}</p>
+                </div>
+              `;
+              dataDisplay.innerHTML += formattedData;
+            }
+
+            // Hide the loading message after data is fetched
+            if (!dataFetched) {
+              loadingMessage.style.display = "none";
+              dataFetched = true;
+            }
+          }).catch((error) => {
+            console.error(`Error fetching data for category ${n}:`, error);
+          });
+        }
+      } else {
+        // Redirect to login page if not authenticated
+        alert("You are not logged in. Redirecting to login page...");
+        window.location.href = "UIname.html"; // Adjust the file name if different
+      }
+    });
+
+    // Logout button functionality
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        alert("Logged out successfully.");
+        localStorage.setItem("name", "");
+        localStorage.setItem('profilePic', "");
+        window.location.href = 'index3.html'; // Redirect to login page
+       
+      //  window.location.href = "UIname.html"; // Adjust the file name if different
+      }).catch((error) => {
+        console.error("Error logging out:", error);
+      });
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+      height: 100vh;
+    }
+    #data-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 80%;
+      max-width: 500px;
+      text-align: center;
+    }
+    h1, p {
+      color: #333;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+    <br><br>
+  <div id="data-container">
+    <h2>Your Data</h2>
+    <p id="load">loading data...</p>
+    <div id="data-display"></div>
+   <!-- <button id="logout-btn">Logout</button> -->
+  </div>
+     
+     
+
+  <script>
+    // Load profile data from localStorage on page load
+    window.onload = function () {
+      const name = localStorage.getItem('name');
+      const profilePicUrl = localStorage.getItem('profilePic');
+
+      // Display stored name and email
+      if (name) document.getElementById('name').textContent = name;
+
+      // Display stored profile picture
+      if (profilePicUrl) {
+        document.getElementById('profile-pic').src = profilePicUrl;
+      } else {
+        document.getElementById('profile-pic').src = 'placeholder.jpg'; // Default image
+      }
+    };
+
+    // Function to handle profile picture upload
+    function uploadImage() {
+      const fileInput = document.getElementById('upload-image');
+      const drop = document.getElementById('drop');
+      const file = fileInput.files[0];
+ 
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const imageUrl = event.target.result;
+
+          // Display the uploaded image
+          document.getElementById('profile-pic').src = imageUrl;
+
+          // Store the image URL in localStorage
+          localStorage.setItem('profilePic', imageUrl);
+        };
+        reader.readAsDataURL(file); // Read file as a Data URL
+        alert('profile picture updated');
+      } else {
+        alert('Please select an image to upload.');
+      }
+    }
+  </script>
+<script>
+    function logout(){
+        localStorage.setItem("name", "");
+        localStorage.setItem('profilePic', "");
+        window.location.href = 'index3.html'; // Redirect to login page
+        
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decrypt AES or XOR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <h1>AES and XOR Decryptor</h1>
+
+    <form id="decryptForm">
+        <label for="encryptionType">Select Encryption Type:</label>
+        <select id="encryptionType">
+            <option value="aes">AES</option>
+            <option value="xor">XOR</option>
+        </select>
+        <br><br>
+
+        <label for="encryptedText">Encrypted Text:</label><br>
+        <textarea id="encryptedText" rows="4" cols="50"></textarea><br><br>
+
+        <label for="key">Key:</label><br>
+        <input type="text" id="key" /><br><br>
+
+        <button type="button" onclick="decrypt()">Decrypt</button>
+    </form>
+
+    <h2>Decrypted Text:</h2>
+    <p id="output"></p>
+
+    <script>
+        function decrypt() {
+            const encryptionType = document.getElementById("encryptionType").value;
+            const encryptedText = document.getElementById("encryptedText").value;
+            const key = document.getElementById("key").value;
+            let decryptedText = "";
+
+            try {
+                if (encryptionType === "aes") {
+                    // AES decryption
+                    const bytes = CryptoJS.AES.decrypt(encryptedText, key);
+                    decryptedText = bytes.toString(CryptoJS.enc.Utf8);
+                } else if (encryptionType === "xor") {
+                    // XOR decryption
+                    decryptedText = xorDecrypt(encryptedText, key);
+                }
+
+                if (!decryptedText) {
+                    decryptedText = "Invalid key or encrypted text!";
+                }
+            } catch (error) {
+                decryptedText = "Error during decryption: " + error.message;
+            }
+
+            document.getElementById("output").textContent = decryptedText;
+        }
+
+        function xorDecrypt(encryptedText, key) {
+            let decrypted = "";
+            for (let i = 0; i < encryptedText.length; i++) {
+                decrypted += String.fromCharCode(
+                    encryptedText.charCodeAt(i) ^ key.charCodeAt(i % key.length)
+                );
+            }
+            return decrypted;
+        }
+    </script>
+</body>
+</html>
