@@ -1,18 +1,126 @@
-<HTML>
- <HEAD>
-     <TITLE>THE PETS</TITLE>
- </HEAD>
- 
- <BODY bgcolor="#fffc95">
-     
-  <img src="images/cat.jpg"width="600"height="800"></img>
-    
-  <a href="iron man.html"><ol><FONT size="9"> TO SEE IRON MAN CLICK HERE➡️</FONT></ol></a>
-  
-  <a href="
-DOG.html"><ol><FONT size="9">🔙click here to go back</FONT></ol></a>
-  <hr>
-<FONT size="11"><MARQUEE direction="left"><u>🚌  🚎     🚐  🚒  🚓  🚕  🚗  🚙  🚚🚛  🚜  🚲  🛴  🛵  🚁</u><MARQUEE></FONT
-  
- </BODY>
-</HTML>    
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="gallery">
+        <div class="slideshow">
+            <img src="images/cat/cat1.jpg" alt="Image 1">
+            <img src="images/cat/cat2.jpg" alt="Image 2">
+            <img src="images/cat/cat3.jpg" alt="Image 3">
+            <img src="images/cat/cat4.jpg" alt="Image 4">
+            <img src="images/cat/cat5.jpg" alt="Image 5">
+            <img src="images/cat/cat6.jpg" alt="Image 6">
+            <img src="images/cat/cat7.jpg" alt="Image 7">
+            <img src="images/cat/cat8.jpg" alt="Image 8">
+            <img src="images/cat/cat9.jpg" alt="Image 9">
+            <img src="images/cat/cat10.jpg" alt="Image 10">
+            <img src="images/cat/cat11.jpg" alt="Image 11">
+            <img src="images/cat/cat12.jpg" alt="Image 12">
+            <img src="images/cat/cat13.jpg" alt="Image 13">
+            <img src="images/cat/cat14.jpg" alt="Image 14">
+        
+        </div>
+        <div class="thumbnails">
+            <img src="images/cat/cat1.jpg" alt="Image 1" class="active">
+            <img src="images/cat/cat2.jpg" alt="Image 2">
+            <img src="images/cat/cat3.jpg" alt="Image 3">
+            <img src="images/cat/cat4.jpg" alt="Image 4">
+            <img src="images/cat/cat5.jpg" alt="Image 5">
+            <img src="images/cat/cat6.jpg" alt="Image 6">
+            <img src="images/cat/cat7.jpg" alt="Image 7">
+            <img src="images/cat/cat8.jpg" alt="Image 8">
+            <img src="images/cat/cat9.jpg" alt="Image 9">
+            <img src="images/cat/cat10.jpg" alt="Image 10">
+            <img src="images/cat/cat11.jpg" alt="Image 11">
+            <img src="images/cat/cat12.jpg" alt="Image 12">
+            <img src="images/cat/cat13.jpg" alt="Image 13">
+            <img src="images/cat/cat14.jpg" alt="Image 14">
+         </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+<style>
+.gallery {
+    width: 98%;
+    margin: 40px auto;
+}
+
+.slideshow {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+}
+
+.slideshow img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 1s;
+}
+
+.slideshow img.active {
+    opacity: 1;
+}
+
+.slideshow img:not(.active) {
+    opacity: 0;
+}
+
+.thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.thumbnails img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.thumbnails img.active {
+    border: 2px solid #007bff;
+}
+</style>
+
+<script>
+let slideshowImages = document.querySelectorAll('.slideshow img');
+let thumbnailImages = document.querySelectorAll('.thumbnails img');
+let currentImageIndex = 0;
+
+slideshowImages[currentImageIndex].classList.add('active');
+thumbnailImages[currentImageIndex].classList.add('active');
+
+thumbnailImages.forEach((image, index) => {
+image.addEventListener('click', () => {
+slideshowImages[currentImageIndex].classList.remove('active');
+thumbnailImages[currentImageIndex].classList.remove('active');
+currentImageIndex = index;
+slideshowImages[currentImageIndex].classList.add('active');
+thumbnailImages[currentImageIndex].classList.add('active');
+});
+});
+
+setInterval(() => {
+slideshowImages[currentImageIndex].classList.remove('active');
+thumbnailImages[currentImageIndex].classList.remove('active');
+currentImageIndex = (currentImageIndex + 1) % slideshowImages.length;
+slideshowImages[currentImageIndex].classList.add('active');
+thumbnailImages[currentImageIndex].classList.add('active');
+}, 2500);
+</script>
