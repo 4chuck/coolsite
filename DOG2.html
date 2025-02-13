@@ -58,6 +58,7 @@ style="font-family:sans-serif;
             <img src="images/dog/dog14.jpg" alt="Image 14">
             <img src="images/dog/dog15.jpg" alt="Image 15">
             <img src="images/dog/dog16.jpg" alt="Image 16">
+                        <video autoplay muted src="images/dog/dog17.mp4" alt="Image 17">
             <img src="images/dog/dog18.jpg" alt="Image 18">
             <img src="images/dog/dog19.jpg" alt="Image 19">
             <img src="images/dog/dog20.jpg" alt="Image 20">
@@ -65,8 +66,9 @@ style="font-family:sans-serif;
             <img src="images/dog/dog22.jpg" alt="Image 22">
             <img src="images/dog/dog23.jpg" alt="Image 23">
             <img src="images/dog/dog24.jpg" alt="Image 24">
-        <img src="images/dog/dog17.jpg" alt="Image 17" data-video="images/dog/dog17.mp4">
-          
+            <img src="images/dog/dog25.jpg" alt="Image 25">
+            <img src="images/dog/dog26.jpg" alt="Image 26">
+        
         </div>
         <div class="thumbnails">
             <img src="images/dog/pana1.jpg" alt="Image 1" class="active">
@@ -85,6 +87,7 @@ style="font-family:sans-serif;
             <img src="images/dog/dog14.jpg" alt="Image 14">
             <img src="images/dog/dog15.jpg" alt="Image 15">
             <img src="images/dog/dog16.jpg" alt="Image 16">
+                                    <video autoplay muted src="images/dog/dog17.mp4" alt="Image 17">
             <img src="images/dog/dog18.jpg" alt="Image 18">
             <img src="images/dog/dog19.jpg" alt="Image 19">
             <img src="images/dog/dog20.jpg" alt="Image 20">
@@ -92,8 +95,9 @@ style="font-family:sans-serif;
             <img src="images/dog/dog22.jpg" alt="Image 22">
             <img src="images/dog/dog23.jpg" alt="Image 23">
             <img src="images/dog/dog24.jpg" alt="Image 24">
-        <img src="images/dog/dog17.jpg" alt="Image 17" data-video="images/dog/dog17.mp4">
-          
+            <img src="images/dog/dog25.jpg" alt="Image 25">
+            <img src="images/dog/dog26.jpg" alt="Image 26">
+        
         </div>
     </div>
 
@@ -112,14 +116,7 @@ style="font-family:sans-serif;
     height: 600px;
     overflow: hidden;
 }
-.slideshow video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+
 .slideshow img {
     position: absolute;
     top: 0;
@@ -162,76 +159,25 @@ style="font-family:sans-serif;
 let slideshowImages = document.querySelectorAll('.slideshow img');
 let thumbnailImages = document.querySelectorAll('.thumbnails img');
 let currentImageIndex = 0;
-let slideshowContainer = document.querySelector('.slideshow');
-let slideshowInterval;
 
 slideshowImages[currentImageIndex].classList.add('active');
 thumbnailImages[currentImageIndex].classList.add('active');
 
 thumbnailImages.forEach((image, index) => {
-  image.addEventListener('click', () => {
-    slideshowImages[currentImageIndex].classList.remove('active');
-    thumbnailImages[currentImageIndex].classList.remove('active');
-    currentImageIndex = index;
-    slideshowImages[currentImageIndex].classList.add('active');
-    thumbnailImages[currentImageIndex].classList.add('active');
-    checkForVideo();
-  });
+image.addEventListener('click', () => {
+slideshowImages[currentImageIndex].classList.remove('active');
+thumbnailImages[currentImageIndex].classList.remove('active');
+currentImageIndex = index;
+slideshowImages[currentImageIndex].classList.add('active');
+thumbnailImages[currentImageIndex].classList.add('active');
+});
 });
 
-slideshowInterval = setInterval(() => {
-  slideshowImages[currentImageIndex].classList.remove('active');
-  thumbnailImages[currentImageIndex].classList.remove('active');
-  currentImageIndex = (currentImageIndex + 1) % slideshowImages.length;
-  slideshowImages[currentImageIndex].classList.add('active');
-  thumbnailImages[currentImageIndex].classList.add('active');
-  checkForVideo();
+setInterval(() => {
+slideshowImages[currentImageIndex].classList.remove('active');
+thumbnailImages[currentImageIndex].classList.remove('active');
+currentImageIndex = (currentImageIndex + 1) % slideshowImages.length;
+slideshowImages[currentImageIndex].classList.add('active');
+thumbnailImages[currentImageIndex].classList.add('active');
 }, 2500);
-
-function checkForVideo() {
-  let currentImage = slideshowImages[currentImageIndex];
-  let videoSource = currentImage.getAttribute('data-video');
-  if (videoSource) {
-    let video = document.createElement('video');
-    video.src = videoSource;
-    video.autoplay = true;
-    video.muted = true;
-    video.loop = false; 
-    slideshowContainer.innerHTML = '';
-    slideshowContainer.appendChild(video);
-    clearInterval(slideshowInterval); 
-    video.addEventListener('ended', () => {
-      slideshowContainer.innerHTML = '';
-      slideshowContainer.appendChild(currentImage);
-      currentImageIndex = (currentImageIndex + 1) % slideshowImages.length;
-      slideshowImages[currentImageIndex].classList.add('active');
-      thumbnailImages[currentImageIndex].classList.add('active');
-      slideshowContainer.innerHTML = '';
-      slideshowContainer.appendChild(slideshowImages[currentImageIndex]);
-      clearInterval(slideshowInterval); // Clear existing interval
-      slideshowInterval = setInterval(() => {
-        slideshowImages[currentImageIndex].classList.remove('active');
-        thumbnailImages[currentImageIndex].classList.remove('active');
-        currentImageIndex = (currentImageIndex + 1) % slideshowImages.length;
-        slideshowImages[currentImageIndex].classList.add('active');
-        thumbnailImages[currentImageIndex].classList.add('active');
-        slideshowContainer.innerHTML = '';
-        slideshowContainer.appendChild(slideshowImages[currentImageIndex]);
-        checkForVideo();
-      }, 2500);
-    });
-  } else {
-    clearInterval(slideshowInterval); // Clear existing interval
-    slideshowInterval = setInterval(() => {
-      slideshowImages[currentImageIndex].classList.remove('active');
-      thumbnailImages[currentImageIndex].classList.remove('active');
-      currentImageIndex = (currentImageIndex + 1) % slideshowImages.length;
-      slideshowImages[currentImageIndex].classList.add('active');
-      thumbnailImages[currentImageIndex].classList.add('active');
-      slideshowContainer.innerHTML = '';
-      slideshowContainer.appendChild(slideshowImages[currentImageIndex]);
-      checkForVideo();
-    }, 2500);
-  }
-}
 </script>

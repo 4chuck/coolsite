@@ -25,6 +25,7 @@ function opener() {
     if (index !== -1) {
         window.open(targetNames[Object.keys(targetNames)[index]]);  
     }
+        
 }
 
 document.getElementById('name').addEventListener('keyup', opener, false);
