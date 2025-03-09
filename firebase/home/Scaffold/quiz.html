@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.74">
+    <title>Trivia Categories</title>
+    <style>
+        body {
+            background-image: url('bg2.jpg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            min-height: 260vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; /* Ensures proper stacking of elements */
+            align-items: center;
+        }
+        .heading {
+                   color:white;
+       margin:50px 50px 50px 50px;
+       width:auto;
+       height:auto;
+       background-color:white;
+       border-radius:10px;
+       padding: 20px 20px 20px 20px;
+       font-size:40px;
+       background: #5533ff;
+       background: linear-gradient(95deg, #5533ff 40%, #25ddf5 100%);
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+        }
+        .category-box {
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(95deg, #5533ff 40%, #25ddf5 100%);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .category-box:hover {
+            transform: translateY(-5px);
+        }
+        .category-box img {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+        }
+        .category-box h3 {
+            font-size: 20px;
+            margin: 10px 0 0 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="heading">Please Choose a Category</div> 
+
+    <div class="container" id="category-container">
+        <!-- Categories will be dynamically inserted here -->
+    </div>
+
+    <script>
+        // Sample category data
+        const categories = [
+            { id: 9, name: "General Knowledge", logo: "logos/l14.jpg" },
+            { id: 10, name: "Entertainment: Books", logo: "logos/l15.jpg" },
+            { id: 11, name: "Entertainment: Film", logo: "logos/l22.jpg" },
+            { id: 12, name: "Music", logo: "logos/l18.jpg" },
+            { id: 13, name: "Musicals & Theatres", logo: "logos/l16.jpg" },
+            { id: 14, name: "Television", logo: "logos/l19.jpg" },
+            { id: 15, name: "Video Games", logo: "logos/l1.jpg" },
+            { id: 16, name: "Board Games", logo: "logos/l4.jpg" },
+            { id: 17, name: "Science & Nature", logo: "logos/l21.jpg" },
+            { id: 18, name: "Science: Computers", logo: "logos/l20.jpg" },
+            { id: 19, name: "Science: Mathematics", logo: "logos/l2.jpg" },
+            { id: 20, name: "History", logo: "logos/l10.jpg" },
+            { id: 21, name: "History: World", logo: "logos/l17.jpg" },
+            { id: 22, name: "History: US", logo: "logos/l7.jpg" },
+            { id: 23, name: "Politics", logo: "logos/l12.jpg" },
+            { id: 24, name: "Geography", logo: "logos/l6.jpg" },
+            { id: 25, name: "Sports", logo: "logos/l8.jpg" },
+            { id: 26, name: "Art", logo: "logos/l3.jpg" },
+            { id: 27, name: "Celebrities", logo: "logos/l5.jpg" },
+            { id: 28, name: "Animals", logo: "logos/l11.jpg" }
+        ];
+
+        // Function to generate the category boxes
+        function createCategoryBoxes() {
+            const container = document.getElementById('category-container');
+            categories.forEach(category => {
+                const box = document.createElement('div');
+                box.classList.add('category-box');
+                box.onclick = () => redirectToQuizPage(category.id);
+                
+                const logo = document.createElement('img');
+                logo.src = category.logo;
+                logo.alt = category.name; // Accessibility improvement
+                box.appendChild(logo);
+
+                const name = document.createElement('h3');
+                name.textContent = category.name;
+                box.appendChild(name);
+
+                container.appendChild(box);
+            });
+        }
+
+        // Function to redirect to the quiz page for the selected category
+        function redirectToQuizPage(categoryId) {
+            localStorage.setItem("categoryId", categoryId.toString());
+            window.location.href = "quiz-page2.html"; // Fixed syntax
+        }
+
+        // Call function to create category boxes on page load
+        document.addEventListener("DOMContentLoaded", createCategoryBoxes);
+    </script>
+
+</body>
+</html>
