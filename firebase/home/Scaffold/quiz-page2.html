@@ -198,10 +198,10 @@
 
   </div>
 
-<script type="module">
+  <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-  import { getDatabase, ref, set, get, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+  import { getDatabase, ref, set, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
@@ -218,7 +218,6 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  const categoryDropdown = document.getElementById("category-dropdown");
   const joinBtn = document.getElementById("join-btn");
   const waitingRoom = document.getElementById("waiting-room");
   const readyBtn = document.getElementById("ready-btn");
@@ -230,171 +229,140 @@
   const leaderboardDiv = document.getElementById("leaderboard");
   const leaderboardList = document.getElementById("leaderboard-list");
   const timerEl = document.getElementById("time");
-  let countdownStarted = false; // This flag ensures countdown runs only once
   const play = document.getElementById("play-again-btn");
-  let selectedCategory;
+
   let playerId;
-  let playerName = localStorage.getItem("name");
+  let playerName = localStorage.getItem("name") || "Player";
   let currentScore = 0;
   let questionIndex = 0;
   let questions = [];
   let timer;
+  let countdownStarted = false;
 
+  // ✅ Retrieve and validate category ID from localStorage
+  let selectedCategory = localStorage.getItem("categoryId");
+
+  if (!selectedCategory || isNaN(parseInt(selectedCategory, 10))) {
+    alert("No category selected. Redirecting to category selection page...");
+    window.location.href = "quiz.html";  // Redirects if no valid category is found
+  } else {
+    selectedCategory = parseInt(selectedCategory, 10); // Convert to number
+  }
+
+  console.log("Selected Category ID:", selectedCategory);
+
+  // ✅ Check user authentication
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      const userId = user.uid;
-      console.log("User authenticated: ", userId);
+      playerId = user.uid;
+      console.log("User authenticated: ", playerId);
     } else {
       alert("You are not logged in. Redirecting to login page...");
       window.location.href = "UIname.html";
-    } 
-  });  
-  
- /* add onload function in body to use below function
- function check() {
-  const storedUid = localStorage.getItem("userUID");
-  if(!storedUid)
-    window.location.href = "UIname.html";
-     }  */
-
-  // Retrieve the stored category ID from localStorage
-let selectedCategory = localStorage.getItem("categoryId");
-
-if (!selectedCategory) {
-    alert("No category selected. Redirecting to category selection page...");
-    window.location.href = "quiz.html"; // Redirect to category selection page
-}
-
-// Log the selected category ID
-console.log("Selected Category ID:", selectedCategory);
-
-joinBtn.addEventListener("click", async () => {
-    if (!selectedCategory) {
-        alert("No category selected. Please go back and choose a category.");
-        return;
     }
+  });
 
-  // Retrieve UID from localStorage
-  const storedUid = localStorage.getItem("userUID");
-
-  if (storedUid) {
-    // If UID exists, proceed with marking player as online and ready
-    playerId = storedUid; // Use the stored UID
-    const playerRef = ref(
-      db,
-      `games/category_${selectedCategory}/players/${playerId}`
-    );
-
-    // Update player status in Firebase
-    await set(playerRef, { 
-      name: playerName || "Player", // Default name if not found
-      ready: false, 
-      online: true 
-    });
-    
-    onDisconnect(
-      ref(db, `games/category_${selectedCategory}/players/${playerId}`)
-    ).update({ online: false, ready: false });
-    
-
-    console.log("Player marked as online and ready.");
-
-    // Handle disconnection
-    onDisconnect(playerRef).update({ online: false, ready: false });
-
-    // Show the waiting room
-    waitingRoom.style.display = "block";
-  } else {
-    // If UID is not found, redirect to login
-    alert("You are not logged in. Redirecting to login page...");
-    window.location.href = "UIname.html"; // Adjust the path to your login page
-  }
-});
-
-  readyBtn.addEventListener("click", async () => {
-  console.log("Marking player as ready...");
-
-  // Mark the current player as ready in Firebase
-  const playerRef = ref(
-    db,
-    `games/category_${selectedCategory}/players/${playerId}/ready`
-  );
-      await set(playerRef, true);
-      
-  // Add a listener to check readiness
-  const playersRef = ref(db, `games/category_${selectedCategory}/players`);
-  onValue(playersRef, (snapshot) => {
-    const players = snapshot.val();
-    if (!players) {
-      alert("No players found. Waiting for others...");
+  // ✅ Join game logic
+  joinBtn.addEventListener("click", async () => {
+    if (!selectedCategory || isNaN(selectedCategory)) {
+      alert("Invalid category. Please select again.");
+      window.location.href = "quiz.html";
       return;
     }
 
-    // Filter only online players
-    const onlinePlayers = Object.values(players).filter(
-      (player) => player.online
-    );
+    const storedUid = localStorage.getItem("userUID");
 
-    // Check if all online players are ready
-    const allReady = onlinePlayers.every((player) => player.ready);
+    if (storedUid) {
+      playerId = storedUid;
+      const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
 
-    if (allReady) {
-      console.log("All players are ready! Starting countdown...");
-      startCountdown();
+      await set(playerRef, { 
+        name: playerName,
+        ready: false,
+        online: true 
+      });
+
+      // ✅ Correct usage of onDisconnect
+      onDisconnect(playerRef).update({ online: false, ready: false });
+
+      console.log("Player joined the game. Waiting for others...");
+      waitingRoom.style.display = "block";
     } else {
-      alert("Waiting for all players to mark ready...");
+      alert("You are not logged in. Redirecting to login page...");
+      window.location.href = "UIname.html";
     }
   });
-});
 
+  // ✅ Mark player as ready
+  readyBtn.addEventListener("click", async () => {
+    console.log("Marking player as ready...");
 
+    const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`);
+    await set(playerRef, true);
+
+    const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+    onValue(playersRef, (snapshot) => {
+      const players = snapshot.val();
+      if (!players) {
+        alert("No players found. Waiting for others...");
+        return;
+      }
+
+      const onlinePlayers = Object.values(players).filter((player) => player.online);
+      const allReady = onlinePlayers.every((player) => player.ready);
+
+      if (allReady) {
+        console.log("All players are ready! Starting countdown...");
+        startCountdown();
+      } else {
+        alert("Waiting for all players to mark ready...");
+      }
+    });
+  });
+
+  // ✅ Start countdown and quiz
   function startCountdown() {
-  // Prevent multiple countdown timers from running
-  if (countdownStarted) {
-    console.log("Countdown has already been started.");
-    return;
+    if (countdownStarted) {
+      console.log("Countdown already started.");
+      return;
+    }
+
+    countdownStarted = true;
+    waitingRoom.style.display = "none";
+    joinBtn.style.display = "none";
+    readyBtn.style.display = "none";
+
+    let countdown = 3;
+    countdownDiv.style.display = "block";
+    countdownTimer.textContent = countdown;
+
+    const interval = setInterval(() => {
+      countdown--;
+      countdownTimer.textContent = countdown;
+
+      if (countdown < 0) {
+        clearInterval(interval);
+        countdownDiv.style.display = "none";
+        console.log("Starting quiz...");
+        startQuiz(); 
+      }
+    }, 1000);
   }
 
-  countdownStarted = true; // Set the flag to true to prevent further countdowns
-
-  waitingRoom.style.display = "none";
-  joinBtn.style.display = "none";
-  readyBtn.style.display = "none";
-
-  let countdown = 3; // Initialize countdown value
-  countdownDiv.style.display = "block"; // Show the countdown
-  countdownTimer.textContent = countdown; // Set initial countdown text
-
-  // Start the countdown interval
-  const interval = setInterval(() => {
-    countdown--;
-    countdownTimer.textContent = countdown; // Update countdown display
-
-    if (countdown < 0) {
-      clearInterval(interval); // Stop the countdown timer
-      countdownDiv.style.display = "none"; // Hide the countdown
-      startQuiz(); // Start the quiz
-    }
-  }, 1000);
-}
-
+  // ✅ Fetch and start the quiz
   async function startQuiz() {
     countdownDiv.style.display = "none";
     quizDiv.style.display = "block";
 
-    if (!selectedCategory || isNaN(selectedCategory)) {
-      alert("Please select a valid category.");
-      return;
-    }
+    console.log("Fetching questions...");
 
     try {
-      const res = await fetch(
-        `https://opentdb.com/api.php?amount=10&category=${selectedCategory}&type=multiple`
-      );
-
-      if (!res.ok) throw new Error("Failed to fetch questions.");
+      const res = await fetch(`https://opentdb.com/api.php?amount=10&category=${selectedCategory}&type=multiple`);
+      
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
       const data = await res.json();
+      console.log("API Response:", data);
 
       if (!data.results || data.results.length === 0) {
         alert("No questions available.");
@@ -404,7 +372,7 @@ joinBtn.addEventListener("click", async () => {
       questions = data.results.map((q) => ({
         question: q.question,
         answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
-        correct: q.correct_answer,
+        correct: q.correct_answer
       }));
 
       displayQuestion();
@@ -414,10 +382,12 @@ joinBtn.addEventListener("click", async () => {
     }
   }
 
+  // ✅ Shuffle function for answers
   function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
   }
 
+  // ✅ Display question logic
   function displayQuestion() {
     if (questionIndex >= questions.length) return endGame();
 
@@ -435,73 +405,33 @@ joinBtn.addEventListener("click", async () => {
     startTimer();
   }
 
+  // ✅ Check answer and update score
   function checkAnswer(selected) {
     clearInterval(timer);
     const correct = questions[questionIndex].correct;
+    
     Array.from(answersEl.children).forEach((btn) => {
       btn.style.backgroundColor = btn.textContent === correct ? "green" : "red";
       btn.disabled = true;
     });
+
     if (selected === correct) currentScore += 10;
     updatePlayerScore(currentScore);
+
     questionIndex++;
     setTimeout(displayQuestion, 2000);
-  }
-
-  function startTimer() {
-    let time = 10;
-    timerEl.textContent = time;
-    timer = setInterval(() => {
-      time--;
-      timerEl.textContent = time;
-      if (time <= 0) {
-        clearInterval(timer);
-        questionIndex++;
-        displayQuestion();
-      }
-    }, 1000);
   }
 
   function endGame() {
     quizDiv.style.display = "none";
     leaderboardDiv.style.display = "block";
-
-    onValue(ref(db, `games/category_${selectedCategory}/players`), (snapshot) => {
-      const players = snapshot.val();
-      const uniquePlayers = {};
-
-      Object.values(players).forEach((player) => {
-        if (!uniquePlayers[player.name]) {
-          uniquePlayers[player.name] = player.score;
-        } else {
-          uniquePlayers[player.name] = Math.max(uniquePlayers[player.name], player.score);
-        }
-      });
-
-      const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1] - a[1]);
-      leaderboardList.innerHTML = sortedPlayers
-        .map(
-          ([name, score]) =>
-            `<li style="background-color: ${
-              name === playerName ? "#007BFF" : ""
-            }"><span>${name}</span>: ${score}</li>`
-        )
-        .join("");
-    });
-    console.log("Quiz ended! Displaying leaderboard...");
     play.style.display = "block";
-    
   }
 
   function updatePlayerScore(newScore) {
-    const playerRef = ref(
-      db,
-      `games/category_${selectedCategory}/players/${playerId}`
-    );
+    const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
     update(playerRef, { score: newScore });
   }
-
-  fetchCategories();
 </script>
 
 </body>
