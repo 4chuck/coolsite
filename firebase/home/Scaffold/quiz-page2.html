@@ -422,6 +422,21 @@
     setTimeout(displayQuestion, 2000);
   }
 
+  function startTimer() {
+    let time = 10;
+    timerEl.textContent = time;
+    timer = setInterval(() => {
+      time--;
+      timerEl.textContent = time;
+      if (time <= 0) {
+        clearInterval(timer);
+        questionIndex++;
+        displayQuestion();
+      }
+    }, 1000);
+  }
+
+
   function endGame() {
     quizDiv.style.display = "none";
     leaderboardDiv.style.display = "block";
