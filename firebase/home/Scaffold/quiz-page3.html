@@ -440,11 +440,39 @@
   function endGame() {
     quizDiv.style.display = "none";
     leaderboardDiv.style.display = "block";
+
+    onValue(ref(db, `games/category_${selectedCategory}/players`), (snapshot) => {
+      const players = snapshot.val();
+      const uniquePlayers = {};
+
+      Object.values(players).forEach((player) => {
+        if (!uniquePlayers[player.name]) {
+          uniquePlayers[player.name] = player.score;
+        } else {
+          uniquePlayers[player.name] = Math.max(uniquePlayers[player.name], player.score);
+        }
+      });
+
+      const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1] - a[1]);
+      leaderboardList.innerHTML = sortedPlayers
+        .map(
+          ([name, score]) =>
+            `<li style="background-color: ${
+              name === playerName ? "#007BFF" : ""
+            }"><span>${name}</span>: ${score}</li>`
+        )
+        .join("");
+    });
+    console.log("Quiz ended! Displaying leaderboard...");
     play.style.display = "block";
+    
   }
 
   function updatePlayerScore(newScore) {
-    const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
+    const playerRef = ref(
+      db,
+      `games/category_${selectedCategory}/players/${playerId}`
+    );
     update(playerRef, { score: newScore });
   }
 </script>
