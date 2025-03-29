@@ -102,6 +102,29 @@
       </div>
     </section><!-- End Breadcrumbs -->
 
+
+    <div id="customcalert" style="
+    position: relative; top: 20px; left: 50%; transform: translateX(-50%);
+    background: black; color: white; padding: 10px; border-radius: 5px;
+    display: none; z-index: 9999;">
+    This is a non-blocking calert!
+</div>
+
+<script>
+function calert(message) {
+    let calertBox = document.getElementById("customcalert");
+    calertBox.innerText = message;
+    calertBox.style.display = "block";
+
+    // Hide after 3 seconds
+    setTimeout(() => { calertBox.style.display = "none"; }, 3000);
+}
+
+// Show calert without blocking execution
+//ccalert("This is a non-blocking calert!");
+//console.log("This executes immediately.");
+</script>
+
     <section class="inner-page">
         
      <div class="container">
@@ -239,33 +262,33 @@
   let timer;
   let countdownStarted = false;
 
-  // ✅ Retrieve and validate category ID from localStorage
+  //  Retrieve and validate category ID from localStorage
   let selectedCategory = localStorage.getItem("categoryId");
 
   if (!selectedCategory || isNaN(parseInt(selectedCategory, 10))) {
-    alert("No category selected. Redirecting to category selection page...");
-    window.location.href = "quiz.html";  // Redirects if no valid category is found
+    ccalert("No category selected. Redirecting to category selection page...");
+    window.location.href = "category.html";  // Redirects if no valid category is found
   } else {
     selectedCategory = parseInt(selectedCategory, 10); // Convert to number
   }
 
   console.log("Selected Category ID:", selectedCategory);
-
-  // ✅ Check user authentication
+  //confirm("Do you want to continue?")
+  //   Check user authentication
   onAuthStateChanged(auth, (user) => {
     if (user) {
       playerId = user.uid;
       console.log("User authenticated: ", playerId);
     } else {
-      alert("You are not logged in. Redirecting to login page...");
+      console.log("You are not logged in. Redirecting to login page...");
       window.location.href = "UIname.html";
     }
   });
 
-  // ✅ Join game logic
+  //   Join game logic
   joinBtn.addEventListener("click", async () => {
     if (!selectedCategory || isNaN(selectedCategory)) {
-      alert("Invalid category. Please select again.");
+      ccalert("Invalid category. Please select again.");
       window.location.href = "category.html";
       return;
     }
@@ -282,18 +305,18 @@
         online: true 
       });
 
-      // ✅ Correct usage of onDisconnect
+      //   Correct usage of onDisconnect
       onDisconnect(playerRef).update({ online: false, ready: false });
 
       console.log("Player joined the game. Waiting for others...");
       waitingRoom.style.display = "block";
     } else {
-      alert("You are not logged in. Redirecting to login page...");
+      console.log("You are not logged in. Redirecting to login page...");
       window.location.href = "UIname.html";
     }
   });
 
-  // ✅ Mark player as ready
+  //   Mark player as ready
   readyBtn.addEventListener("click", async () => {
     console.log("Marking player as ready...");
 
@@ -304,7 +327,7 @@
     onValue(playersRef, (snapshot) => {
       const players = snapshot.val();
       if (!players) {
-        alert("No players found. Waiting for others...");
+        calert("No players found. Waiting for others...");
         return;
       }
 
@@ -315,12 +338,12 @@
         console.log("All players are ready! Starting countdown...");
         startCountdown();
       } else {
-        alert("Waiting for all players to mark ready...");
+        calert("Waiting for all players to mark ready...");
       }
     });
   });
 
-  // ✅ Start countdown and quiz
+  //   Start countdown and quiz
   function startCountdown() {
     if (countdownStarted) {
       console.log("Countdown already started.");
@@ -349,7 +372,7 @@
     }, 1000);
   }
 
-  // ✅ Fetch and start the quiz
+  //   Fetch and start the quiz
   async function startQuiz(retries = 3) {
   countdownDiv.style.display = "none";
   quizDiv.style.display = "block";
@@ -368,34 +391,34 @@
     }
 
     const data = await res.json();
-    console.log("API Response:", data); // ✅ Debugging step
+    console.log("API Response:", data); //   Debugging step
 
     if (!data.results || data.results.length === 0) {
-      alert("No questions available.");
+      calert("No questions available.");
       return;
     }
 
-    // ✅ Ensure questions are processed correctly
+    //   Ensure questions are processed correctly
     questions = data.results.map((q) => ({
       question: q.question,
       answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
       correct: q.correct_answer
     }));
 
-    console.log("Processed Questions:", questions); // ✅ Debugging step
+    console.log("Processed Questions:", questions); //   Debugging step
     displayQuestion();
   } catch (error) {
     console.error("Error fetching questions:", error);
-    alert("An error occurred while fetching questions.");
+    calert("An error occurred while fetching questions.");
   }
 }
 
-  // ✅ Shuffle function for answers
+  //   Shuffle function for answers
   function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
   }
 
-  // ✅ Display question logic
+  //   Display question logic
   function displayQuestion() {
     if (questionIndex >= questions.length) return endGame();
 
@@ -413,7 +436,7 @@
     startTimer();
   }
 
-  // ✅ Check answer and update score
+  //   Check answer and update score
   function checkAnswer(selected) {
     clearInterval(timer);
     const correct = questions[questionIndex].correct;
