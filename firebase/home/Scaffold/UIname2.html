@@ -86,41 +86,38 @@
 
   // FirebaseUI config
   const uiConfig = {
-    signInSuccessUrl: "category.html",
+    signInSuccessUrl: "category.html", // Redirect after login/signup
+    signInFlow: "redirect",            // More stable than popup
     signInOptions: [
       {
         provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-        requireDisplayName: false // Removes "full name" field
+        requireDisplayName: false // No full name field on signup
       }
     ],
-    signInFlow: "redirect",
+    credentialHelper: firebaseui.auth.CredentialHelper.NONE,
     tosUrl: "/tos",
-    privacyPolicyUrl: "/privacy",
-    credentialHelper: firebaseui.auth.CredentialHelper.NONE
+    privacyPolicyUrl: "/privacy"
   };
 
   // Initialize FirebaseUI
   const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
-  // Auth state listener
+  // Wait for auth state before showing FirebaseUI
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-      // User is signed in
       const displayName = user.displayName || "";
       const firstName = displayName.split(" ")[0];
       document.getElementById("welcome-message").innerText = `Hello, ${firstName}`;
       saveUserData(user);
       localStorage.setItem("name", firstName);
-
-      // Redirect to another page if needed
-      window.location.href = "category.html";
+      // Do not manually redirect — let FirebaseUI handle it
     } else {
-      // User is not signed in — start FirebaseUI
+      // Only show UI if user is not signed in
       ui.start("#firebaseui-auth-container", uiConfig);
     }
   });
 
-  // Save user data to Firebase Realtime Database
+  // Store user data in Realtime Database
   function saveUserData(user) {
     const userRef = firebase.database().ref('users/' + user.uid);
     userRef.set({
@@ -133,7 +130,6 @@
       console.error("Error saving user data:", error);
     });
 
-    // Store UID in localStorage
     localStorage.setItem("userUID", user.uid);
   }
 </script>
