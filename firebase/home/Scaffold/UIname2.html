@@ -86,18 +86,19 @@
       
         // FirebaseUI config
         const uiConfig = {
-          signInFlow: "redirect",
-          signInSuccessUrl: "profile6.html", // redirect after login/signup
-          signInOptions: [
-            {
-              provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-              requireDisplayName: false // Skip full name input
-            }
-          ],
-          credentialHelper: firebaseui.auth.CredentialHelper.NONE,
-          tosUrl: "/tos",
-          privacyPolicyUrl: "/privacy"
-        };
+  signInFlow: "popup", // SWITCHED FROM 'redirect' TO 'popup'
+  signInSuccessUrl: "profile6.html", // redirect after complete login
+  signInOptions: [
+    {
+      provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      requireDisplayName: false
+    }
+  ],
+  credentialHelper: firebaseui.auth.CredentialHelper.NONE,
+  tosUrl: "/tos",
+  privacyPolicyUrl: "/privacy"
+};
+
       
         const ui = new firebaseui.auth.AuthUI(firebase.auth());
       
