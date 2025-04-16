@@ -94,12 +94,13 @@
     }
   ],
   callbacks: {
-    signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-      // Auth successful and account is complete — now redirect
+  signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+    setTimeout(() => {
       window.location.href = "category.html";
-      return false; // prevent default redirect
-    }
-  },
+    }, 500); // Give Firebase time to finish
+    return false;
+  }
+},
   credentialHelper: firebaseui.auth.CredentialHelper.NONE,
   tosUrl: "/tos",
   privacyPolicyUrl: "/privacy"
