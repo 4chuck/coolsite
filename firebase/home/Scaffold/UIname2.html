@@ -86,19 +86,24 @@
 
   // FirebaseUI config
   const uiConfig = {
-    signInSuccessUrl: "category.html", // Redirect after login/signup
-    signInFlow: "redirect",            // More stable than popup
-    signInOptions: [
-      {
-        provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-        requireDisplayName: false // No full name field on signup
-      }
-    ],
-    credentialHelper: firebaseui.auth.CredentialHelper.NONE,
-    tosUrl: "/tos",
-    privacyPolicyUrl: "/privacy"
-  };
-
+  signInFlow: "redirect",
+  signInOptions: [
+    {
+      provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      requireDisplayName: false
+    }
+  ],
+  callbacks: {
+    signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+      // Auth successful and account is complete — now redirect
+      window.location.href = "category.html";
+      return false; // prevent default redirect
+    }
+  },
+  credentialHelper: firebaseui.auth.CredentialHelper.NONE,
+  tosUrl: "/tos",
+  privacyPolicyUrl: "/privacy"
+};
   // Initialize FirebaseUI
   const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
