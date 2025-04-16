@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Logout</title>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <h2>Logging you out...</h2>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+      authDomain: "login-b6382.firebaseapp.com",
+      projectId: "login-b6382",
+      storageBucket: "login-b6382.appspot.com",
+      messagingSenderId: "482805184778",
+      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().signOut().then(() => {
+      // Clear localStorage if you used it
+      localStorage.removeItem("name");
+      localStorage.removeItem("userUID");
+
+      // Redirect to login page after logout
+      window.location.href = "login.html";
+    }).catch((error) => {
+      document.body.innerHTML = "<h2>Error during logout:</h2><p style='color:red'>" + error.message + "</p>";
+    });
+  </script>
+</body>
+</html>
