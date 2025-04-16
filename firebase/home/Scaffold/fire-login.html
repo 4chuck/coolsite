@@ -2,18 +2,19 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Sign Up</title>
+  <title>Login</title>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
 </head>
 <body>
-  <h2>Create an Account</h2>
-  <input type="text" id="name" placeholder="Full Name"><br><br>
+  <p id="welcome-message" style="color:green;"></p>
+  <h2>Login</h2>
   <input type="email" id="email" placeholder="Email"><br><br>
   <input type="password" id="password" placeholder="Password"><br><br>
-  <button onclick="signup()">Sign Up</button>
-  <p id="welcome-message" style="color:green;"></p>
+  <button onclick="login()">Login</button>
+    <br><br>
+    <a href="signup.html">Don't have an account? Sign Up</a><br><br>
   <p id="error" style="color:red;"></p>
 
   <script>
@@ -29,17 +30,13 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    function signup() {
-      const name = document.getElementById("name").value;
+    function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          return userCredential.user.updateProfile({ displayName: name }).then(() => {
-            saveUserData(userCredential.user);
-            window.location.href = "category.html";
-          });
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => {
+          window.location.href = "category.html";
         })
         .catch((error) => {
           document.getElementById("error").innerText = error.message;

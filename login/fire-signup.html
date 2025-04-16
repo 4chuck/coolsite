@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>signup</title>
+	<meta charset="UTF-8">
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=0.7">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+</head>
+<body>
+	
+	<div class="limiter">
+		<div class="container-login100" style="background-image: url('images/bg-01.jpg');">
+			<div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-54"style="height: auto;">
+					<span class="login100-form-title p-b-49">
+						<p id="welcome-message" style="color:green;"></p>
+            <p id="error" style="color:red;"></p>
+                <h2>Create an Account</h2>
+					</span>
+
+					<div class="wrap-input100 validate-input m-b-23" data-validate = "Username is reauired">
+						<span class="label-input100">Username</span>
+						<input class="input100" type="text" id="name" name="username" placeholder="enter your username">
+						<span class="focus-input100" data-symbol="&#xf206;"></span>
+					</div><br>
+
+          <div class="wrap-input100 validate-input" data-validate="email is required">
+						<span class="label-input100">Email</span>
+						<input class="input100" type="email" id="email" placeholder="Enter your Email">
+						<span class="focus-input100" data-symbol="&#xf206;"></span>
+					</div>
+					<br>
+
+					<div class="wrap-input100 validate-input" data-validate="Password is required">
+						<span class="label-input100">Password</span>
+						<input class="input100" type="password" id= "password" name="password" placeholder="Enter your password">
+						<span class="focus-input100" data-symbol="&#xf190;"></span>
+					</div><br>
+					
+					<div class="container-login100-form-btn">
+						<div class="wrap-login100-form-btn">
+							<div class="login100-form-bgbtn"></div>
+							     <button class="login100-form-btn"onclick="signup()"value="login">
+								signup
+							</button>
+						</div>
+					</div>
+					<br><br>
+					<div class="txt1 text-center p-t-54 p-b-20">
+             			<a href="fire-login.html">Already have an account? Login</a><br>
+						</a><br>
+            			<a href="../index.html">Back to Home</a><br></a>
+					</div>
+
+					
+					</div>
+			</div>
+		</div>
+	</div>
+	
+
+	<script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+      authDomain: "login-b6382.firebaseapp.com",
+      projectId: "login-b6382",
+      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+      storageBucket: "login-b6382.appspot.com",
+      messagingSenderId: "482805184778",
+      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    function signup() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          return userCredential.user.updateProfile({ displayName: name }).then(() => {
+            saveUserData(userCredential.user);
+            window.location.href = "../firebase/home/Scaffold/category.html";
+          });
+        })
+        .catch((error) => {
+          document.getElementById("error").innerText = error.message;
+        });
+    }
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const displayName = user.displayName || "";
+        const firstName = displayName.split(" ")[0];
+        document.getElementById("welcome-message").innerText = `Hello, ${firstName}`;
+        saveUserData(user);
+        localStorage.setItem("name", firstName);
+      } else {
+        document.getElementById("welcome-message").innerText = "";
+      }
+    });
+
+    function saveUserData(user) {
+      const userRef = firebase.database().ref('users/' + user.uid);
+      userRef.set({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName
+      }).then(() => {
+        console.log("User data saved to database");
+      }).catch((error) => {
+        console.error("Error saving user data: ", error);
+      });
+
+      localStorage.setItem("userUID", user.uid);
+    }
+  </script>
+	
+<!--===============================================================================================-->
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/daterangepicker/moment.min.js"></script>
+	<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
+</html>
