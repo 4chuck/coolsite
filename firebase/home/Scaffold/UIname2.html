@@ -87,20 +87,13 @@
   // FirebaseUI config
   const uiConfig = {
   signInFlow: "redirect",
+  signInSuccessUrl: "category.html",
   signInOptions: [
     {
       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
       requireDisplayName: false
     }
   ],
-  callbacks: {
-  signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-    setTimeout(() => {
-      window.location.href = "category.html";
-    }, 500); // Give Firebase time to finish
-    return false;
-  }
-},
   credentialHelper: firebaseui.auth.CredentialHelper.NONE,
   tosUrl: "/tos",
   privacyPolicyUrl: "/privacy"
