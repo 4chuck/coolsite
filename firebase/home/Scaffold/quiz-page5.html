@@ -372,6 +372,34 @@ function calert(message) {
     }, 1000);
   }
 
+//let selectedCategory = parseInt(localStorage.getItem("categoryId"), 10);
+
+const otdbToTriviaAPIMap = {
+    9: 'general_knowledge',
+    10: 'arts_and_literature',
+    11: 'film_and_tv',
+    12: 'music',
+    13: 'arts_and_literature',
+    14: 'film_and_tv',
+    15: 'sport_and_leisure', // no "video_games" category in Trivia API
+    16: 'sport_and_leisure', // fallback mapping
+    17: 'science',
+    18: 'science', // use broad science category
+    19: 'science',
+    20: 'history',
+    21: 'history',
+    22: 'history',
+    23: 'society_and_culture', // no "politics" — best matched
+    24: 'geography',
+    25: 'sport_and_leisure',
+    26: 'arts_and_literature',
+    27: 'society_and_culture', // closest fit for celebrities
+    28: 'science' // best match for animals
+  };
+
+
+let convertedCategory = otdbToTriviaAPIMap[selectedCategory];
+
   //   Fetch and start the quiz
   async function startQuiz(retries = 3) {
   countdownDiv.style.display = "none";
@@ -379,8 +407,8 @@ function calert(message) {
   console.log("Fetching questions...");
 
   try {
-    const res = await fetch(`https://opentdb.com/api.php?amount=10&category=${selectedCategory}&type=multiple`);
-    
+      const res = await fetch(`https://the-trivia-api.com/api/questions?limit=10&categories=${convertedCategory}&type=multiple`);
+  
     if (!res.ok) {
       if (res.status === 429 && retries > 0) {
         console.warn("Rate limit hit. Retrying in 2.1 seconds...");
@@ -393,16 +421,16 @@ function calert(message) {
     const data = await res.json();
     console.log("API Response:", data); //   Debugging step
 
-    if (!data.results || data.results.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
       calert("No questions available.");
       return;
     }
 
     //   Ensure questions are processed correctly
-    questions = data.results.map((q) => ({
-      question: q.question,
-      answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
-      correct: q.correct_answer
+    questions = data.map((q) => ({
+        question: q.question,
+        answers: shuffle([q.correctAnswer, ...q.incorrectAnswers]),
+        correct: q.correctAnswer
     }));
 
     console.log("Processed Questions:", questions); //   Debugging step

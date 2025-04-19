@@ -225,6 +225,8 @@ function calert(message) {
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
   import { getDatabase, ref, set, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
 
   const firebaseConfig = {
     apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
@@ -240,7 +242,8 @@ function calert(message) {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
-
+  const firestore = getFirestore(app);
+  
   const joinBtn = document.getElementById("join-btn");
   const waitingRoom = document.getElementById("waiting-room");
   const readyBtn = document.getElementById("ready-btn");
@@ -281,7 +284,7 @@ function calert(message) {
       console.log("User authenticated: ", playerId);
     } else {
       console.log("You are not logged in. Redirecting to login page...");
-      window.location.href = "../../../login/fire-signup.html";
+      window.location.href = "UIname.html";
     }
   });
 
@@ -312,7 +315,7 @@ function calert(message) {
       waitingRoom.style.display = "block";
     } else {
       console.log("You are not logged in. Redirecting to login page...");
-      window.location.href = "../../../login/fire-signup.html";
+      window.location.href = "UIname.html";
     }
   });
 
@@ -372,47 +375,74 @@ function calert(message) {
     }, 1000);
   }
 
+const categoryMap = {
+  9: "General Knowledge",
+  10: "Entertainment: Books",
+  11: "Entertainment: Film",
+  12: "Entertainment: Music",
+  13: "Entertainment: Musicals & Theatres",
+  14: "Entertainment: Television",
+  15: "Entertainment: Video Games",
+  16: "Entertainment: Board Games",
+  17: "Science & Nature",
+  18: "Science: Computers",
+  19: "Science: Mathematics",
+  20: "Mythology",
+  21: "Sports",
+  22: "Geography",
+  23: "History",
+  24: "Politics",
+  25: "Art",
+  26: "Celebrities",
+  27: "Animals",
+  28: "Vehicles",
+  29: "Entertainment: Comics",
+  30: "Science: Gadgets",
+  31: "Entertainment: Japanese Anime & Manga",
+  32: "Entertainment: Cartoon & Animations"
+};
+
   //   Fetch and start the quiz
-  async function startQuiz(retries = 3) {
+  async function startQuiz() {
   countdownDiv.style.display = "none";
   quizDiv.style.display = "block";
-  console.log("Fetching questions...");
+  console.log("Fetching questions from Firestore...");
+
+  
+  const categoryName = categoryMap[selectedCategory];
+  if (!categoryName) {
+    calert("Invalid category selected.");
+    return;
+  }
 
   try {
-    const res = await fetch(`https://opentdb.com/api.php?amount=10&category=${selectedCategory}&type=multiple`);
-    
-    if (!res.ok) {
-      if (res.status === 429 && retries > 0) {
-        console.warn("Rate limit hit. Retrying in 2.1 seconds...");
-        setTimeout(() => startQuiz(retries - 1), 2100);
-        return;
-      }
-      throw new Error(`HTTP error! Status: ${res.status}`);
-    }
+    const qSnap = await getDocs(query(
+      collection(firestore, "questions"),
+      where("category", "==", categoryName),
+      limit(30)
+    ));
 
-    const data = await res.json();
-    console.log("API Response:", data); //   Debugging step
-
-    if (!data.results || data.results.length === 0) {
-      calert("No questions available.");
+    if (qSnap.empty) {
+      calert("No questions found in Firestore for this category.");
       return;
     }
 
-    //   Ensure questions are processed correctly
-    questions = data.results.map((q) => ({
+    const docs = qSnap.docs.map(doc => doc.data());
+    const shuffledDocs = shuffle(docs).slice(0, 10); // Random 10
+
+    questions = shuffledDocs.map(q => ({
       question: q.question,
       answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
       correct: q.correct_answer
     }));
 
-    console.log("Processed Questions:", questions); //   Debugging step
+    console.log("Loaded Firestore Questions:", questions);
     displayQuestion();
   } catch (error) {
-    console.error("Error fetching questions:", error);
-    calert("An error occurred while fetching questions.");
+    console.error("Error loading Firestore questions:", error.message, error.stack);
+    calert("An error occurred while loading questions.");
   }
 }
-
   //   Shuffle function for answers
   function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
@@ -468,43 +498,59 @@ function calert(message) {
   }
 
   function endGame() {
-    quizDiv.style.display = "none";
-    leaderboardDiv.style.display = "block";
+  quizDiv.style.display = "none";
+  leaderboardDiv.style.display = "block";
 
-    onValue(ref(db, `games/category_${selectedCategory}/players`), (snapshot) => {
-      const players = snapshot.val();
-      const uniquePlayers = {};
+  onValue(ref(db, `games/category_${selectedCategory}/players`), (snapshot) => {
+    const players = snapshot.val();
+    const uniquePlayers = {};
 
-      Object.values(players).forEach((player) => {
-        if (!uniquePlayers[player.name]) {
-          uniquePlayers[player.name] = player.score;
-        } else {
-          uniquePlayers[player.name] = Math.max(uniquePlayers[player.name], player.score);
-        }
-      });
+    Object.values(players).forEach((player) => {
+      const score = player.score;
 
-      const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1] - a[1]);
-      leaderboardList.innerHTML = sortedPlayers
-        .map(
-          ([name, score]) =>
-            `<li style="background-color: ${
-              name === playerName ? "#007BFF" : ""
-            }"><span>${name}</span>: ${score}</li>`
-        )
-        .join("");
+      // Skip if score is undefined or null
+      if (score === undefined || score === null) return;
+
+      if (!uniquePlayers[player.name]) {
+        uniquePlayers[player.name] = score;
+      } else {
+        uniquePlayers[player.name] = Math.max(uniquePlayers[player.name], score);
+      }
     });
-    console.log("Quiz ended! Displaying leaderboard...");
-    play.style.display = "block";
-    
+
+    const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1] - a[1]);
+
+    leaderboardList.innerHTML = sortedPlayers
+      .map(
+        ([name, score]) =>
+          `<li style="background-color: ${
+            name === playerName ? "#007BFF" : ""
+          }"><span>${name}</span>: ${score}</li>`
+      )
+      .join("");
+  });
+
+  console.log("Quiz ended! Displaying leaderboard...");
+  play.style.display = "block";
+}
+
+
+function updatePlayerScore(newScore) {
+  if (typeof newScore !== "number" || isNaN(newScore)) {
+    console.warn("Invalid score. Must be a number.");
+    return;
   }
 
-  function updatePlayerScore(newScore) {
-    const playerRef = ref(
-      db,
-      `games/category_${selectedCategory}/players/${playerId}`
-    );
-    update(playerRef, { score: newScore });
-  }
+  const playerRef = ref(
+    db,
+    `games/category_${selectedCategory}/players/${playerId}`
+  );
+
+  update(playerRef, { score: newScore })
+    .then(() => console.log(`Score updated to ${newScore}`))
+    .catch((error) => console.error("Failed to update score:", error));
+}
+
  
 </script>
 
