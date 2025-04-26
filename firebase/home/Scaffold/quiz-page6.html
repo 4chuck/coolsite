@@ -121,7 +121,7 @@ function calert(message) {
 }
 
 // Show calert without blocking execution
-//ccalert("This is a non-blocking calert!");
+//calert("This is a non-blocking calert!");
 //console.log("This executes immediately.");
 </script>
 
@@ -188,7 +188,6 @@ function calert(message) {
       border-radius: 5px;
     }
   </style>
-</head>
 <body>
   <div id="game-container">
   <!-- <select id="category-dropdown">
@@ -269,7 +268,7 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
   let selectedCategory = localStorage.getItem("categoryId");
 
   if (!selectedCategory || isNaN(parseInt(selectedCategory, 10))) {
-    ccalert("No category selected. Redirecting to category selection page...");
+    calert("No category selected. Redirecting to category selection page...");
     window.location.href = "category.html";  // Redirects if no valid category is found
   } else {
     selectedCategory = parseInt(selectedCategory, 10); // Convert to number
@@ -284,18 +283,18 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
       console.log("User authenticated: ", playerId);
     } else {
       console.log("You are not logged in. Redirecting to login page...");
-      window.location.href = "UIname.html";
+      window.location.href = ".html";
     }
   });
 
   //   Join game logic
   joinBtn.addEventListener("click", async () => {
     if (!selectedCategory || isNaN(selectedCategory)) {
-      ccalert("Invalid category. Please select again.");
+      calert("Invalid category. Please select again.");
       window.location.href = "category.html";
       return;
     }
-
+    calert("Loading quiz.");
     const storedUid = localStorage.getItem("userUID");
 
     if (storedUid) {
@@ -315,14 +314,14 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
       waitingRoom.style.display = "block";
     } else {
       console.log("You are not logged in. Redirecting to login page...");
-      window.location.href = "UIname.html";
+      window.location.href = "../../../login/fire-signup.html";
     }
   });
 
   //   Mark player as ready
   readyBtn.addEventListener("click", async () => {
     console.log("Marking player as ready...");
-
+    calert("Loading questions.");
     const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`);
     await set(playerRef, true);
 
@@ -375,31 +374,33 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
     }, 1000);
   }
 
-const categoryMap = {
+  const categoryMap = {
   9: "General Knowledge",
   10: "Entertainment: Books",
   11: "Entertainment: Film",
-  12: "Entertainment: Music",
-  13: "Entertainment: Musicals & Theatres",
-  14: "Entertainment: Television",
-  15: "Entertainment: Video Games",
-  16: "Entertainment: Board Games",
+  12: "Music",
+  13: "Musicals & Theatres",
+  14: "Television",
+  15: "Video Games",
+  16: "Board Games",
   17: "Science & Nature",
   18: "Science: Computers",
   19: "Science: Mathematics",
-  20: "Mythology",
-  21: "Sports",
-  22: "Geography",
-  23: "History",
-  24: "Politics",
-  25: "Art",
-  26: "Celebrities",
-  27: "Animals",
-  28: "Vehicles",
-  29: "Entertainment: Comics",
-  30: "Science: Gadgets",
-  31: "Entertainment: Japanese Anime & Manga",
-  32: "Entertainment: Cartoon & Animations"
+  20: "History",
+  21: "History: World",
+  22: "History: US",
+  23: "Politics",
+  24: "Geography",
+  25: "Sports",
+  26: "Art",
+  27: "Celebrities",
+  28: "Animals",
+  29: "Mythology",
+  30: "Vehicles",   // <-- corrected here
+  31: "Comics",
+  32: "Gadgets",
+  33: "Japanese Anime & Manga",
+  34: "Cartoon and Animations"
 };
 
   //   Fetch and start the quiz
@@ -423,7 +424,8 @@ const categoryMap = {
     ));
 
     if (qSnap.empty) {
-      calert("No questions found in Firestore for this category.");
+      calert("No questions found. Please choose another category.");
+      setTimeout(() => window.location.href = "category.html", 1500);
       return;
     }
 
