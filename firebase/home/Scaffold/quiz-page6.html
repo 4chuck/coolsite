@@ -196,9 +196,10 @@ function calert(message) {
       <!-- Play Again button -->
  <center> <button id="play-again-btn" style="display: none;" onclick="location.reload();">Play Again</button></center>
  
-    <div id="player-info">
-      <button id="join-btn">Join Game</button>
-    </div>
+ <div id="player-info">
+  <button id="join-btn">Join Game</button>
+</div>
+
     <div id="waiting-room" style="display: none;">
       <h2>Waiting for other players...</h2>
       <button id="ready-btn">I'm Ready</button>
@@ -211,6 +212,11 @@ function calert(message) {
       </div>
       <p id="timer">Time Left: <span id="time">10</span>s</p>
     </div>
+
+    <div id="online-players" style="display:none; margin-top: 20px;">
+      <h2>Online Players</h2>
+      <ul id="online-players-list" style="list-style: none; padding: 0;"></ul>
+    </div>    
 
   <div id="leaderboard" style="display: none;">
     <br>
@@ -283,7 +289,7 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
       console.log("User authenticated: ", playerId);
     } else {
       console.log("You are not logged in. Redirecting to login page...");
-      window.location.href = ".html";
+      window.location.href = "../../../login/fire-login.html";
     }
   });
 
@@ -312,11 +318,54 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
 
       console.log("Player joined the game. Waiting for others...");
       waitingRoom.style.display = "block";
+      joinBtn.style.display = "none"; // Hide the join button
+      document.getElementById("online-players").style.display = "block"; // Show the online players div
+      listenToOnlinePlayers(); // Start listening to online players
     } else {
       console.log("You are not logged in. Redirecting to login page...");
-      window.location.href = "../../../login/fire-signup.html";
+      window.location.href = "../../../login/fire-login.html";
     }
   });
+  
+  function listenToOnlinePlayers() {
+  const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+
+  onValue(playersRef, (snapshot) => {
+    const players = snapshot.val();
+    const onlineList = document.getElementById("online-players-list");
+    onlineList.innerHTML = "";
+
+    if (!players) {
+      onlineList.innerHTML = "<li>No players online yet.</li>";
+      return;
+    }
+
+    Object.values(players).forEach(player => {
+      if (player.online) {
+        const li = document.createElement("li");
+        li.style.background = "#f4f4f4"; // mild grey background
+        li.style.margin = "8px 0";
+        li.style.padding = "12px";
+        li.style.borderRadius = "8px";
+        li.style.fontSize = "20px";
+        li.style.color = "#333"; // dark text
+        li.style.boxShadow = "0px 2px 4px rgba(0,0,0,0.1)"; // soft shadow
+        li.textContent = player.name || "Unknown Player";
+
+        // ✅ Highlight your own name
+        if (player.name === playerName) {
+          li.style.background = "#007BFF"; // Blue background
+          li.style.color = "white";         // White text
+          li.style.fontWeight = "bold";      // Make it pop!
+        }
+
+        onlineList.appendChild(li);
+      }
+    });
+  });
+}
+
+
 
   //   Mark player as ready
   readyBtn.addEventListener("click", async () => {
@@ -325,6 +374,9 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
     const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`);
     await set(playerRef, true);
 
+    document.getElementById("online-players").style.display = "none";
+    readyBtn.style.display = "none"; // Hide the ready button
+    
     const playersRef = ref(db, `games/category_${selectedCategory}/players`);
     onValue(playersRef, (snapshot) => {
       const players = snapshot.val();
@@ -378,30 +430,29 @@ import { getFirestore, collection, query, where, getDocs, limit } from "https://
   9: "General Knowledge",
   10: "Entertainment: Books",
   11: "Entertainment: Film",
-  12: "Music",
-  13: "Musicals & Theatres",
-  14: "Television",
-  15: "Video Games",
-  16: "Board Games",
+  12: "Entertainment: Music",
+  13: "Entertainment: Musicals & Theatres",
+  14: "Entertainment: Television",
+  15: "Entertainment: Video Games",
+  16: "Entertainment: Board Games",
   17: "Science & Nature",
   18: "Science: Computers",
   19: "Science: Mathematics",
-  20: "History",
-  21: "History: World",
-  22: "History: US",
-  23: "Politics",
-  24: "Geography",
-  25: "Sports",
-  26: "Art",
-  27: "Celebrities",
-  28: "Animals",
-  29: "Mythology",
-  30: "Vehicles",   // <-- corrected here
-  31: "Comics",
-  32: "Gadgets",
-  33: "Japanese Anime & Manga",
-  34: "Cartoon and Animations"
+  20: "Mythology",
+  21: "Sports",
+  22: "Geography",
+  23: "History",
+  24: "Politics",
+  25: "Art",
+  26: "Celebrities",
+  27: "Animals",
+  28: "Vehicles",
+  29: "Entertainment: Comics",
+  30: "Science: Gadgets",
+  31: "Entertainment: Japanese Anime & Manga",
+  32: "Entertainment: Cartoon & Animations"
 };
+
 
   //   Fetch and start the quiz
   async function startQuiz() {
