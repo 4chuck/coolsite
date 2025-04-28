@@ -305,6 +305,12 @@ function calert(message) {
   import { getDatabase, ref, set, update, onValue, onDisconnect, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
   import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+  import { runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+  import { remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+  import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
 
   const firebaseConfig = {
     apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
@@ -361,6 +367,8 @@ function calert(message) {
       playerId = user.uid;
       localStorage.setItem("userUID", playerId);
       console.log("User authenticated: ", playerId);
+      const playerRef = ref(db, `games/category_${selectedCategory}/players/${user.uid}`);
+      update(playerRef, { online: false, ready: false });
     } else {
       console.log("You are not logged in. Redirecting to login page...");
       window.location.href = "../../../login/fire-login.html";
@@ -376,16 +384,26 @@ function calert(message) {
     }
     calert("Loading quiz.");
     const storedUid = localStorage.getItem("userUID");
-
+    
     if (storedUid) {
       playerId = storedUid;
       const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
 
-      await set(playerRef, { 
+
+        await set(playerRef, { 
         name: playerName,
         ready: false,
         online: true 
       });
+      
+// 1) Transaction only flips online/ready
+// on join: normal set (no transaction)
+// 1) on join: simple set everything including joinedAt
+
+
+
+
+
 
       //   Correct usage of onDisconnect
       onDisconnect(playerRef).update({ online: false, ready: false });
@@ -452,13 +470,12 @@ onValue(playersRef, (snapshot) => {
         nameSpan.textContent += " ✔ Ready";
       }
 
-      if (player.name === playerName) {
-        li.style.background = "#007BFF";
-        nameSpan.style.color = "white";
-        nameSpan.style.fontWeight = "bold";
-      } else {
-        li.style.background = "#eeeeee";
-      }
+      if (uid === playerId) {
+  li.style.background = "#007BFF";
+  nameSpan.style.color = "white";
+  nameSpan.style.fontWeight = "bold";
+}
+
 
       li.appendChild(img); // Add avatar
       li.appendChild(nameSpan); // Add name
@@ -475,7 +492,15 @@ onValue(playersRef, (snapshot) => {
     console.log("Marking player as ready...");
     calert("Loading questions.");
     const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`);
-    await set(playerRef, true);
+    
+    await set(ref(db, `games/category_${selectedCategory}/players/${playerId}`), {
+  name: playerName , online: true, ready: false, joinedAt: serverTimestamp()
+});
+// 2) on “I’m Ready”: transaction only flips ready
+await runTransaction(
+  ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`),
+  (r) => true
+);
 
     document.getElementById("online-players").style.display = "none";
     readyBtn.style.display = "none"; // Hide the ready button
@@ -531,7 +556,7 @@ onValue(playersRef, (snapshot) => {
         startQuiz();
         }, 200); 
 
-        startQuiz(); 
+        //startQuiz(); 
       }
     }, 1000);
   }
@@ -666,11 +691,17 @@ onValue(playersRef, (snapshot) => {
     }, 1000);
   }
 
-  function endGame() {
+  async function cleanupPlayer() {
+  const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
+  await remove(playerRef);
+  console.log("Cleaned up player after game over.");
+}
+
+async function endGame() {
   quizDiv.style.display = "none";
   leaderboardDiv.style.display = "block";
 
-  onValue(ref(db, `games/category_${selectedCategory}/players`), (snapshot) => {
+  onValue(ref(db, `games/category_${selectedCategory}/players`), async (snapshot) => {
     const players = snapshot.val();
     const uniquePlayers = {};
 
@@ -681,27 +712,69 @@ onValue(playersRef, (snapshot) => {
       if (score === undefined || score === null) return;
 
       if (!uniquePlayers[player.name]) {
-        uniquePlayers[player.name] = score;
+        uniquePlayers[player.name] = { score, uid: player.uid }; // Store the player's uid to fetch their profile picture later
       } else {
-        uniquePlayers[player.name] = Math.max(uniquePlayers[player.name], score);
+        uniquePlayers[player.name] = {
+          score: Math.max(uniquePlayers[player.name].score, score),
+          uid: player.uid,
+        };
       }
     });
 
-    const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1] - a[1]);
+    const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1].score - a[1].score);
 
-    leaderboardList.innerHTML = sortedPlayers
-      .map(
-        ([name, score]) =>
-          `<li style="background-color: ${
-            name === playerName ? "#007BFF" : ""
-          }"><span>${name}</span>: ${score}</li>`
-      )
-      .join("");
+    // Create an array of promises for fetching profile pictures
+    const leaderboardItems = await Promise.all(
+      sortedPlayers.map(async ([name, { score, uid }]) => {
+        // Create the leaderboard list item
+        const li = document.createElement("li");
+        li.style.display = "flex";
+        li.style.alignItems = "center";
+        li.style.gap = "10px";
+        li.style.backgroundColor = name === playerName ? "#007BFF" : "";
+
+        // Create the image element for the profile picture
+        const img = document.createElement("img");
+        img.src = "assets/img/default-avatar.png"; // Default avatar
+        img.width = 40;
+        img.height = 40;
+        img.style.borderRadius = "50%";
+
+        // Fetch real profile picture
+        try {
+          const picSnap = await get(ref(db, `users/${uid}/profilePic`));
+          if (picSnap.exists()) img.src = picSnap.val();
+        } catch (err) {
+          console.error("avatar-get failed:", err);
+        }
+
+        // Create the name and score span
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = `${name}: ${score}`;
+
+        if (name === playerName) {
+          nameSpan.style.color = "white";
+          nameSpan.style.fontWeight = "bold";
+        }
+
+        // Append the image and name/score to the list item
+        li.append(img, nameSpan);
+
+        return li; // Return the list item
+      })
+    );
+
+    // Append all leaderboard items at once
+    leaderboardList.innerHTML = "";
+    leaderboardItems.forEach((item) => leaderboardList.appendChild(item));
   });
 
   console.log("Quiz ended! Displaying leaderboard...");
   play.style.display = "block";
+  //cleanupPlayer();
 }
+
+
 
 
 function updatePlayerScore(newScore) {
@@ -759,11 +832,11 @@ function listenToOnlinePlayers() {
           // name + ready
           const nameSpan = document.createElement("span");
           nameSpan.textContent = player.name + (player.ready ? " ✔ Ready" : "");
-          if (player.name === playerName) {
-            li.style.background = "#007BFF";
-            nameSpan.style.color = "#fff";
-            nameSpan.style.fontWeight = "bold";
-          }
+          if (uid === playerId) {
+    li.style.background = "#007BFF";
+    nameSpan.style.color = "white";
+    nameSpan.style.fontWeight = "bold";
+  }
 
           li.append(img, nameSpan);
           onlineList.appendChild(li);
