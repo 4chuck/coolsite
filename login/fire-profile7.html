@@ -90,7 +90,7 @@
     
 
     <!-- Profile Picture -->
-    <img id="profile-pic" src="default-avatar.png" alt="Profile Picture">
+    <img id="profile-pic" src="" alt="Profile Picture">
     <br>
   <div class="dropdown">
     <button class="dropdown-btn">Change Pic</button>
@@ -242,7 +242,7 @@ dataDisplay.innerHTML += formattedData;
       if (profilePicUrl) {
         document.getElementById('profile-pic').src = profilePicUrl;
       } else {
-        document.getElementById('profile-pic').src = 'placeholder.jpg'; // Default image
+        document.getElementById('profile-pic').src = 'default-avatar.png'; // Default image
       }
     };
 
