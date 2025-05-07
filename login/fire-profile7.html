@@ -105,7 +105,7 @@
     <h2><strong>Name:</strong> <span id="name"></span></h2>
     <br>
          <!-- Logout -->
-    <a onclick="logout()" class="btn btn-password"id="logout-btn">Logout</a>
+    <a class="btn btn-password"id="logout-btn">Logout</a>
   </div>
     </div>
   <!-- Firebase App (Core) -->
@@ -220,18 +220,16 @@ dataDisplay.innerHTML += formattedData;
 
     // Logout button functionality
     logoutBtn.addEventListener("click", () => {
-      firebase.auth().signOut().then(() => {
-      // Clear localStorage if you used it
-      localStorage.removeItem("name");
-      localStorage.removeItem("userUID"); // Redirect to login page
-       
-      // Redirect to login page after logout
-      window.location.href = "fire-login.html";
-      }).catch((error) => {
-        document.body.innerHTML = "<h2>Error during logout:</h2><p style='color:red'>" + error.message + "</p>";
-        console.error("Error logging out:", error);
-      });
-    });
+  signOut(auth).then(() => {
+    localStorage.removeItem("name");
+    localStorage.removeItem("userUID");
+    window.location.href = "fire-login.html";
+  }).catch((error) => {
+    document.body.innerHTML = "<h2>Error during logout:</h2><p style='color:red'>" + error.message + "</p>";
+    console.error("Error logging out:", error);
+  });
+});
+~
 
      // Load profile data from localStorage on page load
      window.onload = function () {
