@@ -90,14 +90,36 @@
     .dropdown:hover .dropdown-content {
       display: block;
     }
+    .layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .layout-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .profile-container,
+  #data-container {
+    flex: 1;
+    max-width: 500px;
+  }
+}
+
   </style>
 </head>
 <body>
     <h1>Profile Page</h1>
-
+ <div class="layout-wrapper">
   <div class="profile-container">
     
-
     <!-- Profile Picture -->
     <img id="profile-pic" src="" alt="Profile Picture">
     <br>
@@ -117,7 +139,15 @@
          <!-- Logout -->
     <a class="btn btn-password"id="logout-btn">Logout</a>
   </div>
-    
+  
+      <br><br>
+  <div id="data-container">
+    <h2>Your Data</h2>
+    <p id="load">loading data...</p>
+    <div id="data-display"></div>
+   <!-- <button id="logout-btn">Logout</button> -->
+  </div>
+</div>
   <!-- Firebase App (Core) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
@@ -344,17 +374,7 @@ document
     button:hover {
       background-color: #0056b3;
     }
-  </style>
-</head>
-<body>
-    <br><br>
-  <div id="data-container">
-    <h2>Your Data</h2>
-    <p id="load">loading data...</p>
-    <div id="data-display"></div>
-   <!-- <button id="logout-btn">Logout</button> -->
-  </div>
-     
+  </style>     
 <!--<script>
     function logout(){
         localStorage.setItem("name", "");
