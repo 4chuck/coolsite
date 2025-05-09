@@ -253,8 +253,9 @@ dataDisplay.innerHTML += formattedData;
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
-      const name = localStorage.getItem('name');
+     // const name = localStorage.getItem('name');
      // const profilePicUrl = localStorage.getItem('profilePic');
+     document.getElementById('name').textContent = data.displayName || "No Name";
      document.getElementById('profile-pic').src = data.profilePic || 'default-avatar.png';
       } else {
         console.warn("No user data found");
