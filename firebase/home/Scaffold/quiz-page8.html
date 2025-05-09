@@ -256,7 +256,7 @@ img {
       musicPlaying = !musicPlaying;
     });
     
-    // Optionally start music automatically when page fully loads (after a click anywhere)
+    // Optionally start music automatically when page fully loads  (after a click anywhere)
     document.addEventListener("click", () => {
       if (!musicPlaying) {
         bgMusic.play().catch(() => {});
