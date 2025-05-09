@@ -246,18 +246,26 @@ dataDisplay.innerHTML += formattedData;
 
      // Load profile data from localStorage on page load
      window.onload = function () {
+       onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userRef = ref(database, `users/${user.uid}`);
+    try {
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
       const name = localStorage.getItem('name');
-      const profilePicUrl = localStorage.getItem('profilePic');
-
-      // Display stored name and email
-      if (name) document.getElementById('name').textContent = name;
-
-      // Display stored profile picture
-      if (profilePicUrl) {
-        document.getElementById('profile-pic').src = profilePicUrl;
+     // const profilePicUrl = localStorage.getItem('profilePic');
+     document.getElementById('profile-pic').src = data.profilePic || 'default-avatar.png';
       } else {
-        document.getElementById('profile-pic').src = 'default-avatar.png'; // Default image
+        console.warn("No user data found");
       }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+    }
+  } else {
+    window.location.href = "fire-login.html"; // Not logged in
+  }
+});
     };
 
    
@@ -292,8 +300,7 @@ async function uploadImage() {
 
     // Update the profile picture in UI
     document.getElementById('profile-pic').src = downloadURL;
-    localStorage.setItem('profilePic', downloadURL);
-
+    //localStorage.setItem('profilePic', downloadURL);
     alert('Profile picture uploaded successfully!');
   } catch (error) {
     console.error("Error uploading image:", error);
