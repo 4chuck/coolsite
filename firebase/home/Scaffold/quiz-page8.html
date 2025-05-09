@@ -710,73 +710,65 @@ async function endGame() {
     const players = snapshot.val();
     const uniquePlayers = {};
 
-    Object.values(players).forEach((player) => {
+    Object.entries(players).forEach(([uid, player]) => {
       const score = player.score;
 
-      // Skip if score is undefined or null
       if (score === undefined || score === null) return;
 
       if (!uniquePlayers[player.name]) {
-        uniquePlayers[player.name] = { score, uid: player.uid }; // Store the player's uid to fetch their profile picture later
+        uniquePlayers[player.name] = { score, uid };  // use UID from key!
       } else {
         uniquePlayers[player.name] = {
           score: Math.max(uniquePlayers[player.name].score, score),
-          uid: player.uid,
+          uid,
         };
       }
     });
 
     const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1].score - a[1].score);
 
-    // Create an array of promises for fetching profile pictures
     const leaderboardItems = await Promise.all(
       sortedPlayers.map(async ([name, { score, uid }]) => {
-        // Create the leaderboard list item
         const li = document.createElement("li");
         li.style.display = "flex";
         li.style.alignItems = "center";
         li.style.gap = "10px";
         li.style.backgroundColor = name === playerName ? "#007BFF" : "";
 
-        // Create the image element for the profile picture
         const img = document.createElement("img");
-        img.src = "assets/img/default-avatar.png"; // Default avatar
+        img.src = "assets/img/default-avatar.png";
         img.width = 40;
         img.height = 40;
         img.style.borderRadius = "50%";
+        img.style.objectFit = "cover"; // important for correct crop
 
-        // Fetch real profile picture
+        // Properly fetch profilePic now using correct UID
         try {
           const picSnap = await get(ref(db, `users/${uid}/profilePic`));
-          if (picSnap.exists()) img.src = picSnap.val();
+          if (picSnap.exists()) {
+            img.src = picSnap.val();
+          }
         } catch (err) {
-          console.error("avatar-get failed:", err);
+          console.error(`Failed to fetch profile pic for ${uid}:`, err);
         }
 
-        // Create the name and score span
         const nameSpan = document.createElement("span");
         nameSpan.textContent = `${name}: ${score}`;
-
         if (name === playerName) {
           nameSpan.style.color = "white";
           nameSpan.style.fontWeight = "bold";
         }
 
-        // Append the image and name/score to the list item
         li.append(img, nameSpan);
-
-        return li; // Return the list item
+        return li;
       })
     );
 
-    // Append all leaderboard items at once
     leaderboardList.innerHTML = "";
     leaderboardItems.forEach((item) => leaderboardList.appendChild(item));
   });
 
-  console.log("Quiz ended! Displaying leaderboard...");
   play.style.display = "block";
-  //cleanupPlayer();
 }
 
 
