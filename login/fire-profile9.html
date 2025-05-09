@@ -112,6 +112,7 @@
 
     <!-- Profile Info -->
     <h2><strong>Name:</strong> <span id="name"></span></h2>
+    <p><strong>Email:</strong> <span id="email"></span></p>
     <br>
          <!-- Logout -->
     <a class="btn btn-password"id="logout-btn">Logout</a>
@@ -192,18 +193,8 @@
           get(userDataRef).then((snapshot) => {
             if (snapshot.exists()) {
               const data = snapshot.val();
-              const name = data.name;
+              //const name = data.name;
               const score = data.score;
-
-              // Display user name only once
-              if (userName === '') {
-                    userName = name;
-                    const userEmail = user.email || '';
-                    dataDisplay.innerHTML += `
-                    <h3>Name: ${userName}</h3>
-                    <p>Email: ${userEmail}</p>
-                    `;
-                 }
 
               // Format and display category score data
               const formattedData = `
@@ -256,6 +247,7 @@ dataDisplay.innerHTML += formattedData;
      // const name = localStorage.getItem('name');
      // const profilePicUrl = localStorage.getItem('profilePic');
      document.getElementById('name').textContent = data.displayName || "No Name";
+     document.getElementById('email').textContent = data.email || "No Email";
      document.getElementById('profile-pic').src = data.profilePic || 'default-avatar.png';
       } else {
         console.warn("No user data found");
