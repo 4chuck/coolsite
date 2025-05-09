@@ -197,9 +197,13 @@
 
               // Display user name only once
               if (userName === '') {
-                userName = name;
-                dataDisplay.innerHTML += `<h3>Name: ${userName}</h3>`;
-              }
+                    userName = name;
+                    const userEmail = user.email || '';
+                    dataDisplay.innerHTML += `
+                    <h3>Name: ${userName}</h3>
+                    <p>Email: ${userEmail}</p>
+                    `;
+                 }
 
               // Format and display category score data
               const formattedData = `
