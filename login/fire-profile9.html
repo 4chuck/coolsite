@@ -236,7 +236,7 @@ dataDisplay.innerHTML += formattedData;
   signOut(auth).then(() => {
     localStorage.removeItem("name");
     localStorage.removeItem("userUID");
-    localStorage.removeItem("profilePic");
+    //localStorage.removeItem("profilePic");
     window.location.href = "fire-login.html";
   }).catch((error) => {
     document.body.innerHTML = "<h2>Error during logout:</h2><p style='color:red'>" + error.message + "</p>";
