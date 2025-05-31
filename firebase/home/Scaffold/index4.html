@@ -79,7 +79,7 @@
       </nav><!-- .navbar -->
 
             
-<button onclick="login();"
+<button
 style="font-family:sans-serif;
   font-weight: 600;
   font-size: 18px;
@@ -95,28 +95,53 @@ style="font-family:sans-serif;
   background: #3ecf8e;" id="login-btn">Login</button>
   
 <script>
-  // Script to handle the login button click
-  function login() {
-    const name = localStorage.getItem('name');
-    if (!name) {
-      // Redirect to UIname page if name is not stored
-      window.location.href = '../../../login/fire-signup.html';
-    } else {
-      //Redirect to profile page if name exists
-      window.location.href = '../../../login/fire-profile9.html';
-    }
-  }
-</script>
-<script>
-    // Get the value from local storage
-    const userName = localStorage.getItem('name');
+  // Wait for the DOM to be fully loaded to ensure elements are available
+  document.addEventListener('DOMContentLoaded', () => {
 
-    // Check if the value exists and is not null
-    if (userName) {
-        // Set the button text to the name
-        document.getElementById('login-btn').textContent = userName;
-    } 
-    // Else, the default text "login" will be shown
+    const loginBtn = document.getElementById('login-btn');
+    // Select the "Play Now" button. It's the one that originally called redirectToPage().
+    const playNowBtn = document.querySelector('a.btn-primary.btn-lg[onclick^="redirectToPage"]');
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in 
+        let displayName = user.displayName; // Standard Firebase Auth display name
+
+        // Update login button
+        if (displayName) {
+          loginBtn.textContent = displayName;
+        } else {
+          loginBtn.textContent = 'Profile'; // Fallback if displayName is not set
+        }
+        loginBtn.onclick = () => {
+          window.location.href = '../../../login/fire-profile9.html'; // Redirect to profile page
+        };
+
+        // Update "Play Now" button's behavior
+        if (playNowBtn) {
+          playNowBtn.onclick = (event) => {
+            event.preventDefault(); // Prevent default <a> tag behavior if any
+            window.location.href = "../cyborg/index.html"; // Redirect to game page
+          };
+        }
+
+      } else {
+        // No user is signed in 
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = () => {
+          window.location.href = '../../../login/fire-signup.html'; // Redirect to login/signup page
+        };
+
+        // Update "Play Now" button's behavior
+        if (playNowBtn) {
+          playNowBtn.onclick = (event) => {
+            event.preventDefault(); // Prevent default <a> tag behavior if any
+            window.location.href = "../../../login/fire-signup.html"; // Redirect to login/signup page
+          };
+        }
+      }
+    });
+  });
 </script>
             
     </div>
@@ -163,17 +188,6 @@ style="font-family:sans-serif;
   background: #3ecf8e;">Examples</a>
           </div>
         </div>
-            <script>
-        // Redirects to the specified URL after 1 seconds
-        function redirectToPage() {
-         const nm= localStorage.getItem('name');
-    
-              if(nm==null)
-                window.location.href = "../../../login/fire-signup.html"; // Change this URL to the desired page
-              else
-               window.location.href = "../cyborg/index.html";
-        }
-    </script>
         <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left">
           <img src="assets/img/hero-img.png" class="img-fluid" alt="">
         </div>

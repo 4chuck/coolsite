@@ -1,0 +1,342 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+#auth-container, #game-lobby, #chess-game {
+    align-items: center;
+    justify-content: center;
+    background-color:transparent;
+    padding: 50px 50px 50px 50px;
+    margin: auto auto auto auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 550px; /* Slightly wider for content */
+    box-sizing: border-box;
+    animation: fadeIn 0.5s ease-out; /* Simple fade-in animation */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+    color: whitesmoke;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2em; /* Larger headings */
+    font-weight: 600;
+}
+
+li {  background-color: #4a4a4a;
+    color: white;
+}
+
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    background-color: #4a4a4a;
+    color: white;
+    width: calc(100% - 24px); /* Account for padding */
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px; /* More rounded */
+    font-size: 1.05em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box; /* Ensures padding doesn't expand element */
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.25);
+    outline: none;
+}
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="text"]::placeholder {
+    color: white;
+    opacity: 1; /* Optional: ensures full visibility in some browsers */
+}
+
+button {
+    background-color: #ec6090;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.05em;
+    margin-right: 15px; /* More space between buttons */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px); /* Subtle lift effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    background-color: #1f618d;
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+button:last-child {
+    margin-right: 0;
+}
+
+#auth-status {
+    text-align: center;
+    margin-top: 25px;
+    font-weight: bold;
+    color: #e74c3c;
+    font-size: 0.95em;
+}
+
+/* Game Lobby Specifics */
+#game-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 25px;
+    max-height: 300px; /* Taller list */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background-color: #fcfcfc;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#game-list li {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.05em;
+    color: #555;
+}
+
+#game-list li:last-child {
+    border-bottom: none;
+}
+
+#game-list li button {
+    margin-left: 15px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 6px;
+    background-color: #2ecc71; /* Green for join */
+}
+
+#game-list li button:hover {
+    background-color: #27ae60;
+}
+
+/* Chess Game Area */
+#chess-game {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    position: relative; /* Keep this for the custom-alert to position relative to it */
+    display: flex; /* Makes it a flex container */
+    flex-direction: column; /* Stacks children vertically */
+    align-items: center; /* Centers children horizontally within the flex container */
+    gap: 20px; /* Space between board, info, and chat */
+    max-width: 900px; /* Wider layout for game area */
+}
+
+#chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, 65px); /* Slightly larger squares */
+    grid-template-rows: repeat(8, 65px);
+    border: 5px solid #4a4a4a; /* Darker, more prominent border */
+    width: fit-content; /* Ensures the grid only takes up the space it needs */
+    height: fit-content; /* Ensures the grid only takes up the space it needs */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-radius: 8px; /* Slightly rounded board corners */
+    overflow: hidden; /* Ensures pieces fit within rounded corners */
+}
+
+
+.square {
+    width: 65px;
+    height: 65px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px; /* Larger pieces */
+    cursor: pointer;
+    transition: background-color 0.15s ease; /* Smooth hover/selection */
+    user-select: none; /* Prevent text selection */
+}
+
+.light {
+    background-color: #f0d9b5; /* Standard light wood color */
+}
+
+.dark {
+    background-color: #b58863; /* Standard dark wood color */
+}
+
+.selected {
+    background-color: #ffeaa7; /* Softer yellow for selected */
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 0, 0.7); /* Inner yellow border */
+}
+
+.possible-move {
+    background-color: rgba(46, 204, 113, 0.4); /* Green overlay for possible moves */
+    box-shadow: inset 0 0 0 3px rgba(46, 204, 113, 0.7); /* Inner green border */
+}
+
+.piece {
+    /* Base styling for pieces (Unicode) */
+    font-family: "Segoe UI Symbol", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Subtle shadow for pieces */
+}
+
+
+#game-info {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #4a4a4a;
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    width: 100%;
+}
+
+#game-info p {
+    margin: 0;
+    padding: 8px 15px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-weight: 500;
+}
+
+#game-info span {
+    font-weight: bold;
+    color: #3498db;
+}
+
+/* Chat Box Styling */
+#chat-box {
+    background-color: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    height: 250px; /* Taller chat box */
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    width: 100%;
+    max-width: 450px; /* Width for chat next to board */
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+#messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 5px; /* For scrollbar */
+    font-size: 0.95em;
+    color: #555;
+}
+
+#messages p {
+    margin: 5px 0;
+    padding: 5px 8px;
+    background-color: #e9e9e9;
+    border-radius: 6px;
+    word-wrap: break-word; /* Prevents long words from breaking layout */
+}
+
+#chat-input {
+    width: calc(100% - 70px); /* Adjust for send button */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+#send-chat-btn {
+    padding: 10px 15px;
+    margin-left: 10px;
+    background-color: #2ecc71;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+#send-chat-btn:hover {
+    background-color: #27ae60;
+}
+
+/* Responsive Design (Optional, but good practice) */
+@media (max-width: 768px) {
+    #chessboard {
+        grid-template-columns: repeat(8, 45px); /* Smaller squares on small screens */
+        grid-template-rows: repeat(8, 45px);
+        border-width: 3px;
+    }
+
+    .square {
+        width: 45px;
+        height: 45px;
+        font-size: 32px; /* Smaller pieces */
+    }
+
+    #chess-game {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    #chat-box {
+        max-width: 100%; /* Full width chat */
+    }
+}
+#custom-alert { /* Changed from #calert-container */
+    position: absolute; /* Position it relative to its parent (#chess-game) */
+    top: 50px; /* Adjust as needed to be above the board */
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px); /* Center horizontally, slight initial offset */
+    background-color: #3498db; /* A friendly blue */
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Ensure it's on top of other elements */
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out; /* Smooth transition */
+    font-weight: bold;
+    font-size: 1.1em;
+    min-width: 250px;
+    text-align: center;
+    pointer-events: none; /* Allows clicks to pass through when hidden/fading */
+    display: none; /* Start hidden */
+}
+
+#custom-alert.show { /* Changed from #calert-container.show */
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Move to final position */
+    display: block; /* Make it block to enable transitions */
+}

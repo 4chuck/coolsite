@@ -35,20 +35,56 @@
             font-family: Arial, sans-serif;
         }
     </style>
-    <script>
-        // Redirects to the specified URL after 1 seconds
+
+    <script type="module">
+        // *** CORRECT IMPORT URLs for Modular Firebase SDKs (v9+) ***
+        // Import the base Firebase app initialization
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+
+        // Import specific Firebase services and functions you need
+        // For Authentication:
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+        // Example for other services you might need:
+        // import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+        // import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+        // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
+
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+            authDomain: "login-b6382.firebaseapp.com",
+            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+            projectId: "login-b6382",
+            storageBucket: "login-b6382.appspot.com",
+            messagingSenderId: "482805184778",
+            appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+            measurementId: "G-ZHXBBZHN3W",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); // Get the Auth service instance from the app
+
         function redirectToPage() {
-         const nm= localStorage.getItem('name');
             setTimeout(function() {
-              if(nm==null)
-                window.location.href = "home/Scaffold/index3.html"; // Change this URL to the desired page
-              else
-               window.location.href = "home/Scaffold/quiz-page6.html";
+                // Use onAuthStateChanged with the auth instance
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        window.location.href = "home/cyborg/index.html";
+                    } else {
+                        window.location.href = "home/Scaffold/index3.html";
+                    }
+                });
             }, 500); // Redirect after 0.5 seconds
         }
+
+        // Call the redirect function directly, as imports are resolved before execution
+        redirectToPage();
     </script>
 </head>
-<body onload="redirectToPage()">
+<body>
    <div class="loader"></div>
     <h1>Redirecting, please wait...</h1>
 </body>
