@@ -361,7 +361,7 @@ img {
       playerId = user.uid;
       localStorage.setItem("userUID", playerId);
       console.log("User authenticated: ", playerId);
-      const playerRef = ref(db, `games/category_${selectedCategory}/players/${user.uid}`);
+      const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${user.uid}`);
       update(playerRef, { online: false, ready: false });
     } else {
       console.log("You are not logged in. Redirecting to login page...");
@@ -381,7 +381,7 @@ img {
     
     if (storedUid) {
       playerId = storedUid;
-      const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
+      const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
 
 
         await set(playerRef, { 
@@ -413,7 +413,7 @@ img {
     }
   });
   
-  const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+  const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
 const usersRef = ref(db, `users`);
 
 onValue(playersRef, (snapshot) => {
@@ -485,21 +485,21 @@ onValue(playersRef, (snapshot) => {
   readyBtn.addEventListener("click", async () => {
     console.log("Marking player as ready...");
     calert("Loading questions.");
-    const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`);
+    const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`);
     
-    await set(ref(db, `games/category_${selectedCategory}/players/${playerId}`), {
+    await set(ref(db, `quiz/category_${selectedCategory}/players/${playerId}`), {
   name: playerName , online: true, ready: false, joinedAt: serverTimestamp()
 });
 // 2) on “I’m Ready”: transaction only flips ready
 await runTransaction(
-  ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`),
+  ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`),
   (r) => true
 );
 
     document.getElementById("online-players").style.display = "none";
     readyBtn.style.display = "none"; // Hide the ready button
     
-    const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+    const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
     onValue(playersRef, (snapshot) => {
       const players = snapshot.val();
       if (!players) {
@@ -686,7 +686,7 @@ await runTransaction(
   }
 
   async function cleanupPlayer() {
-  const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
+  const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
   await remove(playerRef);
   console.log("Cleaned up player after game over.");
 }
@@ -695,7 +695,7 @@ async function endGame() {
   quizDiv.style.display = "none";
   leaderboardDiv.style.display = "block";
 
-  onValue(ref(db, `games/category_${selectedCategory}/players`), async (snapshot) => {
+  onValue(ref(db, `quiz/category_${selectedCategory}/players`), async (snapshot) => {
     const players = snapshot.val();
     const uniquePlayers = {};
 
@@ -771,7 +771,7 @@ function updatePlayerScore(newScore) {
 
   const playerRef = ref(
     db,
-    `games/category_${selectedCategory}/players/${playerId}`
+    `quiz/category_${selectedCategory}/players/${playerId}`
   );
 
   update(playerRef, { score: newScore })
@@ -780,7 +780,7 @@ function updatePlayerScore(newScore) {
 }
 
 function listenToOnlinePlayers() {
-    const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+    const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
 
     onValue(playersRef, (snapshot) => {
       const players = snapshot.val();

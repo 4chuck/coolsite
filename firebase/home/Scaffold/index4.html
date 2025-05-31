@@ -45,7 +45,7 @@
     <div class="container d-flex align-items-center">
 
       <div class="logo me-auto">
-        <h1><a href="index3.html">Scaffold</a></h1>
+        <h1><a href="index4.html">Scaffold</a></h1>
         <!-- Uncomment below if you prefer to use an image logo -->
         <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
       </div>
@@ -94,7 +94,28 @@ style="font-family:sans-serif;
   color: #fff;
   background: #3ecf8e;" id="login-btn">Login</button>
   
-<script>
+<script type="module">
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+                import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+                import { getDatabase, ref, set, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+                import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+                const firebaseConfig = {
+                  apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+                  authDomain: "login-b6382.firebaseapp.com",
+                  databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+                  projectId: "login-b6382",
+                  storageBucket: "login-b6382.appspot.com",
+                  messagingSenderId: "482805184778",
+                  appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+                  measurementId: "G-ZHXBBZHN3W",
+                };
+
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getDatabase(app);
+                const firestore = getFirestore(app);
+
   // Wait for the DOM to be fully loaded to ensure elements are available
   document.addEventListener('DOMContentLoaded', () => {
 
@@ -102,7 +123,7 @@ style="font-family:sans-serif;
     // Select the "Play Now" button. It's the one that originally called redirectToPage().
     const playNowBtn = document.querySelector('a.btn-primary.btn-lg[onclick^="redirectToPage"]');
 
-    firebase.auth().onAuthStateChanged(user => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in 
         let displayName = user.displayName; // Standard Firebase Auth display name
