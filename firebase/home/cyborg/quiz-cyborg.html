@@ -40,13 +40,13 @@
   </div>
  -->
   <!-- Header -->
-  <header class="header-area header-sticky">
+  <header class="header-area header-sticky"style="background-color:#27292A">
     <div class="container">
       <div class="row">
         <div class="col-12">
           <nav class="main-nav">
             <a href="index.html" class="logo">
-              <img src="assets/images/logo.png" alt="">
+              <img src="assets/images/logo.png" alt=""style="object-fit: cover;min-width: 40px;min-height: 40px;width: auto;height: auto;">
             </a>
             <ul class="nav">
               <li><a href="index.html" class="active">Home</a></li>
@@ -285,7 +285,7 @@ function calert(message) {
 }
 img {
   object-fit: cover;
-  border-radius: 50%;
+  
   width: 40px;
   height: 40px;
 }
@@ -336,7 +336,7 @@ img {
   const play = document.getElementById("play-again-btn");
 
   let playerId;
-  let playerName = localStorage.getItem("name") || "Player";
+  //let playerName = localStorage.getItem("name") || "Player";
   let currentScore = 0;
   let questionIndex = 0;
   let questions = [];
@@ -346,6 +346,18 @@ img {
   //  Retrieve and validate category ID from localStorage
   let selectedCategory = localStorage.getItem("categoryId");
 
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      playerName = user.displayName || "Player"; // Use displayName if available
+      localStorage.setItem("name", playerName);
+      console.log("User authenticated: ", playerName);
+    } else {
+      console.log("You are not logged in. Redirecting to login page...");
+      window.location.href = "../../../login/fire-login.html";
+    }
+  });
+  let playerName = localStorage.getItem("name") || "Player";//global variable for player name
+  // Validate selectedCategory
   if (!selectedCategory || isNaN(parseInt(selectedCategory, 10))) {
     calert("No category selected. Redirecting to category selection page...");
     window.location.href = "category.html";  // Redirects if no valid category is found

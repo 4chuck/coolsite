@@ -104,7 +104,7 @@
         .then((userCredential) => {
           return userCredential.user.updateProfile({ displayName: name }).then(() => {
             saveUserData(userCredential.user);
-            window.location.href = "../firebase/home/Scaffold/category.html";
+            window.location.href = "../firebase/home/cyborg/index.html";
           });
         })
         .catch((error) => {

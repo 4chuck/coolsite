@@ -226,61 +226,20 @@ function deselectPiece() {
 
 
 // --- Firebase Authentication ---
-loginBtn.addEventListener('click', () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            authStatus.textContent = `Logged in as: ${userCredential.user.email}`;
-            emailInput.value = '';
-            passwordInput.value = '';
-        })
-        .catch((error) => {
-            authStatus.textContent = `Login Error: ${error.message}`;
-            calert(`Login Error: ${error.message}`);
-            console.error("Login Error:", error);
-        });
-});
-
-registerBtn.addEventListener('click', () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            authStatus.textContent = `Registered and Logged in as: ${userCredential.user.email}`;
-            emailInput.value = '';
-            passwordInput.value = '';
-        })
-        .catch((error) => {
-            authStatus.textContent = `Registration Error: ${error.message}`;
-            calert(`Registration Error: ${error.message}`);
-            console.error("Registration Error:", error);
-        });
-});
 
 auth.onAuthStateChanged((user) => {
     if (user) {
         currentUser = user;
-        authContainer.style.display = 'none';
+        // authContainer.style.display = 'none'; // No authContainer anymore, no need to hide
         gameLobby.style.display = 'block';
         listenForGames();
     } else {
-        currentUser = null;
-        authContainer.style.display = 'block';
-        gameLobby.style.display = 'none';
-        chessGameDiv.style.display = 'none';
-        // Ensure to stop listening to games/chat if user logs out
-        if (currentGameId) {
-            db.ref(`chess/games/${currentGameId}`).off('value'); // UPDATED PATH
-            db.ref(`chess/games/${currentGameId}/chat`).off('child_added'); // UPDATED PATH
-            currentGameId = null; // Clear current game state
-        }
-        // Also reset chess.js instance if user logs out
-        chess.reset();
-        renderBoard(chess.board());
+        // Redirect to login page if user is not logged in
+        console.log("User not logged in. Redirecting to login page...");
+        window.location.href = "../../../../login/fire-login.html"; // Redirect to your dedicated login page
+        // No need to hide elements or reset chess here as we are leaving the page
     }
 });
-
 // --- Firebase Game Lobby ---
 function listenForGames() {
     const gamesRef = db.ref('chess/games'); // UPDATED PATH

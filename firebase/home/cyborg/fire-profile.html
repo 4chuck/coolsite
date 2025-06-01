@@ -314,6 +314,7 @@ https://templatemo.com/tm-579-cyborg-gaming
     // Check authentication
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        alert("loading data...");
         // User is authenticated
         const userId = user.uid;
         let dataFetched = false; // Track if data is fetched

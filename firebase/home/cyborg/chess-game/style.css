@@ -151,7 +151,7 @@ button:last-child {
 
 /* Chess Game Area */
 #chess-game {
-    background-color: white;
+    background-color: transparent;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -169,10 +169,10 @@ button:last-child {
     display: grid;
     grid-template-columns: repeat(8, 65px); /* Slightly larger squares */
     grid-template-rows: repeat(8, 65px);
-    border: 5px solid #ec6090; /* Darker, more prominent border */
     width: fit-content; /* Ensures the grid only takes up the space it needs */
     height: fit-content; /* Ensures the grid only takes up the space it needs */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: 5px solid #0f48cade;
+    box-shadow: 0 10px 20px #3e73edde;
     border-radius: 8px; /* Slightly rounded board corners */
     overflow: hidden; /* Ensures pieces fit within rounded corners */
 }
@@ -191,21 +191,21 @@ button:last-child {
 }
 
 .light {
-    background-color: #f0d9b5; /* Standard light wood color */
+    background-color: #d6ffc2; /* Lighter green */
 }
 
 .dark {
-    background-color: #b58863; /* Standard dark wood color */
+    background-color: #EC6090; /* Darker magenta/purple */
 }
 
 .selected {
-    background-color: #ffeaa7; /* Softer yellow for selected */
-    box-shadow: inset 0 0 0 3px rgba(255, 255, 0, 0.7); /* Inner yellow border */
+    background-color: #37eeab; /* Softer yellow for selected */
+    box-shadow: inset 0 0 0 3px rgba(8, 232, 79, 0.893); /* Inner yellow border */
 }
 
 .possible-move {
-    background-color: rgba(46, 204, 113, 0.4); /* Green overlay for possible moves */
-    box-shadow: inset 0 0 0 3px rgba(46, 204, 113, 0.7); /* Inner green border */
+    background-color: #3e73edde; /* Green overlay for possible moves */
+    box-shadow: inset 0 0 0 3px #0f48cade; /* Inner green border */
 }
 
 .piece {
