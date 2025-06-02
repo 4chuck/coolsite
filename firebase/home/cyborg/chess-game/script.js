@@ -244,26 +244,37 @@ auth.onAuthStateChanged((user) => {
 });
 // --- Firebase Game Lobby ---
 function listenForGames() {
-    const gamesRef = db.ref('chess/'); // UPDATED PATH
-    gamesRef.on('value', (snapshot) => {
+    const chessRef = db.ref('chess');
+
+    chessRef.on('value', (snapshot) => {
         gameList.innerHTML = '';
-        const games = snapshot.val();
+        const chessData = snapshot.val();
+
+        // Access only the games subtree
+        const games = chessData?.games;
+
         if (games) {
             Object.entries(games).forEach(([gameId, gameData]) => {
                 const li = document.createElement('li');
-                li.style.color = 'whitesmoke'; // or any valid CSS color
+                li.style.color = 'whitesmoke';
 
                 let status = 'Waiting for opponent';
                 if (gameData.playerWhite && gameData.playerBlack) {
                     status = 'In Progress';
                 }
-                if (gameData.status && (gameData.status === 'completed' || gameData.status === 'checkmate' || gameData.status === 'draw' || gameData.status === 'stalemate' || gameData.status.startsWith('draw_'))) {
-                    status = gameData.status.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); // Format status for display
+                if (
+                    gameData.status &&
+                    (gameData.status === 'completed' ||
+                    gameData.status === 'checkmate' ||
+                    gameData.status === 'draw' ||
+                    gameData.status === 'stalemate' ||
+                    gameData.status.startsWith('draw_'))
+                ) {
+                    status = gameData.status.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
                 }
 
                 li.innerHTML = `Game ID: ${gameId} (${status})`;
 
-                // Allow joining if black slot is open and not self, and game is still waiting
                 if (!gameData.playerBlack && gameData.playerWhite !== currentUser.uid && gameData.status === 'waiting') {
                     const joinButton = document.createElement('button');
                     joinButton.style.backgroundColor = '#ec6090';
@@ -271,20 +282,25 @@ function listenForGames() {
                     joinButton.addEventListener('click', () => joinGame(gameId));
                     li.appendChild(joinButton);
                 }
-                // Allow rejoining if you are already a player and game is not completed/abandoned
-                if ((gameData.playerWhite === currentUser.uid || gameData.playerBlack === currentUser.uid) && gameData.status !== 'completed' && gameData.status !== 'abandoned') {
-                     const rejoinButton = document.createElement('button');
-                     rejoinButton.style.backgroundColor = '#ec6090';
-                     rejoinButton.textContent = 'Rejoin';
-                     rejoinButton.addEventListener('click', () => joinGame(gameId));
-                     li.appendChild(rejoinButton);
+
+                if ((gameData.playerWhite === currentUser.uid || gameData.playerBlack === currentUser.uid) &&
+                    gameData.status !== 'completed' &&
+                    gameData.status !== 'abandoned') {
+                    const rejoinButton = document.createElement('button');
+                    rejoinButton.style.backgroundColor = '#ec6090';
+                    rejoinButton.textContent = 'Rejoin';
+                    rejoinButton.addEventListener('click', () => joinGame(gameId));
+                    li.appendChild(rejoinButton);
                 }
 
                 gameList.appendChild(li);
             });
+        } else {
+            console.log("No active games found.");
         }
     });
 }
+
 
 createGameBtn.addEventListener('click', () => {
     const newGameRef = db.ref('chess/').push(); // UPDATED PATH
@@ -450,7 +466,7 @@ function showGameOverModal(message) {
 
         // Delete game after modal disappears
         if (currentGameId) {
-            db.ref(`chess/games/${currentGameId}`).remove()
+            db.ref(`chess/${currentGameId}`).remove()
                 .then(() => {
                     console.log("Game data deleted after completion.");
                     leaveGame();
