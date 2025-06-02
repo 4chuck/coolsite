@@ -248,10 +248,7 @@ function listenForGames() {
 
     chessRef.on('value', (snapshot) => {
         gameList.innerHTML = '';
-        const chessData = snapshot.val();
-
-        // Access only the games subtree
-        const games = chessData?.games;
+        const games = snapshot.val(); // ✅ directly access all games under /chess
 
         if (games) {
             Object.entries(games).forEach(([gameId, gameData]) => {
@@ -265,10 +262,10 @@ function listenForGames() {
                 if (
                     gameData.status &&
                     (gameData.status === 'completed' ||
-                    gameData.status === 'checkmate' ||
-                    gameData.status === 'draw' ||
-                    gameData.status === 'stalemate' ||
-                    gameData.status.startsWith('draw_'))
+                        gameData.status === 'checkmate' ||
+                        gameData.status === 'draw' ||
+                        gameData.status === 'stalemate' ||
+                        gameData.status.startsWith('draw_'))
                 ) {
                     status = gameData.status.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
                 }
@@ -301,7 +298,7 @@ function listenForGames() {
     });
 }
 
-
+// --- Authentication Functions ---
 createGameBtn.addEventListener('click', () => {
     const newGameRef = db.ref('chess/').push(); // UPDATED PATH
     const gameId = newGameRef.key;

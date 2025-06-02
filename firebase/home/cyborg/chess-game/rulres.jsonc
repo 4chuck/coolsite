@@ -1,0 +1,105 @@
+{
+  "rules": {
+    "chess": {
+      // Any logged-in user can list all games
+      ".read": "auth != null",
+
+      "$gameId": {
+        // Only white or black can read this game’s full data
+        ".read": "auth != null &&
+                  (data.child('playerWhite').val() === auth.uid ||
+                   data.child('playerBlack').val() === auth.uid)",
+
+        // A user may:
+        //   • Create this game node if it doesn't exist, or
+        //   • Join (set playerWhite/playerBlack) when a slot is null, or
+        //   • Update only if they are already playerWhite or playerBlack
+        ".write": "auth != null &&
+                   (!data.exists() ||
+                    data.child('playerWhite').val() === null ||
+                    data.child('playerBlack').val() === null ||
+                    data.child('playerWhite').val() === auth.uid ||
+                    data.child('playerBlack').val() === auth.uid)",
+
+        "playerWhite": {
+          // Can only be set to a string equal to auth.uid (when null → join) or back to null (when leaving)
+          ".validate": "newData.val() === auth.uid || newData.val() === null"
+        },
+        "playerBlack": {
+          // Same logic for black
+          ".validate": "newData.val() === auth.uid || newData.val() === null"
+        },
+
+        "board": {
+          // Only the player whose turn it is (w or b) may update the FEN string
+          ".write": "(auth.uid === data.parent().child('playerWhite').val() &&
+                        data.parent().child('turn').val() === 'w') ||
+                       (auth.uid === data.parent().child('playerBlack').val() &&
+                        data.parent().child('turn').val() === 'b')",
+          // Must always be a string (FEN)
+          ".validate": "newData.isString()"
+        },
+
+        "turn": {
+          // Only the same player who just moved can hand off the turn (w → b, or b → w)
+          ".write": "(auth.uid === data.parent().child('playerWhite').val() &&
+                        data.val() === 'w') ||
+                       (auth.uid === data.parent().child('playerBlack').val() &&
+                        data.val() === 'b')",
+          ".validate": "newData.val() === 'w' || newData.val() === 'b'"
+        },
+
+        "status": {
+          // Either player may write a new status (e.g., ‘abandoned’, ‘playing’,
+          // or end-game states). End states are explicitly allowed here:
+          ".write": "(auth.uid === data.parent().child('playerWhite').val() ||
+                        auth.uid === data.parent().child('playerBlack').val()) ||
+                       (newData.val() === 'draw' ||
+                        newData.val() === 'draw_repetition' ||
+                        newData.val() === 'draw_insufficient_material' ||
+                        newData.val() === 'draw_50_move' ||
+                        newData.val() === 'checkmate' ||
+                        newData.val() === 'stalemate' ||
+                        newData.val() === 'abandoned' ||
+                        newData.val() === 'completed')",
+          ".validate": "newData.isString()"
+        },
+
+        "winner": {
+          // Only a player in the game can write the final winner’s UID (or name) when game ends
+          ".write": "auth.uid === data.parent().child('playerWhite').val() ||
+                     auth.uid === data.parent().child('playerBlack').val()",
+          ".validate": "newData.isString()"
+        },
+
+        "chat": {
+          // Any authenticated user may read chat within a game
+          ".read": "auth != null",
+
+          "$messageId": {
+            // Only a white/black in this game can push a new chat message
+            ".write": "auth.uid === data.parent().child('playerWhite').val() ||
+                       auth.uid === data.parent().child('playerBlack').val()",
+
+            // Each chat node must have exactly sender, message, timestamp
+            ".validate": "newData.hasChildren(['sender','message','timestamp']) &&
+                          newData.child('sender').isString() &&
+                          newData.child('message').isString() &&
+                          newData.child('timestamp').isNumber()"
+          }
+        }
+      }
+    },
+
+    "users": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid"
+      }
+    },
+
+    // Deny anything else by default
+    ".read": "false",
+    ".write": "false"
+  }
+}
