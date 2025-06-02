@@ -43,6 +43,8 @@ const sendChatBtn = document.getElementById('send-chat-btn');
 const leaveGameBtn = document.getElementById('leave-game-btn');
 
 const customAlertDiv = document.getElementById('custom-alert'); // Changed from customcalertDiv
+const gameOverModal = document.getElementById('game-over-modal');
+const gameOverMessage = document.getElementById('game-over-message');
 
 let currentUser = null;
 let currentGameId = null;
@@ -176,7 +178,7 @@ function handleSquareClick(event) {
             });
 
             if (moveResult) {
-                db.ref(`chess/games/${currentGameId}`).update({ // UPDATED PATH
+                db.ref(`chess/${currentGameId}`).update({ // UPDATED PATH
                     board: chess.fen(),
                     turn: chess.turn()
                 }).then(() => {
@@ -242,7 +244,7 @@ auth.onAuthStateChanged((user) => {
 });
 // --- Firebase Game Lobby ---
 function listenForGames() {
-    const gamesRef = db.ref('chess/games'); // UPDATED PATH
+    const gamesRef = db.ref('chess/'); // UPDATED PATH
     gamesRef.on('value', (snapshot) => {
         gameList.innerHTML = '';
         const games = snapshot.val();
@@ -285,7 +287,7 @@ function listenForGames() {
 }
 
 createGameBtn.addEventListener('click', () => {
-    const newGameRef = db.ref('chess/games').push(); // UPDATED PATH
+    const newGameRef = db.ref('chess/').push(); // UPDATED PATH
     const gameId = newGameRef.key;
     newGameRef.set({
         playerWhite: currentUser.uid,
@@ -312,7 +314,7 @@ joinGameBtn.addEventListener('click', () => {
 });
 
 function joinGame(gameId) {
-    const gameRef = db.ref(`chess/games/${gameId}`); // UPDATED PATH
+    const gameRef = db.ref(`chess/${gameId}`); // UPDATED PATH
     gameRef.transaction((game) => {
         if (game) {
             // If current user is already playerWhite or playerBlack, just confirm playerColor
@@ -367,7 +369,7 @@ function joinGame(gameId) {
 
 
 function listenToGameChanges(gameId) {
-    const gameRef = db.ref(`chess/games/${gameId}`); // UPDATED PATH
+    const gameRef = db.ref(`chess/${gameId}`); // UPDATED PATH
     gameRef.on('value', (snapshot) => {
         const gameData = snapshot.val();
         if (gameData) {
@@ -400,7 +402,7 @@ function listenToGameChanges(gameId) {
                 newStatus = 'draw_repetition';
             } else if (chess.isInsufficientMaterial()) {
                 newStatus = 'draw_insufficient_material';
-            } else if (chess.isFiftyMoves()) {
+            } else if (chess.isFiftyMove) {
                 newStatus = 'draw_50_move';
             } else if (chess.inCheck()) {
                 gameStatusSpan.textContent = (chess.turn() === 'w' ? 'White' : 'Black') + ' is in check!';
@@ -412,15 +414,25 @@ function listenToGameChanges(gameId) {
                 if (winner) {
                     updates.winner = winner;
                 }
-                db.ref(`chess/games/${gameId}`).update(updates); // UPDATED PATH
+                db.ref(`chess/${gameId}`).update(updates); // UPDATED PATH
             }
 
             // calert for game end conditions
             if (newStatus === 'checkmate' || newStatus === 'draw' || newStatus === 'stalemate' || newStatus === 'draw_repetition' || newStatus === 'draw_insufficient_material' || newStatus === 'draw_50_move') {
-                calert(`Game Over! ${gameData.winner ? gameData.winner + ' wins!' : 'It\'s a draw!'}`);
-                // Optionally disable board interaction or show a "Play Again" button
+                showGameOverModal(`Game Over! ${gameData.winner ? gameData.winner + ' wins!' : 'It\'s a draw!'}`);
+                // Auto-delete game after 5 seconds
+                setTimeout(() => {
+                 db.ref(`chess/${gameId}`).remove()
+                    .then(() => {
+                    console.log("Game data deleted after completion.");
+                    leaveGame(); // Clean up UI and local state
+                 })
+                .catch((error) => {
+                console.error("Failed to delete game data:", error);
+                calert("Error deleting finished game data.");
+                    });
+                }, 5000); // Wait 5 seconds so players can read the result
             }
-
         } else {
             // Game might have been deleted or doesn't exist anymore
             calert("Game ended or was deleted.");
@@ -429,11 +441,33 @@ function listenToGameChanges(gameId) {
     });
 }
 
+function showGameOverModal(message) {
+    gameOverMessage.textContent = message;
+    gameOverModal.classList.remove('hidden');
+
+    setTimeout(() => {
+        gameOverModal.classList.add('hidden');
+
+        // Delete game after modal disappears
+        if (currentGameId) {
+            db.ref(`chess/games/${currentGameId}`).remove()
+                .then(() => {
+                    console.log("Game data deleted after completion.");
+                    leaveGame();
+                })
+                .catch((error) => {
+                    console.error("Failed to delete game data:", error);
+                    calert("Error deleting finished game data.");
+                });
+        }
+    }, 5000); // Modal stays for 5 seconds
+}
+
 // --- Chat Functionality ---
 sendChatBtn.addEventListener('click', () => {
     const message = chatInput.value.trim();
     if (message && currentGameId && currentUser) {
-        db.ref(`chess/games/${currentGameId}/chat`).push({ // UPDATED PATH
+        db.ref(`chess/${currentGameId}/chat`).push({ // UPDATED PATH
             sender: currentUser.email.split('@')[0], // Use part of email as username
             message: message,
             timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -443,7 +477,7 @@ sendChatBtn.addEventListener('click', () => {
 });
 
 function listenToChat(gameId) {
-    const chatRef = db.ref(`chess/games/${gameId}/chat`); // UPDATED PATH
+    const chatRef = db.ref(`chess/${gameId}/chat`); // UPDATED PATH
     chatRef.on('child_added', (snapshot) => {
         const chatMessage = snapshot.val();
         const p = document.createElement('p');
@@ -458,7 +492,7 @@ leaveGameBtn.addEventListener('click', leaveGame);
 
 function leaveGame() {
     if (currentGameId && currentUser) {
-        const gameRef = db.ref(`chess/games/${currentGameId}`); // UPDATED PATH
+        const gameRef = db.ref(`chess/${currentGameId}`); // UPDATED PATH
         gameRef.transaction((game) => {
             if (game) {
                 if (game.playerWhite === currentUser.uid) {
@@ -476,8 +510,8 @@ function leaveGame() {
             }
             return undefined; // Game does not exist
         }).then(() => {
-            db.ref(`chess/games/${currentGameId}`).off('value'); // UPDATED PATH
-            db.ref(`chess/games/${currentGameId}/chat`).off('child_added'); // UPDATED PATH
+            db.ref(`chess/${currentGameId}`).off('value'); // UPDATED PATH
+            db.ref(`chess/${currentGameId}/chat`).off('child_added'); // UPDATED PATH
 
             currentGameId = null;
             playerColor = null;

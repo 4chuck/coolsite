@@ -104,15 +104,27 @@
         </div>
         <button id="leave-game-btn"style='margin-top:40px'>Leave Game</button>
     </div>
+<!-- Game Over Modal -->
+<div id="game-over-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h2>Game Over</h2>
+    <p id="game-over-message"></p>
+  </div>
+</div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script type="module">
+  import { Chess } from "https://esm.run/chess.js";
+  window.Chess = Chess;
 
+  // After Chess is defined globally, load your existing script
+  const script = document.createElement('script');
+  script.src = 'script.js';
+  document.body.appendChild(script);
+</script>
 
-
-<script src="script.js"></script>
 </body>
 </html>
