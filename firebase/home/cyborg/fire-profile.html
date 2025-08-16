@@ -322,7 +322,7 @@ https://templatemo.com/tm-579-cyborg-gaming
 
         // Loop through categories 9 to 21
         for (let n = 9; n <= 32; n++) {
-          const userDataRef = ref(database, `games/category_${n}/players/${userId}`);
+          const userDataRef = ref(database, `quiz/category_${n}/players/${userId}`);
 
           // Fetch data for the matching user ID in each category
           get(userDataRef).then((snapshot) => {
