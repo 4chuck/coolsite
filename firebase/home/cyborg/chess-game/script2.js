@@ -1,115 +1,244 @@
-/****************************************************
- * Chess Master Script (Multiplayer + AI mode)
- ****************************************************/
+// -----------------------------
+// Firebase Initialization
+// -----------------------------
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://login-b6382-default-rtdb.firebaseio.com", // update with your DB
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
 
-// Firebase initialization (already configured in HTML)
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.database();
+
+// -----------------------------
+// Global Variables
+// -----------------------------
 let currentUser = null;
 let currentGameId = null;
 let playerColor = null;
+let chess = new Chess();
+let stockfish = null;
 let selectedPiece = null;
-let chess = new Chess(); // chess.js instance
 
-// UI Elements
-const authStatus = document.getElementById("auth-status");
+// UI elements
 const gameLobby = document.getElementById("game-lobby");
 const chessGameDiv = document.getElementById("chess-game");
 const gameTitle = document.getElementById("game-title");
 const messagesDiv = document.getElementById("messages");
-const currentTurnSpan = document.getElementById("current-turn");
-const gameStatusSpan = document.getElementById("game-status");
 
-// AI Engine
-let engine = null;
-
-/****************************************************
- * AUTH
- ****************************************************/
-firebase.auth().onAuthStateChanged(user => {
+// -----------------------------
+// AUTO LOGIN (Anonymous)
+// -----------------------------
+auth.onAuthStateChanged((user) => {
   if (user) {
     currentUser = user;
-    authStatus.textContent = `Logged in as: ${user.email}`;
+    document.getElementById("auth-status").textContent = `Logged in as Guest (${user.uid})`;
     gameLobby.style.display = "block";
   } else {
-    authStatus.textContent = "Not logged in.";
-    gameLobby.style.display = "none";
-    chessGameDiv.style.display = "none";
+    currentUser = null;
+    document.getElementById("auth-status").textContent = "Not logged in";
+
+    // Try anonymous login
+    auth.signInAnonymously()
+      .catch((error) => {
+        console.error("Anonymous login failed:", error);
+      });
   }
 });
 
-/****************************************************
- * MULTIPLAYER GAME CREATION / JOIN
- ****************************************************/
-document.getElementById("create-game-btn").addEventListener("click", () => {
-  const newGameRef = db.ref("chess").push();
-  const gameId = newGameRef.key;
+// -----------------------------
+// Chessboard Rendering
+// -----------------------------
+function renderBoard(boardState) {
+  const boardDiv = document.getElementById("chessboard");
+  boardDiv.innerHTML = "";
 
+  boardState.forEach((row, rowIndex) => {
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "chess-row";
+
+    row.forEach((square, colIndex) => {
+      const squareDiv = document.createElement("div");
+      squareDiv.className = "chess-square " +
+        (((rowIndex + colIndex) % 2 === 0) ? "light" : "dark");
+
+      if (square) {
+        const piece = document.createElement("span");
+        piece.textContent = square.type.toUpperCase();
+        piece.className = `piece ${square.color}`;
+        squareDiv.appendChild(piece);
+      }
+
+      squareDiv.addEventListener("click", () => onSquareClick(rowIndex, colIndex));
+      rowDiv.appendChild(squareDiv);
+    });
+
+    boardDiv.appendChild(rowDiv);
+  });
+}
+
+function onSquareClick(row, col) {
+  console.log("Clicked square", row, col);
+  // TODO: integrate move selection logic
+}
+
+// -----------------------------
+// Multiplayer Functions
+// -----------------------------
+document.getElementById("create-game-btn").addEventListener("click", () => {
+  if (!currentUser) return alert("Not logged in");
+  const newGameRef = db.ref("chess").push();
   const gameData = {
     playerWhite: currentUser.uid,
     playerBlack: null,
     board: chess.fen(),
     turn: "w",
     status: "waiting",
-    createdAt: firebase.database.ServerValue.TIMESTAMP
+    createdAt: Date.now()
   };
-
   newGameRef.set(gameData).then(() => {
-    joinGame(gameId, "w");
+    currentGameId = newGameRef.key;
+    playerColor = "w";
+    enterGame(currentGameId);
   });
 });
 
 document.getElementById("join-game-btn").addEventListener("click", () => {
+  if (!currentUser) return alert("Not logged in");
   const gameId = document.getElementById("game-id-input").value.trim();
-  if (gameId) joinGame(gameId, "b");
-});
+  if (!gameId) return alert("Enter game ID");
 
-function joinGame(gameId, color) {
   const gameRef = db.ref(`chess/${gameId}`);
-  gameRef.transaction(game => {
-    if (game) {
-      if (!game.playerWhite) {
-        game.playerWhite = currentUser.uid;
-        color = "w";
-      } else if (!game.playerBlack) {
-        game.playerBlack = currentUser.uid;
-        color = "b";
-      }
-      if (game.playerWhite && game.playerBlack) {
-        game.status = "playing";
-      }
+  gameRef.transaction((game) => {
+    if (game && !game.playerBlack) {
+      game.playerBlack = currentUser.uid;
+      game.status = "playing";
     }
     return game;
-  }).then(res => {
-    if (!res.committed) {
-      console.error("Join game transaction failed: ", res);
-      alert("Failed to join game.");
-      return;
+  }).then((res) => {
+    if (res.committed && res.snapshot.exists()) {
+      currentGameId = gameId;
+      playerColor = "b";
+      enterGame(gameId);
+    } else {
+      alert("Unable to join game.");
     }
-    currentGameId = gameId;
-    playerColor = color;
+  });
+});
 
-    gameLobby.style.display = "none";
-    chessGameDiv.style.display = "block";
-    gameTitle.textContent = `Game ID: ${gameId}`;
+function enterGame(gameId) {
+  chessGameDiv.style.display = "block";
+  gameLobby.style.display = "none";
+  gameTitle.textContent = `Game ID: ${gameId}`;
 
-    subscribeToGame(gameId);
-  }).catch(err => {
-    console.error("Join game error:", err);
-    alert("Error joining game.");
+  const gameRef = db.ref(`chess/${gameId}`);
+  gameRef.on("value", (snap) => {
+    const game = snap.val();
+    if (!game) return;
+    document.getElementById("current-turn").textContent = game.turn;
+    document.getElementById("game-status").textContent = game.status;
+    chess.load(game.board);
+    renderBoard(chess.board());
+  });
+
+  const chatRef = db.ref(`chess/${gameId}/chat`);
+  chatRef.on("child_added", (snap) => {
+    const msg = snap.val();
+    const p = document.createElement("p");
+    p.textContent = `${msg.sender}: ${msg.message}`;
+    messagesDiv.appendChild(p);
   });
 }
 
-/****************************************************
- * SUBSCRIBE TO GAME UPDATES
- ****************************************************/
-function subscribeToGame(gameId) {
-  const gameRef = db.ref(`chess/${gameId}`);
-  gameRef.on("value", snap => {
-    const game = snap.val();
-    if (!game) return;
+document.getElementById("send-chat-btn").addEventListener("click", () => {
+  if (!currentGameId || !currentUser) return;
+  const msgInput = document.getElementById("chat-input");
+  const text = msgInput.value.trim();
+  if (!text) return;
 
-    if (game.board) chess.load(game.board);
-    renderBoard(chess.board());
+  db.ref(`chess/${currentGameId}/chat`).push({
+    sender: currentUser.uid,
+    message: text,
+    timestamp: Date.now()
+  });
+  msgInput.value = "";
+});
+
+document.getElementById("leave-game-btn").addEventListener("click", leaveGame);
+
+function leaveGame() {
+  if (currentGameId && currentUser) {
+    const gameRef = db.ref(`chess/${currentGameId}`);
+    gameRef.transaction((game) => {
+      if (game) {
+        if (game.playerWhite === currentUser.uid) game.playerWhite = null;
+        if (game.playerBlack === currentUser.uid) game.playerBlack = null;
+
+        if (!game.playerWhite && !game.playerBlack) {
+          return null; // delete game
+        } else if (game.status === "playing" && (!game.playerWhite || !game.playerBlack)) {
+          game.status = "abandoned";
+          game.expiresAt = Date.now() + 12 * 60 * 60 * 1000; // auto cleanup
+        }
+        return game;
+      }
+      return undefined;
+    }).then(() => {
+      db.ref(`chess/${currentGameId}`).off("value");
+      db.ref(`chess/${currentGameId}/chat`).off("child_added");
+      currentGameId = null;
+      playerColor = null;
+      chess.reset();
+      chessGameDiv.style.display = "none";
+      gameLobby.style.display = "block";
+      gameTitle.textContent = "";
+      messagesDiv.innerHTML = "";
+      renderBoard(chess.board());
+    }).catch(err => console.error("Error leaving game:", err));
+  }
+}
+
+// -----------------------------
+// AI MODE
+// -----------------------------
+document.getElementById("play-ai-btn").addEventListener("click", () => {
+  startAIGame();
+});
+
+function initEngine() {
+  stockfish = new Worker("https://cdn.jsdelivr.net/npm/stockfish/stockfish.js");
+  stockfish.onmessage = (event) => {
+    const line = event.data.toString();
+    if (line.startsWith("bestmove")) {
+      const move = line.split(" ")[1];
+      chess.move({ from: move.substring(0, 2), to: move.substring(2, 4), promotion: "q" });
+      renderBoard(chess.board());
+      document.getElementById("current-turn").textContent = chess.turn();
+    }
+  };
+}
+
+function aiMove() {
+  if (!stockfish) initEngine();
+  stockfish.postMessage("position fen " + chess.fen());
+  stockfish.postMessage("go depth 15");
+}
+
+function startAIGame() {
+  chess.reset();
+  renderBoard(chess.board());
+  gameLobby.style.display = "none";
+  chessGameDiv.style.display = "block";
+  gameTitle.textContent = "Playing vs AI";
+  playerColor = "w";
+  document.getElementById("game-status").textContent = "playing";
+  document.getElementById("current-turn").textContent = "w";
+        }    renderBoard(chess.board());
 
     currentTurnSpan.textContent = game.turn;
     gameStatusSpan.textContent = game.status;
