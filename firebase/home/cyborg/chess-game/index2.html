@@ -10,16 +10,60 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Bootstrap core CSS -->
-  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Additional CSS Files -->
-  <link rel="stylesheet" href="../assets/css/fontawesome.css">
-  <link rel="stylesheet" href="../assets/css/templatemo-cyborg-gaming.css">
-  <link rel="stylesheet" href="../assets/css/owl.css">
-  <link rel="stylesheet" href="../assets/css/animate.css">
+  <link rel="stylesheet" href="assets/css/fontawesome.css">
+  <link rel="stylesheet" href="assets/css/templatemo-cyborg-gaming.css">
+  <link rel="stylesheet" href="assets/css/owl.css">
+  <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
 
-  <link rel="stylesheet" href="style.css">
+  <style>
+    #chessboard {
+      display: grid;
+      grid-template-rows: repeat(8, 50px);
+      grid-template-columns: repeat(8, 50px);
+      margin: 20px auto;
+      width: 400px;
+    }
+
+    .chess-row {
+      display: flex;
+    }
+
+    .chess-square {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .light {
+      background: #f0d9b5;
+    }
+
+    .dark {
+      background: #b58863;
+    }
+
+    .piece.w {
+      color: white;
+    }
+
+    .piece.b {
+      color: black;
+    }
+
+    #chat-box {
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #444;
+      padding: 5px;
+    }
+  </style>
 </head>
 
 <body>
@@ -30,14 +74,14 @@
         <div class="col-12">
           <nav class="main-nav">
             <a href="index.html" class="logo">
-              <img src="../assets/images/logo.png" alt="">
+              <img src="assets/images/logo.png" alt="">
             </a>
             <ul class="nav">
               <li><a href="index.html" class="active">Home</a></li>
               <li><a href="browse.html">Browse</a></li>
               <li><a href="details.html">Details</a></li>
               <li><a href="streams.html">Streams</a></li>
-              <li><a href="../fire-profile.html">Profile <img src="../assets/images/profile-header.jpg" alt=""></a></li>
+              <li><a href="fire-profile.html">Profile <img src="assets/images/profile-header.jpg" alt=""></a></li>
             </ul>
             <a class="menu-trigger"><span>Menu</span></a>
           </nav>
@@ -52,6 +96,7 @@
       <div class="col-lg-12">
         <div class="page-content" style="padding:auto auto auto auto">
 
+          <!-- Banner -->
           <div class="main-banner" style="min-height: 150px; padding: 30px 100px;">
             <div class="row">
               <div class="col-lg-12">
@@ -69,13 +114,12 @@
           <div id="game-lobby" style="display: none;">
             <h2>Game Lobby</h2>
             <button id="create-game-btn">Create New Game</button>
-            <button id="play-ai-btn" style="margin-left:10px; background: #1dd1a1; color: white; border: none; padding: 6px 12px; border-radius: 6px;">
-              Play vs AI
-            </button>
             <ul id="game-list"></ul>
             <p>Join a game:</p>
             <input type="text" id="game-id-input" placeholder="Enter Game ID">
             <button id="join-game-btn">Join Game</button>
+            <hr>
+            <button id="play-ai-btn">Play vs AI</button>
           </div>
 
           <!-- Chess Game -->
@@ -88,44 +132,27 @@
               <p>Status: <span id="game-status"></span></p>
             </div>
 
+            <!-- Chat -->
             <div id="chat-box">
               <div id="messages"></div>
               <input type="text" id="chat-input" placeholder="Type a message...">
               <button id="send-chat-btn">Send</button>
             </div>
 
-            <button id="leave-game-btn" style="margin-top:40px">Leave Game</button>
+            <button id="leave-game-btn" style='margin-top:40px'>Leave Game</button>
           </div>
 
-          <!-- Game Over Modal -->
-          <div id="game-over-modal" class="modal-overlay hidden">
-            <div class="modal-content">
-              <h2>Game Over</h2>
-              <p id="game-over-message"></p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Firebase Scripts -->
+  <!-- Firebase + App -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-  <!-- Stockfish AI Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/stockfish/stockfish.js"></script>
-
-  <!-- Chess.js + Main Script -->
-  <script type="module">
-    import { Chess } from "https://esm.run/chess.js";
-    window.Chess = Chess;
-
-    // Load your game logic
-    const script = document.createElement('script');
-    script.src = 'script2.js';
-    document.body.appendChild(script);
-  </script>
+  <script type="module" src="script.js"></script>
 </body>
+
 </html>
