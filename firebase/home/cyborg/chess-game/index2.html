@@ -28,17 +28,14 @@
       width: 400px;
     }
 
-    .chess-row {
-      display: flex;
-    }
-
     .chess-square {
       width: 50px;
       height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 22px;
+      font-weight: bold;
     }
 
     .light {
@@ -62,20 +59,24 @@
       overflow-y: auto;
       border: 1px solid #444;
       padding: 5px;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
-  <!-- Header -->
+
+  <!-- ***** Header ***** -->
   <header class="header-area header-sticky" style="background-color: #27292A;">
     <div class="container">
       <div class="row">
         <div class="col-12">
           <nav class="main-nav">
+            <!-- ***** Logo Start ***** -->
             <a href="index.html" class="logo">
               <img src="assets/images/logo.png" alt="">
             </a>
+            <!-- ***** Menu Start ***** -->
             <ul class="nav">
               <li><a href="index.html" class="active">Home</a></li>
               <li><a href="browse.html">Browse</a></li>
@@ -84,19 +85,20 @@
               <li><a href="fire-profile.html">Profile <img src="assets/images/profile-header.jpg" alt=""></a></li>
             </ul>
             <a class="menu-trigger"><span>Menu</span></a>
+            <!-- ***** Menu End ***** -->
           </nav>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- ***** Main Content ***** -->
   <div class="container">
     <div class="row">
       <div class="col-lg-12">
-        <div class="page-content" style="padding:auto auto auto auto">
+        <div class="page-content">
 
-          <!-- Banner -->
+          <!-- ***** Banner Start ***** -->
           <div class="main-banner" style="min-height: 150px; padding: 30px 100px;">
             <div class="row">
               <div class="col-lg-12">
@@ -106,10 +108,62 @@
                 </div>
               </div>
             </div>
-          </div><br><br>
+          </div>
+          <!-- ***** Banner End ***** -->
+
+          <br><br>
 
           <p id="auth-status"></p>
 
+          <!-- ***** Game Lobby ***** -->
+          <div id="game-lobby" style="display: none;">
+            <h2>Game Lobby</h2>
+            <button id="create-game-btn" class="btn btn-primary">Create New Game</button>
+            <ul id="game-list"></ul>
+            <p>Join a game:</p>
+            <input type="text" id="game-id-input" placeholder="Enter Game ID">
+            <button id="join-game-btn" class="btn btn-success">Join Game</button>
+            <hr>
+            <button id="play-ai-btn" class="btn btn-warning">Play vs AI</button>
+          </div>
+
+          <!-- ***** Chess Game ***** -->
+          <div id="chess-game" style="display: none;">
+            <h2 id="game-title"></h2>
+            <div id="custom-alert" class="hidden"></div>
+            <div id="chessboard"></div>
+            <div id="game-info">
+              <p>Turn: <span id="current-turn"></span></p>
+              <p>Status: <span id="game-status"></span></p>
+            </div>
+
+            <!-- Chat -->
+            <div id="chat-box">
+              <div id="messages"></div>
+              <input type="text" id="chat-input" placeholder="Type a message...">
+              <button id="send-chat-btn" class="btn btn-sm btn-info">Send</button>
+            </div>
+
+            <button id="leave-game-btn" class="btn btn-danger" style='margin-top:40px'>Leave Game</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase + Stockfish + App -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+  <!-- Stockfish engine -->
+  <script src="https://cdn.jsdelivr.net/npm/stockfish/stockfish.js"></script>
+
+  <!-- Your game logic -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
           <!-- Game Lobby -->
           <div id="game-lobby" style="display: none;">
             <h2>Game Lobby</h2>
