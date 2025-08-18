@@ -238,21 +238,9 @@ function startAIGame() {
   playerColor = "w";
   document.getElementById("game-status").textContent = "playing";
   document.getElementById("current-turn").textContent = "w";
-        }    renderBoard(chess.board());
 
-    currentTurnSpan.textContent = game.turn;
-    gameStatusSpan.textContent = game.status;
-  });
-
-  const chatRef = db.ref(`chess/${gameId}/chat`);
-  chatRef.on("child_added", snap => {
-    const msg = snap.val();
-    const p = document.createElement("p");
-    p.textContent = `${msg.sender}: ${msg.message}`;
-    messagesDiv.appendChild(p);
-  });
+  // No database listeners here, AI mode is offline
 }
-
 /****************************************************
  * LEAVE GAME (multiplayer)
  ****************************************************/
