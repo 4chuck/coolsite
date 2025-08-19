@@ -473,57 +473,58 @@ function showGameOverModal(msg) {
 
   leaveGameBtn && leaveGameBtn.addEventListener("click", leaveGame);
   function leaveGame() { 
-    if (currentGameId && currentUser) {
-        const gameRef = db.ref(`chess/${currentGameId}`);
+  if (currentGameId && currentUser) {
+    // --- Multiplayer cleanup ---
+    const gameRef = db.ref(`chess/${currentGameId}`);
+    gameRef.transaction((game) => {
+      if (game) {
+        if (game.playerWhite === currentUser.uid) {
+          game.playerWhite = null;
+        } else if (game.playerBlack === currentUser.uid) {
+          game.playerBlack = null;
+        }
 
-        gameRef.transaction((game) => {
-            if (game) {
-                // Handle player leaving
-                if (game.playerWhite === currentUser.uid) {
-                    game.playerWhite = null;
-                } else if (game.playerBlack === currentUser.uid) {
-                    game.playerBlack = null;
-                }
+        if (!game.playerWhite && !game.playerBlack) {
+          return null; // delete node
+        } else if (game.status === 'playing' && (!game.playerWhite || !game.playerBlack)) {
+          game.status = 'abandoned';
+        }
 
-                // If both players gone → delete game node now
-                if (!game.playerWhite && !game.playerBlack) {
-                    return null; 
-                } 
-                // If game was playing but one left → mark as abandoned
-                else if (game.status === 'playing' && (!game.playerWhite || !game.playerBlack)) {
-                    game.status = 'abandoned';
-                }
+        game.status = 'ended';
+        game.lastActive = firebase.database.ServerValue.TIMESTAMP;
+        return game;
+      }
+      return undefined;
+    }).then(() => {
+      // detach listeners
+      db.ref(`chess/${currentGameId}`).off('value');
+      db.ref(`chess/${currentGameId}/chat`).off('child_added');
 
-                // Always mark as ended + set cleanup fields
-                game.status = 'ended';
-                game.lastActive = firebase.database.ServerValue.TIMESTAMP;
-                game[".expires"] = Date.now() + 12 * 60 * 60 * 1000; // auto-delete in 12h
+      resetLocalState();
+    }).catch(error => {
+      console.error("Error leaving game:", error);
+      calert("Error leaving game.");
+    });
+  } else {
+    // --- AI / Local game cleanup ---
+    resetLocalState();
+  }
+}
 
-                return game;
-            }
-            return undefined; // Game does not exist
-        }).then(() => {
-            // Detach listeners
-            db.ref(`chess/${currentGameId}`).off('value');
-            db.ref(`chess/${currentGameId}/chat`).off('child_added');
+function resetLocalState() {
+  currentGameId = null;
+  playerColor = null;
+  selectedPiece = null;
+  chess.reset();
 
-            // Reset state
-            currentGameId = null;
-            playerColor = null;
-            selectedPiece = null;
-            chess.reset();
-
-            // Reset UI
-            chessGameDiv.style.display = 'none';
-            gameLobby.style.display = 'block';
-            gameTitle.textContent = '';
-            messagesDiv.innerHTML = '';
-            renderBoard(chess.board());
-        }).catch(error => {
-            console.error("Error leaving game:", error);
-            calert("Error leaving game.");
-        });
-    }
+  // Reset UI
+  chessGameDiv.style.display = 'none';
+  gameLobby.style.display = 'block';
+  gameTitle.textContent = '';
+  messagesDiv.innerHTML = '';
+  renderBoard(chess.board());
+  currentTurnSpan.textContent = 'White';
+  gameStatusSpan.textContent = 'Idle';
 }
 
   // local AI start
