@@ -53,8 +53,8 @@
   let currentUser = null;
   let currentGameId = null; // null => local/AI
   let playerColor = null; // 'white' or 'black'
-  let selectedPiece = null; // { row, col, type, color }
-  let lastPossibleMoves = []; // cached verbose moves for selectedPiece
+  let selectedPiece = null;
+  let lastPossibleMoves = [];
 
   // ---------- small helpers ----------
   function L(...args) { console.log("[script2]", ...args); }
@@ -108,13 +108,10 @@
 
     stockfish.onmessage = (ev) => {
       const line = ev.data || "";
-      L("[STOCKFISH MESSAGE]", line);
       if (typeof line !== "string") return;
+      L("[STOCKFISH MESSAGE]", line);
 
-      if (line.startsWith("uciok")) {
-        enginePost("isready");
-        return;
-      }
+      if (line.startsWith("uciok")) { enginePost("isready"); return; }
       if (line.startsWith("readyok")) {
         if (!engineReady) {
           engineReady = true;
@@ -126,23 +123,16 @@
       if (line.startsWith("bestmove")) {
         engineSearching = false;
         const mv = line.split(" ")[1];
-        L("[STOCKFISH] bestmove", mv);
         if (mv && mv !== "(none)" && !currentGameId) {
-          // apply locally
           const from = mv.slice(0,2), to = mv.slice(2,4);
           try {
             const mobj = chess.move({ from, to, promotion: "q" });
             if (mobj) {
-              L("[STOCKFISH] applied:", mobj.san);
               renderBoard(chess.board());
               currentTurnSpan.textContent = chess.turn() === "w" ? "White" : "Black";
               checkForEndAndNotify();
-            } else {
-              L("[STOCKFISH] engine move illegal:", mv);
             }
-          } catch (e) {
-            console.error("[STOCKFISH] error applying move:", e);
-          }
+          } catch (e) { console.error("[STOCKFISH] error applying move:", e); }
         }
         return;
       }
@@ -158,63 +148,53 @@
     enginePost("uci");
     enginePost("isready");
     enginePost("ucinewgame");
-    L("[INIT] Worker created and UCI handshake sent.");
   }
 
   function makeAIMove(depth = 12) {
-    L("[AI] Requesting AI move; chess.isGameOver:", chess.isGameOver());
     if (chess.isGameOver()) { checkForEndAndNotify(); return; }
     initStockfish();
     const fen = chess.fen();
-    L("[AI] position fen:", fen);
     enginePost("position fen " + fen);
     enginePost("go depth " + depth);
     engineSearching = true;
-    L("[AI] go depth", depth, "posted");
   }
 
   // ---------- End detection ----------
-function checkForEndAndNotify(username) {
-  if (!chess.isGameOver()) return;
+  function checkForEndAndNotify(username) {
+    if (!chess.isGameOver()) return;
+    let msg = "Game over";
 
-  let msg = "Game over";
-
-  if (chess.isCheckmate()) {
-    // If it's White's turn, White is checkmated -> Black wins
-    if (chess.turn() === "w") {
-      msg = `Checkmate! Black (AI) wins!`;
-    } else {
-      msg = `Checkmate! White (${username}) wins!`;
+    if (chess.isCheckmate()) {
+      if (chess.turn() === "w") {
+        msg = `Checkmate! Black (AI) wins!`;
+      } else {
+        msg = `Checkmate! White (${username || "Player"}) wins!`;
+      }
+    } else if (chess.isStalemate()) {
+      msg = "Stalemate – Draw.";
+    } else if (chess.isThreefoldRepetition()) {
+      msg = "Draw by threefold repetition.";
+    } else if (chess.isInsufficientMaterial()) {
+      msg = "Draw by insufficient material.";
+    } else if (chess.isDraw()) {
+      msg = "Draw (50-move rule or other condition).";
     }
-  } 
-  else if (chess.isStalemate()) {
-    msg = "Stalemate – Draw.";
-  } 
-  else if (chess.isThreefoldRepetition()) {
-    msg = "Draw by threefold repetition.";
-  } 
-  else if (chess.isInsufficientMaterial()) {
-    msg = "Draw by insufficient material.";
-  } 
-  else if (chess.isDraw()) {
-    msg = "Draw (50-move rule or other condition).";
+
+    gameStatusSpan.textContent = msg;
+    showGameOverModal(msg);
   }
 
-  gameStatusSpan.textContent = msg;
-  showGameOverModal(msg);
-}
-
-function showGameOverModal(msg) {
-  if (gameOverModal && gameOverMessage) {
-    gameOverMessage.textContent = msg;
-    gameOverModal.classList.remove("hidden");
-    setTimeout(() => gameOverModal.classList.add("hidden"), 5000);
-  } else {
-    calert(msg);
+  function showGameOverModal(msg) {
+    if (gameOverModal && gameOverMessage) {
+      gameOverMessage.textContent = msg;
+      gameOverModal.classList.remove("hidden");
+      setTimeout(() => gameOverModal.classList.add("hidden"), 5000);
+    } else {
+      calert(msg);
+    }
   }
-}
 
-  // ---------- Board rendering & helpers ----------
+  // ---------- Board rendering ----------
   function renderBoard(boardArray) {
     chessboardDiv.innerHTML = "";
     for (let r=0; r<8; r++) {
@@ -240,14 +220,12 @@ function showGameOverModal(msg) {
       k: "♔", q: "♕", r: "♖", b: "♗", n: "♘", p: "♙",
       K: "♚", Q: "♛", R: "♜", B: "♝", N: "♞", P: "♟",
     };
-    if (!pieceType || !color) return "";
     return (color === "w") ? pieces[pieceType.toLowerCase()] : pieces[pieceType.toUpperCase()];
   }
 
   function clearHighlights() {
     document.querySelectorAll(".square.possible-move").forEach(s => s.classList.remove("possible-move"));
   }
-
   function deselectPiece() {
     const prev = document.querySelector(".square.selected");
     if (prev) prev.classList.remove("selected");
@@ -255,10 +233,8 @@ function showGameOverModal(msg) {
     lastPossibleMoves = [];
     clearHighlights();
   }
-
   function highlightPossibleMoves(moves) {
     clearHighlights();
-    if (!moves || moves.length === 0) return;
     moves.forEach(mv => {
       const to = mv.to;
       const row = 8 - parseInt(to.charAt(1), 10);
@@ -276,21 +252,12 @@ function showGameOverModal(msg) {
     const col = parseInt(clicked.dataset.col, 10);
     const algebraicSquare = `${String.fromCharCode(97 + col)}${8 - row}`;
 
-    // If a piece is already selected and it has possible moves cached => attempt move
     if (selectedPiece && lastPossibleMoves.length > 0) {
       const fromSquare = `${String.fromCharCode(97 + selectedPiece.col)}${8 - selectedPiece.row}`;
-
-      if (fromSquare === algebraicSquare) {
-        deselectPiece();
-        return;
-      }
-
+      if (fromSquare === algebraicSquare) { deselectPiece(); return; }
       let moveResult = null;
-      try {
-        moveResult = chess.move({ from: fromSquare, to: algebraicSquare, promotion: "q" });
-      } catch (e) {
-        moveResult = null;
-      }
+      try { moveResult = chess.move({ from: fromSquare, to: algebraicSquare, promotion: "q" }); }
+      catch (e) { moveResult = null; }
 
       deselectPiece();
 
@@ -304,34 +271,18 @@ function showGameOverModal(msg) {
         } else {
           setTimeout(()=> makeAIMove(), 240);
         }
-      } else {
-        const clickedPiece = chess.get(algebraicSquare);
-        if (!(clickedPiece && clickedPiece.color === (playerColor ? playerColor.charAt(0) : chess.turn()))) {
-          calert("Illegal move");
-          return;
-        }
       }
     }
 
     const piece = chess.get(algebraicSquare);
-    if (!piece) {
-      deselectPiece();
-      return;
-    }
+    if (!piece) { deselectPiece(); return; }
 
     if (currentGameId && playerColor) {
-      if (playerColor.charAt(0) !== chess.turn()) {
-        calert("It's not your turn!");
-        return;
-      }
-      if (piece.color !== playerColor.charAt(0)) {
-        calert("That's your opponent's piece!");
-        return;
-      }
+      if (playerColor.charAt(0) !== chess.turn()) { calert("It's not your turn!"); return; }
+      if (piece.color !== playerColor.charAt(0)) { calert("That's your opponent's piece!"); return; }
     }
 
     const possibleMoves = chess.moves({ square: algebraicSquare, verbose: true });
-
     deselectPiece();
     selectedPiece = { row, col, type: piece.type, color: piece.color };
     lastPossibleMoves = possibleMoves.slice();
@@ -341,16 +292,8 @@ function showGameOverModal(msg) {
 
   // ---------- Firebase auth & lobby ----------
   auth.onAuthStateChanged(user => {
-    if (user) {
-      currentUser = user;
-      //authStatus.textContent = `Signed in: ${user.uid}`;
-      if (gameLobby) gameLobby.style.display = "block";
-      listenForGames();
-    } else {
-      auth.signInAnonymously().catch(err => {
-        authStatus.textContent = "Sign-in restricted (see console)";
-      });
-    }
+    if (user) { currentUser = user; if (gameLobby) gameLobby.style.display = "block"; listenForGames(); }
+    else { auth.signInAnonymously().catch(err => { authStatus.textContent = "Sign-in restricted (see console)"; }); }
   });
 
   function listenForGames() {
@@ -422,8 +365,6 @@ function showGameOverModal(msg) {
         gameTitle.textContent = `Game ${gameId} (${playerColor})`;
         listenToGameChanges(gameId);
         listenToChat(gameId);
-
-        // Restore chat for multiplayer
         if (messagesDiv) messagesDiv.parentElement.style.display = "flex";
         if (chatInput) chatInput.style.display = "inline-block";
         if (sendChatBtn) sendChatBtn.style.display = "inline-block";
@@ -447,7 +388,6 @@ function showGameOverModal(msg) {
     });
   }
 
-  // chat
   sendChatBtn && sendChatBtn.addEventListener("click", () => {
     const msg = (chatInput && chatInput.value || "").trim();
     if (!msg || !currentGameId || !currentUser) return;
@@ -472,82 +412,66 @@ function showGameOverModal(msg) {
   }
 
   leaveGameBtn && leaveGameBtn.addEventListener("click", leaveGame);
-  function leaveGame() { 
-  if (currentGameId && currentUser) {
-    // --- Multiplayer cleanup ---
-    const gameRef = db.ref(`chess/${currentGameId}`);
-    gameRef.transaction((game) => {
-      if (game) {
-        if (game.playerWhite === currentUser.uid) {
-          game.playerWhite = null;
-        } else if (game.playerBlack === currentUser.uid) {
-          game.playerBlack = null;
+  function leaveGame() {
+    if (currentGameId && currentUser) {
+      const gameRef = db.ref(`chess/${currentGameId}`);
+      gameRef.transaction((game) => {
+        if (game) {
+          if (game.playerWhite === currentUser.uid) game.playerWhite = null;
+          else if (game.playerBlack === currentUser.uid) game.playerBlack = null;
+          if (!game.playerWhite && !game.playerBlack) {
+            return null; // delete game if no players remain
+          }
         }
-
-        if (!game.playerWhite && !game.playerBlack) {
-          return null; // delete node
-        } else if (game.status === 'playing' && (!game.playerWhite || !game.playerBlack)) {
-          game.status = 'abandoned';
-        }
-
-        game.status = 'ended';
-        game.lastActive = firebase.database.ServerValue.TIMESTAMP;
         return game;
-      }
-      return undefined;
-    }).then(() => {
-      // detach listeners
-      db.ref(`chess/${currentGameId}`).off('value');
-      db.ref(`chess/${currentGameId}/chat`).off('child_added');
-
+      }).then(() => {
+        resetLocalState();
+      });
+    } else {
+      // Local AI game
       resetLocalState();
-    }).catch(error => {
-      console.error("Error leaving game:", error);
-      calert("Error leaving game.");
-    });
-  } else {
-    // --- AI / Local game cleanup ---
-    resetLocalState();
+    }
   }
-}
 
-function resetLocalState() {
-  currentGameId = null;
-  playerColor = null;
-  selectedPiece = null;
-  chess.reset();
-
-  // Reset UI
-  chessGameDiv.style.display = 'none';
-  gameLobby.style.display = 'block';
-  gameTitle.textContent = '';
-  messagesDiv.innerHTML = '';
-  renderBoard(chess.board());
-  currentTurnSpan.textContent = 'White';
-  gameStatusSpan.textContent = 'Idle';
-}
-
-  // local AI start
-  playVsAIBtn && playVsAIBtn.addEventListener("click", () => {
+  function resetLocalState() {
     currentGameId = null;
-    playerColor = "w";
+    playerColor = null;
     chess.reset();
     renderBoard(chess.board());
-    gameLobby.style.display = "none";
-    chessGameDiv.style.display = "block";
-    gameTitle.textContent = "Playing vs AI";
     currentTurnSpan.textContent = "White";
-    gameStatusSpan.textContent = "Playing vs Stockfish";
-    initStockfish();
+    gameStatusSpan.textContent = "Not started";
 
-    // Hide chat for AI games
+    // stop Stockfish if running
+    if (stockfish) {
+      try {
+        stockfish.terminate();
+      } catch (e) {
+        console.warn("Error terminating Stockfish:", e);
+      }
+      stockfish = null;
+      engineReady = false;
+      engineSearching = false;
+      engineQueue.length = 0;
+    }
+
+    // Reset UI
+    chessGameDiv.style.display = "none";
+    gameLobby.style.display = "block";
+    if (messagesDiv) messagesDiv.innerHTML = "";
+  }
+
+  // ---------- AI Mode ----------
+  playVsAIBtn && playVsAIBtn.addEventListener("click", () => {
+    currentGameId = null;
+    playerColor = "white";
+    chess.reset();
+    renderBoard(chess.board());
+    currentTurnSpan.textContent = "White";
+    gameStatusSpan.textContent = "Playing vs AI";
+    chessGameDiv.style.display = "block";
+    gameLobby.style.display = "none";
+    gameTitle.textContent = "Play vs AI (You are White)";
     if (messagesDiv) messagesDiv.parentElement.style.display = "none";
-    if (chatInput) chatInput.style.display = "none";
-    if (sendChatBtn) sendChatBtn.style.display = "none";
   });
 
-  // ---------- initial render ----------
-  renderBoard(chess.board());
-  currentTurnSpan.textContent = chess.turn() === "w" ? "White" : "Black";
-  gameStatusSpan.textContent = "Idle";
 })();
