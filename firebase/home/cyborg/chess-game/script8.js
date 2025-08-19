@@ -174,23 +174,45 @@
   }
 
   // ---------- End detection ----------
-  function checkForEndAndNotify() {
-    if (!chess.isGameOver()) return;
-    let msg = "Game over";
-    if (chess.isCheckmate()) msg = "Checkmate!";
-    else if (chess.isDraw()) msg = "Draw.";
-    gameStatusSpan.textContent = msg;
-    showGameOverModal(msg);
-  }
-  function showGameOverModal(msg) {
-    if (gameOverModal && gameOverMessage) {
-      gameOverMessage.textContent = msg;
-      gameOverModal.classList.remove("hidden");
-      setTimeout(()=>gameOverModal.classList.add("hidden"), 5000);
+function checkForEndAndNotify(username) {
+  if (!chess.isGameOver()) return;
+
+  let msg = "Game over";
+
+  if (chess.isCheckmate()) {
+    // If it's White's turn, White is checkmated -> Black wins
+    if (chess.turn() === "w") {
+      msg = `Checkmate! Black (AI) wins!`;
     } else {
-      calert(msg);
+      msg = `Checkmate! White (${username}) wins!`;
     }
+  } 
+  else if (chess.isStalemate()) {
+    msg = "Stalemate – Draw.";
+  } 
+  else if (chess.isThreefoldRepetition()) {
+    msg = "Draw by threefold repetition.";
+  } 
+  else if (chess.isInsufficientMaterial()) {
+    msg = "Draw by insufficient material.";
+  } 
+  else if (chess.isDraw()) {
+    msg = "Draw (50-move rule or other condition).";
   }
+
+  gameStatusSpan.textContent = msg;
+  showGameOverModal(msg);
+}
+
+function showGameOverModal(msg) {
+  if (gameOverModal && gameOverMessage) {
+    gameOverMessage.textContent = msg;
+    gameOverModal.classList.remove("hidden");
+    setTimeout(() => gameOverModal.classList.add("hidden"), 5000);
+  } else {
+    calert(msg);
+  }
+}
 
   // ---------- Board rendering & helpers ----------
   function renderBoard(boardArray) {
