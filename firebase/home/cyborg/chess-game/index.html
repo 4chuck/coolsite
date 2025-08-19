@@ -18,26 +18,12 @@
   <link rel="stylesheet" href="../assets/css/owl.css">
   <link rel="stylesheet" href="../assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
 
-  <!-- Firebase Scripts (preloaded for logic) -->
- </head>
-<link rel="stylesheet" href="style.css">
 <body>
-
-  <!-- Preloader
-  <div id="js-preloader" class="js-preloader">
-    <div class="preloader-inner">
-      <span class="dot"></span>
-      <div class="dots">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  </div>
- -->
   <!-- Header -->
-  <header class="header-area header-sticky"style="background-color: #27292A;">
+  <header class="header-area header-sticky" style="background-color: #27292A;">
     <div class="container">
       <div class="row">
         <div class="col-12">
@@ -63,65 +49,81 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-12">
-        <div class="page-content"style="padding:auto auto auto auto">
+        <div class="page-content" style="padding:auto auto auto auto">
 
-          <div class="main-banner"style="min-height: 150px; padding: 30px 100px;">
+          <div class="main-banner" style="min-height: 150px; padding: 30px 100px;">
             <div class="row">
               <div class="col-lg-12">
                 <div class="header-text">
-                  <h2 style="color:aqua">chess master</h2>
-                  <h4><em>Compete</em> in Real-Time</h4>
+                  <h2 style="color:aqua">Chess Master</h2>
+                  <h4><em>Compete</em> in Real-Time or vs AI</h4>
                 </div>
               </div>
             </div>
           </div><br><br>
-<body>
-        <p id="auth-status"></p>
-    <div id="game-lobby" style="display: none;">
-        <h2>Game Lobby</h2>
-        <button id="create-game-btn">Create New Game</button>
-        <ul id="game-list"></ul>
-        <p>Join a game:</p>
-        <input type="text" id="game-id-input" placeholder="Enter Game ID">
-        <button id="join-game-btn">Join Game</button>
-    </div>
 
-    <div id="chess-game" style="display: none;">
-        <h2 id="game-title"></h2>
-        <div id="custom-alert" class="hidden"></div>
-        <div id="chessboard"></div>
-        <div id="game-info">
-            <p>Turn: <span id="current-turn"></span></p>
-            <p>Status: <span id="game-status"></span></p>
+          <p id="auth-status"></p>
+
+          <!-- Game Lobby -->
+          <div id="game-lobby" style="display: none;">
+            <h2>Game Lobby</h2>
+            <button id="create-game-btn">Create New Game</button>
+            <button id="play-ai-btn">Play vs AI</button>
+            <ul id="game-list"style="background-color: #4A4A4A;color:white;"></ul>
+            <p>Join a game:</p>
+            <input type="text" id="game-id-input" placeholder="Enter Game ID">
+            <button id="join-game-btn">Join Game</button>
+          </div>
+
+          <!-- Chess Game -->
+          <div id="chess-game" style="display: none;">
+            <h2 id="game-title"></h2>
+            <div id="custom-alert" class="hidden"></div>
+            <div id="chessboard"></div>
+            <div id="game-info">
+              <p>Turn: <span id="current-turn"></span></p>
+              <p>Status: <span id="game-status"></span></p>
+            </div>
+            <div id="chat-box">
+              <div id="messages" style="height: 150px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px;"></div>
+              <input type="text" id="chat-input" placeholder="Type a message...">
+              <button id="send-chat-btn">Send</button>
+            </div>
+            <button id="leave-game-btn" style="margin-top:40px">Leave Game</button>
+          </div>
+
+          <!-- Game Over Modal -->
+          <div id="game-over-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+              <h2>Game Over</h2>
+              <p id="game-over-message"></p>
+            </div>
+          </div>
+
         </div>
-        <div id="chat-box">
-            <div id="messages"></div>
-            <input type="text" id="chat-input" placeholder="Type a message...">
-            <button id="send-chat-btn">Send</button>
-        </div>
-        <button id="leave-game-btn"style='margin-top:40px'>Leave Game</button>
+      </div>
     </div>
-<!-- Game Over Modal -->
-<div id="game-over-modal" class="modal-overlay hidden">
-  <div class="modal-content">
-    <h2>Game Over</h2>
-    <p id="game-over-message"></p>
   </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<script type="module">
-  import { Chess } from "https://esm.run/chess.js";
-  window.Chess = Chess;
+  <!-- Stockfish AI -->
+  <script src="https://cdn.jsdelivr.net/npm/stockfish/stockfish.js"></script>
 
-  // After Chess is defined globally, load your existing script
-  const script = document.createElement('script');
-  script.src = 'script.js';
-  document.body.appendChild(script);
-</script>
+  <!-- Load Chess.js and script2.js -->
+  <script type="module">
+    import { Chess } from "https://esm.run/chess.js";
+    window.Chess = Chess;
+
+    window.onload = () => {
+      const script = document.createElement('script');
+      script.src = 'script8.js';
+      document.body.appendChild(script);
+    };
+  </script>
 
 </body>
 </html>
