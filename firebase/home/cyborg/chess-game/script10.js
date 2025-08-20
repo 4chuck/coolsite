@@ -270,3 +270,57 @@
   });
 
 })();
+function listenForGames() {
+    const chessRef = db.ref('chess');
+
+    chessRef.on('value', (snapshot) => {
+        gameList.innerHTML = '';
+        const games = snapshot.val(); // ✅ directly access all games under /chess
+
+        if (games) {
+            Object.entries(games).forEach(([gameId, gameData]) => {
+                const li = document.createElement('li');
+                li.style.color = 'whitesmoke';
+
+                let status = 'Waiting for opponent';
+                if (gameData.playerWhite && gameData.playerBlack) {
+                    status = 'In Progress';
+                }
+                if (
+                    gameData.status &&
+                    (gameData.status === 'completed' ||
+                        gameData.status === 'checkmate' ||
+                        gameData.status === 'draw' ||
+                        gameData.status === 'stalemate' ||
+                        gameData.status.startsWith('draw_'))
+                ) {
+                    status = gameData.status.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                }
+
+                li.innerHTML = `Game ID: ${gameId} (${status})`;
+
+                if (!gameData.playerBlack && gameData.playerWhite !== currentUser.uid && gameData.status === 'waiting') {
+                    const joinButton = document.createElement('button');
+                    joinButton.style.backgroundColor = '#ec6090';
+                    joinButton.textContent = 'Join as Black';
+                    joinButton.addEventListener('click', () => joinGame(gameId));
+                    li.appendChild(joinButton);
+                }
+
+                if ((gameData.playerWhite === currentUser.uid || gameData.playerBlack === currentUser.uid) &&
+                    gameData.status !== 'completed' &&
+                    gameData.status !== 'abandoned') {
+                    const rejoinButton = document.createElement('button');
+                    rejoinButton.style.backgroundColor = '#ec6090';
+                    rejoinButton.textContent = 'Rejoin';
+                    rejoinButton.addEventListener('click', () => joinGame(gameId));
+                    li.appendChild(rejoinButton);
+                }
+
+                gameList.appendChild(li);
+            });
+        } else {
+            console.log("No active games found.");
+        }
+    });
+}
