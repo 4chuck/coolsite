@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="../assets/css/owl.css">
   <link rel="stylesheet" href="../assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="style2.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -69,7 +69,7 @@
             <h2>Game Lobby</h2>
             <button id="create-game-btn">Create New Game</button>
             <button id="play-ai-btn">Play vs AI</button>
-            <ul id="game-list" style="background-color: #4A4A4A;color:white;"></ul>
+            <ul id="game-list"style="background-color: #4A4A4A;color:white;"></ul>
             <p>Join a game:</p>
             <input type="text" id="game-id-input" placeholder="Enter Game ID">
             <button id="join-game-btn">Join Game</button>
@@ -80,22 +80,16 @@
             <h2 id="game-title"></h2>
             <div id="custom-alert" class="hidden"></div>
             <div id="chessboard"></div>
-            <br>
-            <button id="undo-btn">Undo</button>
-            <br>
             <div id="game-info">
               <p>Turn: <span id="current-turn"></span></p>
               <p>Status: <span id="game-status"></span></p>
-              
             </div>
             <div id="chat-box">
               <div id="messages" style="height: 150px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px;"></div>
               <input type="text" id="chat-input" placeholder="Type a message...">
               <button id="send-chat-btn">Send</button>
             </div>
-            <div style="margin-top:20px;">
-              <button id="leave-game-btn">Leave Game</button>
-            </div>
+            <button id="leave-game-btn" style="margin-top:40px">Leave Game</button>
           </div>
 
           <!-- Game Over Modal -->
@@ -119,14 +113,14 @@
   <!-- Stockfish AI -->
   <script src="https://cdn.jsdelivr.net/npm/stockfish/stockfish.js"></script>
 
-  <!-- Load Chess.js and script8.js -->
+  <!-- Load Chess.js and script2.js -->
   <script type="module">
     import { Chess } from "https://esm.run/chess.js";
     window.Chess = Chess;
 
     window.onload = () => {
       const script = document.createElement('script');
-      script.src = 'script10.js';
+      script.src = 'script8.js';
       document.body.appendChild(script);
     };
   </script>
