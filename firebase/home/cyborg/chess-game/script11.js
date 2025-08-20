@@ -368,43 +368,65 @@
     while (engineQueue.length) engine.postMessage(engineQueue.shift());
   }
 
-  function initStockfish() {
-    if (engine) { log("[INIT] Stockfish already initialized."); return; }
+  function initStockfish(path = STOCKFISH_PATH) {
+  if (stockfish) return;
 
-    showLoader(); // <-- show while starting/handshaking
-
-    (function tryNextPath(i = 0) {
-      if (i >= STOCKFISH_PATHS.length) {
-        err("[INIT] No Stockfish worker could be loaded.");
-        hideLoader();
-        calert("Engine failed to load. Check console.");
-        return;
-      }
-      const path = STOCKFISH_PATHS[i];
-      log("[INIT] Starting Stockfish path:", path);
-
-      try {
-        engine = new Worker(path);
-        stockfishPathInUse = path;
-      } catch (e) {
-        err("[INIT] Worker failed to construct", e);
-        engine = null;
-        return tryNextPath(i + 1);
-      }
-
-      engine.onmessage = onEngineMessage;
-      engine.onerror = (ev) => {
-        err("[ENGINE] Worker error", ev);
-        calert("Engine worker error. See console.");
-        hideLoader();
-      };
-
-      enginePost("uci");
-      enginePost("isready");
-      enginePost("ucinewgame");
-    })();
+  try {
+    stockfish = new Worker(path);
+    L("[INIT] Starting Stockfish path:", path);
+  } catch (e) {
+    console.error("Worker failed", e);
+    return;
   }
 
+  const loader = document.getElementById("stockfish-loader");
+
+  stockfish.onmessage = (ev) => {
+    const line = ev.data || "";
+    //L("[ENGINE]", line);
+
+    if (line.startsWith("uciok")) {
+      enginePost("isready");
+      return;
+    }
+
+    if (line.startsWith("readyok")) {
+      engineReady = true;
+      flushEngineQueue();
+      if (loader) loader.classList.add("hidden"); // hide on ready
+      return;
+    }
+
+    if (line.startsWith("id") || line.startsWith("option")) {
+      //  some builds send these first, mark as "ready enough"
+      if (!engineReady) {
+        engineReady = true;
+        flushEngineQueue();
+        if (loader) loader.classList.add("hidden");
+      }
+    }
+
+    if (line.startsWith("bestmove")) {
+      engineSearching = false;
+      if (loader && !loader.classList.contains("hidden")) {
+        loader.classList.add("hidden"); //  fallback hide
+      }
+      const mv = line.split(" ")[1];
+      if (mv && mv !== "(none)" && !currentGameId) {
+        try {
+          chess.move({ from: mv.slice(0,2), to: mv.slice(2,4), promotion: "q" });
+          renderBoard(chess.board());
+          currentTurnSpan.textContent = chess.turn() === "w" ? "White" : "Black";
+          checkForEndAndNotify();
+        } catch (e) {}
+      }
+    }
+  };
+
+  stockfish.postMessage("uci");
+  stockfish.postMessage("isready");
+  stockfish.postMessage("ucinewgame");
+}
   function onEngineMessage(e) {
     const line = e?.data ?? "";
     if (typeof line !== "string") return;
