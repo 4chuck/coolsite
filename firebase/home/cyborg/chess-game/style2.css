@@ -1,0 +1,423 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+#auth-container, #game-lobby, #chess-game {
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    padding: 50px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 550px;
+    box-sizing: border-box;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+    color: whitesmoke;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2em;
+    font-weight: 600;
+}
+
+li {  
+    background-color: #4a4a4a;
+    color: white;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    background-color: #4a4a4a;
+    color: white;
+    width: calc(100% - 24px);
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.05em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.25);
+    outline: none;
+}
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="text"]::placeholder {
+    color: white;
+    opacity: 1;
+}
+
+button {
+    background-color: #ec6090;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.05em;
+    margin-right: 15px;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    background-color: #1f618d;
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+button:last-child {
+    margin-right: 0;
+}
+
+/* Undo button special style */
+#undo-btn {
+    background-color: #f39c12;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+#undo-btn:hover {
+    background-color: #d35400;
+}
+
+#auth-status {
+    text-align: center;
+    margin-top: 25px;
+    font-weight: bold;
+    color: #e74c3c;
+    font-size: 0.95em;
+}
+
+/* Game Lobby Specifics */
+#game-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 25px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background-color: #4A4A4A;
+    color: white;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#game-list li {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.05em;
+    color: #555;
+}
+
+#game-list li:last-child {
+    border-bottom: none;
+}
+
+#game-list li button {
+    margin-left: 15px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 6px;
+    background-color: #ec6090;
+}
+
+#game-list li button:hover {
+    background-color: #1f618d;
+}
+
+/* Chess Game Area */
+#chess-game {
+    background-color: transparent;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 900px;
+}
+
+#chessboard {
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(8, 65px);
+    grid-template-rows: repeat(8, 65px);
+    width: fit-content;
+    height: fit-content;
+    border: 5px solid #0f48cade;
+    box-shadow: 0 10px 20px #3e73edde;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.square {
+    width: 65px;
+    height: 65px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, outline 0.2s ease;
+    user-select: none;
+}
+
+/* Hover effect */
+.square:hover {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.light {
+    background-color: #d6ffc2;
+}
+.dark {
+    background-color: #EC6090;
+}
+.selected {
+    background-color: #37eeab;
+    box-shadow: inset 0 0 0 3px rgba(8, 232, 79, 0.893);
+}
+.possible-move {
+    background-color: #3e73edde;
+    box-shadow: inset 0 0 0 3px #0f48cade;
+}
+
+/* Highlight last move */
+.last-move {
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 0, 0.6);
+}
+
+.piece {
+    font-family: "Segoe UI Symbol", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#game-info {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #4a4a4a;
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    width: 100%;
+}
+
+#game-info p {
+    margin-top: 10px;
+    padding: 8px 15px;
+    background-color: #ec6090;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-weight: 500;
+    color: white;
+}
+
+#game-info span {
+    font-weight: bold;
+    color: whitesmoke;
+}
+
+/* Chat Box Styling */
+#chat-box {
+    background-color: #333;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+#messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 5px;
+    font-size: 0.95em;
+    color: #555;
+    scroll-behavior: smooth;
+}
+
+#messages p {
+    color: #ec6090;
+    margin: 5px 0;
+    padding: 5px 8px;
+    background-color: #4a4a4a;
+    border-radius: 6px;
+    word-wrap: break-word;
+}
+
+/* Chat role styles */
+#messages p.system {
+    background-color: #2ecc71;
+    color: white;
+    font-weight: 600;
+}
+#messages p.user {
+    background-color: #ec6090;
+    color: white;
+}
+
+#chat-input {
+    width: calc(100% - 70px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+#send-chat-btn {
+    padding: 10px 15px;
+    margin-left: 10px;
+    background-color: #ec6090;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+#send-chat-btn:hover {
+    background-color: #1f618d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #chessboard {
+        grid-template-columns: repeat(8, 45px);
+        grid-template-rows: repeat(8, 45px);
+        border-width: 3px;
+    }
+    .square {
+        width: 45px;
+        height: 45px;
+        font-size: 32px;
+    }
+    #chess-game {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    #chat-box {
+        max-width: 100%;
+    }
+}
+@media (max-width: 400px) {
+    #chessboard {
+        grid-template-columns: repeat(8, 35px);
+        grid-template-rows: repeat(8, 35px);
+    }
+    .square {
+        width: 35px;
+        height: 35px;
+        font-size: 24px;
+    }
+}
+
+/* Custom alert */
+#custom-alert {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: #3498db;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    font-weight: bold;
+    font-size: 1.1em;
+    min-width: 250px;
+    text-align: center;
+    pointer-events: none;
+    display: none;
+}
+
+#custom-alert.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    display: block;
+}
+
+/* Game over modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: #1f2122;
+  border: 2px solid #ec6090;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+  max-width: 400px;
+  width: 80%;
+  box-shadow: 0 0 10px #ec6090;
+  animation: popIn 0.4s ease-out;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.hidden {
+  display: none;
+}
