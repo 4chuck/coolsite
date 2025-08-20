@@ -1,4 +1,4 @@
-// script12.js — cleaned: undo, random first turn, proper game exit, fixed Stockfish loader
+//  script12.js — cleaned: undo, random first turn, proper game exit, fixed Stockfish loader
 (() => {
   console.log("[script2] [INIT] script loaded. Ready.");
 
