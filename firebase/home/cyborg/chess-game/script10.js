@@ -87,29 +87,53 @@
     while (engineQueue.length) stockfish.postMessage(engineQueue.shift());
   }
   function initStockfish(path = STOCKFISH_PATH) {
-    if (stockfish) return;
-    try { stockfish = new Worker(path); } catch (e) { console.error("Worker failed", e); return; }
-    stockfish.onmessage = (ev) => {
-      const line = ev.data || "";
-      if (line.startsWith("uciok")) { enginePost("isready"); return; }
-      if (line.startsWith("readyok")) { engineReady = true; flushEngineQueue(); return; }
-      if (line.startsWith("bestmove")) {
-        engineSearching = false;
-        const mv = line.split(" ")[1];
-        if (mv && mv !== "(none)" && !currentGameId) {
-          try {
-            chess.move({ from: mv.slice(0,2), to: mv.slice(2,4), promotion: "q" });
-            renderBoard(chess.board());
-            currentTurnSpan.textContent = chess.turn() === "w" ? "White" : "Black";
-            checkForEndAndNotify();
-          } catch (e) {}
-        }
-      }
-    };
-    stockfish.postMessage("uci");
-    stockfish.postMessage("isready");
-    stockfish.postMessage("ucinewgame");
+  if (stockfish) return;
+
+  try {
+    stockfish = new Worker(path);
+  } catch (e) {
+    console.error("Worker failed", e);
+    return;
   }
+
+  const loader = document.getElementById("stockfish-loader");
+
+  stockfish.onmessage = (ev) => {
+    const line = ev.data || "";
+
+    if (line.startsWith("uciok")) {
+      enginePost("isready");
+      return;
+    }
+
+    if (line.startsWith("readyok")) {
+      engineReady = true;
+      flushEngineQueue();
+
+      // Hide loader once ready
+      if (loader) loader.classList.add("hidden");
+      return;
+    }
+
+    if (line.startsWith("bestmove")) {
+      engineSearching = false;
+      const mv = line.split(" ")[1];
+      if (mv && mv !== "(none)" && !currentGameId) {
+        try {
+          chess.move({ from: mv.slice(0,2), to: mv.slice(2,4), promotion: "q" });
+          renderBoard(chess.board());
+          currentTurnSpan.textContent = chess.turn() === "w" ? "White" : "Black";
+          checkForEndAndNotify();
+        } catch (e) {}
+      }
+    }
+  };
+
+  stockfish.postMessage("uci");
+  stockfish.postMessage("isready");
+  stockfish.postMessage("ucinewgame");
+}
+
   function makeAIMove(depth = 12) {
     if (chess.isGameOver()) { checkForEndAndNotify(); return; }
     initStockfish();

@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="style2.css">
 </head>
 
+
 <body>
   <!-- Header -->
   <header class="header-area header-sticky" style="background-color: #27292A;">
@@ -77,6 +78,10 @@
 
           <!-- Chess Game -->
           <div id="chess-game" style="display: none;">
+            <div id="stockfish-loader" class="loader-overlay">
+              <div class="loader"></div>
+                 <p style="color:white; margin-top:15px;">Loading Stockfish AI...</p>
+              </div>
             <h2 id="game-title"></h2>
             <div id="custom-alert" class="hidden"></div>
             <div id="chessboard"></div>
