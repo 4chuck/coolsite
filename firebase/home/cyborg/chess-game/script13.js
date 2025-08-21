@@ -1,4 +1,4 @@
-// script2.js — Full app: Firebase Auth + Lobby + Multiplayer + Chat + AI (Stockfish) + Chess UI
+//script2.js — Full app: Firebase Auth + Lobby + Multiplayer + Chat + AI (Stockfish) + Chess UI
 (() => {
   const TAG = "[script2]";
   const log = (...a) => console.log(TAG, ...a);
