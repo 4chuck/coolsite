@@ -142,7 +142,7 @@ button:last-child {
     justify-content: space-between;
     align-items: center;
     font-size: 1.05em;
-    color: #555;
+    color: #fff;
 }
 
 #game-list li:last-child {
@@ -450,3 +450,72 @@ button:last-child {
 }
 
 .hidden { display: none; }
+.modal-overlay {
+  display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  z-index: 9999;
+}
+.modal-overlay.hidden { display: none; }
+.modal-content {
+  background: #1f2122; padding: 20px; border-radius: 10px;
+  border: 2px solid #ec6090; color: white;
+}
+.difficulty-btn {
+  background: #ec6090; border: none; padding: 10px 20px;
+  margin: 5px; border-radius: 5px; cursor: pointer;
+  font-weight: bold;
+}
+.difficulty-btn:hover {
+  background: #ff77a9;
+}
+
+/* Elo display styles */
+#player-elo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #ec6090;
+    background: #1f2122;
+    border-radius: 8px;
+    padding: 10px 22px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(236, 96, 144, 0.08);
+    letter-spacing: 0.5px;
+}
+
+#player-elo span {
+    color: #fff;
+    background: #ec6090;
+    padding: 6px 16px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(236, 96, 144, 0.12);
+    font-size: 1em;
+    font-weight: 700;
+    transition: background 0.2s, color 0.2s;
+}
+
+#player-elo span[aria-label="White Elo"] {
+    background: linear-gradient(90deg, #37eeab 60%, #ec6090 100%);
+    color: #222;
+}
+
+#player-elo span[aria-label="Black Elo"] {
+    background: linear-gradient(90deg, #ec6090 60%, #1f2122 100%);
+    color: #fff;
+}
+
+/* Responsive Elo display */
+@media (max-width: 600px) {
+    #player-elo {
+        font-size: 1em;
+        padding: 8px 8px;
+        gap: 8px;
+    }
+    #player-elo span {
+        padding: 5px 8px;
+        font-size: 0.95em;
+    }
+}
