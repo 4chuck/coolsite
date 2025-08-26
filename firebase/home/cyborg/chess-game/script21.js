@@ -378,37 +378,74 @@
 
   function checkForEndAndNotify() { if (chess.isGameOver()) handleGameEnd(); }
 
-  function listenForGames() {
-    try {
-      const ref = db.ref("chess");
-      ref.off();
-      ref.on("value", snap => {
-        if (!gameList) return;
-        gameList.innerHTML = "";
-        const games = snap.val();
-        if (!games) {
-          const li = document.createElement("li"); li.textContent = "No active games."; gameList.appendChild(li); return;
+ function listenForGames() {
+  if (!db || !gameList) return;
+  try {
+    const ref = db.ref("chess");
+    ref.off("value");
+
+    ref.on("value", snap => {
+      if (!gameList) return;
+      gameList.innerHTML = "";
+
+      const games = snap.val();
+      log("Current user:", currentUser);
+      log("Games snapshot:", games);
+
+      if (!games) {
+        const li = document.createElement("li");
+        li.textContent = "No active games.";
+        gameList.appendChild(li);
+        return;
+      }
+
+      // Only iterate keys that look like real games (skip board-only nodes)
+      Object.entries(games).forEach(([gid, g]) => {
+        if (!g || typeof g !== "object") return;
+        if (!g.playerWhite && !g.playerBlack && !g.status) return; // skip incomplete objects
+
+        const li = document.createElement("li");
+        li.className = "lobby-item";
+
+        // Determine status
+        let status = g.status || (g.playerWhite && g.playerBlack ? "playing" : "waiting");
+        status = String(status).replace(/_/g, " ").replace(/\b\w/g, ch => ch.toUpperCase());
+
+        li.innerHTML = `<span class="gid">Game: ${gid}</span> <span class="status">(${status})</span>`;
+
+        // Join as Black button
+        if (!g.playerBlack && g.playerWhite !== currentUser?.uid && (!g.status || g.status === "waiting")) {
+          const btn = document.createElement("button");
+          btn.textContent = "Join as Black";
+          btn.className = "btn";
+          btn.addEventListener("click", () => joinGame(gid));
+          li.appendChild(btn);
         }
-        Object.entries(games).forEach(([gid, g]) => {
-          const li = document.createElement("li"); li.className = "lobby-item";
-          let status = g.status || (g.playerWhite && g.playerBlack ? "playing" : "waiting");
-          status = String(status).replace(/_/g, " ").replace(/\b\w/g, ch => ch.toUpperCase());
-          li.innerHTML = `<span class="gid">Game: ${gid}</span> <span class="status">(${status})</span>`;
-          if (!g.playerBlack && g.playerWhite !== currentUser?.uid && (!g.status || g.status === "waiting")) {
-            const btn = document.createElement("button"); btn.textContent = "Join as Black"; btn.className = "btn";
-            btn.addEventListener("click", () => joinGame(gid));
-            li.appendChild(btn);
-          }
-          if ((g.playerWhite === currentUser?.uid || g.playerBlack === currentUser?.uid) && g.status !== "completed" && g.status !== "abandoned") {
-            const rejoin = document.createElement("button"); rejoin.textContent = "Rejoin"; rejoin.className = "btn secondary";
-            rejoin.addEventListener("click", () => joinGame(gid));
-            li.appendChild(rejoin);
-          }
-          gameList.appendChild(li);
-        });
+
+        // Rejoin button if the user is part of the game
+        if ((g.playerWhite === currentUser?.uid || g.playerBlack === currentUser?.uid) &&
+            g.status !== "completed" && g.status !== "abandoned") {
+          const rejoin = document.createElement("button");
+          rejoin.textContent = "Rejoin";
+          rejoin.className = "btn secondary";
+          rejoin.addEventListener("click", () => joinGame(gid));
+          li.appendChild(rejoin);
+        }
+
+        gameList.appendChild(li);
       });
-    } catch (e) { err("listenForGames failed", e); }
+
+      // Show a message if no games are joinable
+      if (!gameList.hasChildNodes()) {
+        const li = document.createElement("li");
+        li.textContent = "No active games available to join.";
+        gameList.appendChild(li);
+      }
+    });
+  } catch (e) {
+    err("listenForGames failed", e);
   }
+}
 
   async function createGame() {
     if (!currentUser) { calert("Sign in first"); return; }
@@ -624,6 +661,13 @@
     if (!created || !engine) {
       engineInitializing = false; engineReady = false; if (showLoader) hideStockfishLoader(); calert("Could not start AI engine"); return;
     }
+
+engineInitTimeoutHandle = setTimeout(() => {
+  if (!engineReady) {
+    hideStockfishLoader();
+    calert("AI failed to load. Try refreshing.");
+  }
+}, ENGINE_INIT_TIMEOUT_MS);
 
     engine.onmessage = function (ev) {
       const line = typeof ev?.data === "string" ? ev.data : String(ev?.data?.text || ev?.data || "");
