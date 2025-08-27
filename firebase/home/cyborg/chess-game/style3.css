@@ -421,6 +421,7 @@ button:last-child {
 .hidden {
   display: none;
 }
+
 .loader-overlay {
   position: fixed;
   top: 0;
@@ -446,6 +447,11 @@ button:last-child {
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes sfspin {
+  0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 

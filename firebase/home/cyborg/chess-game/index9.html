@@ -20,134 +20,93 @@
   <link rel="stylesheet" href="style3.css">
 
   <style>
-    :root {
-      --panel-bg: #27292A;
-      --accent: #ec6090;
-      --panel-contrast: #1f2122;
+    /* Global loader overlay */
+    .loader-overlay { 
+      display:flex; 
+      align-items:center; 
+      justify-content:center; 
+      background:rgba(0,0,0,0.75); 
+      position:fixed; 
+      inset:0; 
+      z-index:99999; 
     }
+    .hidden { display:none; }
 
-    body { font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: #0f0f10; color: #fff; }
-
-    .loader-overlay {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,0.75);
-      position:fixed;
-      inset:0;
-      z-index:99999;
+    /* Spinner */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #ec6090;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
     }
-
-    .hidden { display:none !important; }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
     /* Difficulty modal */
     .modal-overlay {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
       z-index: 10000;
     }
     .modal-overlay.hidden { display: none; }
     .modal-content {
-      background: var(--panel-contrast);
-      padding: 20px;
-      border-radius: 10px;
-      border: 2px solid var(--accent);
-      color: white;
-      text-align: center;
-      max-width: 90%;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      background: #1f2122; padding: 20px; border-radius: 10px;
+      border: 2px solid #ec6090; color: white; text-align: center;
     }
     .difficulty-btn {
-      background: var(--accent);
-      border: none;
-      padding: 10px 20px;
-      margin: 5px;
-      border-radius: 5px;
-      cursor: pointer;
+      background: #ec6090; border: none; padding: 10px 20px;
+      margin: 5px; border-radius: 5px; cursor: pointer;
       font-weight: bold;
     }
-    .difficulty-btn:hover { background: #ff77a9; }
+    .difficulty-btn:hover {
+      background: #ff77a9;
+    }
 
-    /* Timers */
+    /* Timer styles */
     #timers { margin-top: 0; margin-left: 12px; }
     #timers .btn-timer {
       font-size: 15px;
       font-weight: bold;
       color: white;
-      background: var(--panel-bg);
-      border: 1px solid var(--accent);
+      background: #27292A;
+      border: 1px solid #ec6090;
       border-radius: 6px;
       padding: 4px 12px;
       margin-right: 6px;
-      display: none; /* toggled by JS on game start */
+      display: none;
       min-width: 70px;
       text-align: center;
     }
-    #timers .active { background: var(--accent); color: #fff; }
-
-    /* chessboard default wrapper — script will populate squares */
-    #chessboard {
-      width: 560px;
-      max-width: 92vw;
-      margin: 12px auto;
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 0;
-      background: #222;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    #timers .active {
+      background: #ec6090;
+      color: #fff;
     }
-    .square {
-      aspect-ratio: 1/1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size: 28px;
-      user-select: none;
-    }
-    .square.light { background: #f0d9b5; color: #222; }
-    .square.dark  { background: #b58863; color: #111; }
-    .square.piece { cursor: pointer; }
-    .square.selected { outline: 3px solid rgba(255,255,255,0.35); }
-    .square.possible-move { box-shadow: inset 0 0 0 4px rgba(255,255,255,0.08); }
-    .square.last-move { box-shadow: inset 0 0 0 4px rgba(0,0,0,0.25); border: 2px solid rgba(0,0,0,0.08); }
-    .square.in-check { box-shadow: inset 0 0 0 4px rgba(255,0,0,0.14); }
-
-    /* lobby list */
-    #game-list { list-style: none; padding: 8px; margin: 8px 0; max-height: 300px; overflow: auto; border-radius: 6px; }
-    .lobby-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); }
-    .lobby-item .gid { font-weight:600; }
-    .lobby-item .status { opacity:0.9; margin-left:10px; }
-
-    /* small responsive tweaks */
-    @media (max-width: 720px) {
-      #chessboard { width: 360px; }
-      .square { font-size: 20px; }
+    @media (max-width: 600px) {
+      #timers .btn-timer { min-width: 50px; font-size: 13px; }
     }
   </style>
 </head>
 
 <body>
   <!-- Header -->
-  <header class="header-area header-sticky" style="background-color: var(--panel-bg);">
+  <header class="header-area header-sticky" style="background-color: #27292A;">
     <div class="container">
       <div class="row">
         <div class="col-12">
           <nav class="main-nav">
             <a href="index.html" class="logo">
-              <img src="../assets/images/logo.png" alt="logo">
+              <img src="../assets/images/logo.png" alt="">
             </a>
             <ul class="nav">
               <li><a href="index.html" class="active">Home</a></li>
               <li><a href="browse.html">Browse</a></li>
               <li><a href="details.html">Details</a></li>
               <li><a href="streams.html">Streams</a></li>
-              <li><a href="../fire-profile.html">Profile <img src="../assets/images/profile-header.jpg" alt="" style="width:28px;height:28px;border-radius:50%;margin-left:6px"></a></li>
+              <li><a href="../fire-profile.html">Profile <img src="../assets/images/profile-header.jpg" alt=""></a></li>
             </ul>
             <a class="menu-trigger"><span>Menu</span></a>
           </nav>
@@ -157,86 +116,69 @@
   </header>
 
   <!-- Main Content -->
-  <main class="container" style="padding: 30px 20px;">
+  <div class="container">
     <div class="row">
       <div class="col-lg-12">
-        <div class="page-content">
+        <div class="page-content" style="padding:auto auto auto auto">
 
-          <section class="main-banner" style="min-height: 150px; padding: 30px 20px;">
+          <div class="main-banner" style="min-height: 150px; padding: 30px 100px;">
             <div class="row">
               <div class="col-lg-12">
                 <div class="header-text">
-                  <h2 style="color:aqua;margin:0">Chess Master</h2>
-                  <h4 style="margin:6px 0 0"><em>Compete</em> in Real-Time or vs AI</h4>
+                  <h2 style="color:aqua">Chess Master</h2>
+                  <h4><em>Compete</em> in Real-Time or vs AI</h4>
                 </div>
               </div>
             </div>
-          </section>
+          </div><br><br>
 
-          <p id="auth-status" aria-live="polite">Checking auth...</p>
+          <p id="auth-status"></p>
 
           <!-- Game Lobby -->
-          <section id="game-lobby" style="display: none;">
+          <div id="game-lobby" style="display: none;">
             <h2>Game Lobby</h2>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-              <button id="create-game-btn" type="button">Create New Game</button>
-              <button id="play-ai-btn" type="button">Play vs AI</button>
-            </div>
-
-            <ul id="game-list" style="background-color: #4A4A4A; color:white;"></ul>
-
-            <div style="margin-top:12px;">
-              <label for="game-id-input" style="display:block;margin-bottom:6px">Join a game</label>
-              <input type="text" id="game-id-input" placeholder="Enter Game ID" style="padding:6px;border-radius:6px;border:none;min-width:200px;">
-              <button id="join-game-btn" type="button">Join Game</button>
-            </div>
-          </section>
+            <button id="create-game-btn">Create New Game</button>
+            <button id="play-ai-btn">Play vs AI</button>
+            <ul id="game-list" style="background-color: #4A4A4A;color:white;"></ul>
+            <p>Join a game:</p>
+            <input type="text" id="game-id-input" placeholder="Enter Game ID">
+            <button id="join-game-btn">Join Game</button>
+          </div>
 
           <!-- Chess Game -->
-          <section id="chess-game" style="display: none; margin-top:18px;">
-            <!-- Stockfish loader -->
-            <div id="stockfish-loader" class="loader-overlay hidden" aria-hidden="true">
-              <div style="background:var(--panel-contrast);border:2px solid var(--accent);padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
-                <div style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:var(--accent);animation:sfspin 1s linear infinite;margin-bottom:12px"></div>
-                <div>Loading Stockfish AI...</div>
-              </div>
-            </div>
+          <div id="chess-game" style="display: none;">
+            <h2 id="game-title"></h2>
 
-            <h2 id="game-title" style="margin-top:0"></h2>
-
-            <div id="custom-alert" class="hidden" role="status" aria-live="polite"></div>
-
-            <div id="chessboard" aria-label="Chess board"></div>
-
-            <div class="game-controls" style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:12px;">
-              <button id="undo-btn" type="button">Undo</button>
-              <div id="timers" style="display:flex;gap:8px;margin-top:6px;justify-content:flex-start;width:100%;">
+            <div id="custom-alert" class="hidden"></div>
+            <div id="chessboard"></div>
+            <br>
+            <div class="game-controls" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+              <button id="undo-btn">Undo</button>
+              <div id="timers" style="display: flex; gap: 8px; margin-top: 6px; margin-left: 0; justify-content: center; width: 100%;">
                 <div id="white-timer" class="btn-timer" style="display:none;">White: <span>30s</span></div>
                 <div id="black-timer" class="btn-timer" style="display:none;">Black: <span>30s</span></div>
               </div>
             </div>
-
-            <div id="game-info" style="margin-top:12px;">
-              <p>Turn: <span id="current-turn">White</span></p>
-              <p>Status: <span id="game-status">Not started</span></p>
+            <br>
+            <div id="game-info">
+              <p>Turn: <span id="current-turn"></span></p>
+              <p>Status: <span id="game-status"></span></p>
             </div>
 
             <!-- Chat -->
-            <div id="chat-box" style="margin-top:12px;">
-              <div id="messages" style="height:150px;overflow-y:auto;border:1px solid #ccc;padding:8px;background:#fff;color:#000;border-radius:6px;"></div>
-              <div style="display:flex;gap:8px;margin-top:8px;">
-                <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1;padding:6px;border-radius:6px;border:none;">
-                <button id="send-chat-btn" type="button">Send</button>
-              </div>
+            <div id="chat-box">
+              <div id="messages" style="height: 150px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px;"></div>
+              <input type="text" id="chat-input" placeholder="Type a message...">
+              <button id="send-chat-btn">Send</button>
             </div>
 
             <div style="margin-top:20px;">
-              <button id="leave-game-btn" type="button">Leave Game</button>
+              <button id="leave-game-btn">Leave Game</button>
             </div>
-          </section>
+          </div>
 
           <!-- Game Over Modal -->
-          <div id="game-over-modal" class="modal-overlay hidden" aria-hidden="true">
+          <div id="game-over-modal" class="modal-overlay hidden">
             <div class="modal-content">
               <h2>Game Over</h2>
               <p id="game-over-message"></p>
@@ -244,13 +186,13 @@
           </div>
 
           <!-- Difficulty Modal -->
-          <div id="difficulty-modal" class="modal-overlay hidden" aria-hidden="true">
+          <div id="difficulty-modal" class="modal-overlay hidden">
             <div class="modal-content">
               <h2>Select Difficulty</h2>
               <div style="margin: 10px;">
-                <button class="difficulty-btn" data-diff="easy" type="button">Easy</button>
-                <button class="difficulty-btn" data-diff="medium" type="button">Medium</button>
-                <button class="difficulty-btn" data-diff="hard" type="button">Hard</button>
+                <button class="difficulty-btn" data-diff="easy">Easy</button>
+                <button class="difficulty-btn" data-diff="medium">Medium</button>
+                <button class="difficulty-btn" data-diff="hard">Hard</button>
               </div>
             </div>
           </div>
@@ -258,33 +200,40 @@
         </div>
       </div>
     </div>
-  </main>
+  </div>
+
+  <!-- ✅ Global Stockfish Loader 
+  <div id="stockfish-loader" class="loader-overlay hidden">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:15px;">
+      <div class="loader"></div>
+      <div style="color:white;font-size:1.1em;">Loading Stockfish AI...</div>
+    </div>
+  </div>
+  -->
+  <div id="stockfish-loader" class="loader-overlay hidden" style="display:none;">
+    <div style="background:#1f2122;border:2px solid #ec6090;padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
+      <div style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:#ec6090;animation:sfspin 1s linear infinite;margin-bottom:12px"></div>
+      <div>Loading Stockfish AI...</div>
+    </div>
+  </div>
 
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-  <!-- Stockfish path (ensure the file exists at this relative path) -->
-  <script>window.STOCKFISH_PATH = "stockfish/stockfish-17.1-lite-single-03e3232.js";</script>
-
-  <!-- Small UX: show checking status until auth settles -->
+  <!-- Stockfish path -->
   <script>
-    (function () {
-      try {
-        const el = document.getElementById('auth-status');
-        if (el && (!el.textContent || el.textContent.trim() === "")) el.textContent = "Checking auth...";
-      } catch (e) { /* noop */ }
-    })();
+    window.STOCKFISH_PATH = "stockfish/stockfish-17.1-lite-single-03e3232.js";
   </script>
 
-  <!-- Load chess.js then app script -->
+  <!-- Load chess.js before app -->
   <script type="module">
     import { Chess } from "https://esm.run/chess.js";
     window.Chess = Chess;
 
     const appScript = document.createElement("script");
-    appScript.src = "script21.js"; // your app script filename
+    appScript.src = "script20.js";
     appScript.defer = true;
     appScript.onload = () => console.log("[page] script21.js loaded.");
     appScript.onerror = () => console.error("Failed to load script21.js");

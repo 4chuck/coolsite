@@ -592,7 +592,7 @@
         activeColor = "w";
         startMoveTimer("w");
         renderBoard();
-        if (!engine && !engineInitializing) initStockfish({ showLoader: false });
+        if (!engine && !engineInitializing) initStockfish({ showLoader: true });
         setTimeout(() => makeAIMove(aiDepth), 420);
       }
       if (messagesDiv && messagesDiv.parentElement) messagesDiv.parentElement.style.display = "none";
@@ -608,61 +608,143 @@
   function flushEngineQueue() { if (!engine) return; while (engineQueue.length) { const cmd = engineQueue.shift(); try { engine.postMessage(cmd); } catch { engineQueue.unshift(cmd); break; } } }
 
   function initStockfish(opts = {}) {
-    const showLoader = opts.showLoader !== false;
-    if (engine || engineInitializing) return;
-    engineInitializing = true; engineReady = false; engineSearching = false; engineQueue = [];
-    if (showLoader) showStockfishLoader();
-    let created = false;
-    try {
-      if (typeof Worker === "function") {
-        try { engine = new Worker(STOCKFISH_WORKER_PATH); created = true; } catch (we) { warn("Worker creation failed", we); engine = null; }
-      }
-    } catch (e) { warn("Worker not available", e); }
-    if (!created && typeof window.STOCKFISH === "function") {
-      try { engine = window.STOCKFISH(); created = true; } catch (e) { warn("window.STOCKFISH fallback failed", e); engine = null; }
-    }
-    if (!created || !engine) {
-      engineInitializing = false; engineReady = false; if (showLoader) hideStockfishLoader(); calert("Could not start AI engine"); return;
-    }
+  const showLoader = opts.showLoader !== false;
+  if (engine || engineInitializing) return;
 
-    engine.onmessage = function (ev) {
-      const line = typeof ev?.data === "string" ? ev.data : String(ev?.data?.text || ev?.data || "");
-      if (/uciok/.test(line)) { enginePost("isready"); return; }
-      if (/readyok/.test(line)) { engineReady = true; engineInitializing = false; flushEngineQueue(); if (showLoader) hideStockfishLoader(); if (engineInitTimeoutHandle) { clearTimeout(engineInitTimeoutHandle); engineInitTimeoutHandle = null; } return; }
-      if (/^(id |option )/.test(line)) { if (!engineReady) { engineReady = true; engineInitializing = false; flushEngineQueue(); if (showLoader) hideStockfishLoader(); if (engineInitTimeoutHandle) { clearTimeout(engineInitTimeoutHandle); engineInitTimeoutHandle = null; } } return; }
-      if (/^bestmove /.test(line)) {
-        engineSearching = false;
-        const parts = line.split(/\s+/);
-        const best = parts[1];
-        if (!best || best === "(none)") return;
-        if (!currentGameId) {
-          const moveObj = { from: best.slice(0, 2), to: best.slice(2, 4), promotion: "q" };
-          const res = chess.move(moveObj);
-          if (res) { lastMove = { from: res.from, to: res.to }; onMoveApplied(); renderBoard(); checkForEndAndNotify(); }
-        }
-        return;
-      }
-    };
+  engineInitializing = true;
+  engineReady = false;
+  engineSearching = false;
+  engineQueue = [];
 
-    engine.onerror = function (e) {
-      warn("Engine error", e);
-      engineInitializing = false; engineReady = false; engineSearching = false; if (showLoader) hideStockfishLoader(); calert("Engine error");
-    };
-
-    engineInitTimeoutHandle = setTimeout(() => {
-      if (!engineReady) {
-        warn("Engine init timed out");
-        engineInitializing = false; engineReady = false; engineSearching = false; if (showLoader) hideStockfishLoader(); calert("Engine timeout; continuing without AI.");
-      }
-    }, ENGINE_INIT_TIMEOUT_MS);
-
-    try { engine.postMessage("uci"); engine.postMessage("isready"); engine.postMessage("ucinewgame"); } catch (e) { err("Engine handshake failed", e); engineInitializing = false; engineReady = false; if (showLoader) hideStockfishLoader(); calert("Engine handshake failed"); }
+  if (showLoader) {
+    showStockfishLoader();
   }
+
+  let created = false;
+  try {
+    if (typeof Worker === "function") {
+      try {
+        engine = new Worker(STOCKFISH_WORKER_PATH);
+        created = true;
+      } catch (we) {
+        warn("Worker creation failed", we);
+        engine = null;
+      }
+    }
+  } catch (e) {
+    warn("Worker not available", e);
+  }
+
+  if (!created && typeof window.STOCKFISH === "function") {
+    try {
+      engine = window.STOCKFISH();
+      created = true;
+    } catch (e) {
+      warn("window.STOCKFISH fallback failed", e);
+      engine = null;
+    }
+  }
+
+  if (!created || !engine) {
+    engineInitializing = false;
+    engineReady = false;
+    if (showLoader) hideStockfishLoader();
+    calert("Could not start AI engine");
+    return;
+  }
+
+  engine.onmessage = function (ev) {
+    const line = typeof ev?.data === "string" ? ev.data : String(ev?.data?.text || ev?.data || "");
+
+    if (/uciok/.test(line)) {
+      enginePost("isready");
+      return;
+    }
+
+    if (/readyok/.test(line)) {
+      engineReady = true;
+      engineInitializing = false;
+      flushEngineQueue();
+      if (showLoader) hideStockfishLoader();
+      if (engineInitTimeoutHandle) {
+        clearTimeout(engineInitTimeoutHandle);
+        engineInitTimeoutHandle = null;
+      }
+      return;
+    }
+
+    if (/^(id |option )/.test(line)) {
+      if (!engineReady) {
+        engineReady = true;
+        engineInitializing = false;
+        flushEngineQueue();
+        if (showLoader) hideStockfishLoader();
+        if (engineInitTimeoutHandle) {
+          clearTimeout(engineInitTimeoutHandle);
+          engineInitTimeoutHandle = null;
+        }
+      }
+      return;
+    }
+
+    if (/^bestmove /.test(line)) {
+      engineSearching = false;
+      const parts = line.split(/\s+/);
+      const best = parts[1];
+      if (!best || best === "(none)") return;
+
+      if (!currentGameId) {
+        const moveObj = { from: best.slice(0, 2), to: best.slice(2, 4), promotion: "q" };
+        const res = chess.move(moveObj);
+        if (res) {
+          lastMove = { from: res.from, to: res.to };
+          onMoveApplied();
+          renderBoard();
+          checkForEndAndNotify();
+        }
+      }
+      return;
+    }
+  };
+
+  engine.onerror = function (e) {
+    warn("Engine error", e);
+    engineInitializing = false;
+    engineReady = false;
+    engineSearching = false;
+    if (showLoader) hideStockfishLoader();
+    calert("Engine error");
+  };
+
+  engineInitTimeoutHandle = setTimeout(() => {
+    if (!engineReady) {
+      warn("Engine init timed out");
+      engineInitializing = false;
+      engineReady = false;
+      engineSearching = false;
+      if (showLoader) hideStockfishLoader();
+      calert("Engine timeout; continuing without AI.");
+    }
+  }, ENGINE_INIT_TIMEOUT_MS);
+
+  try {
+    engine.postMessage("uci");
+    engine.postMessage("isready");
+    engine.postMessage("ucinewgame");
+  } catch (e) {
+    err("Engine handshake failed", e);
+    engineInitializing = false;
+    engineReady = false;
+    if (showLoader) hideStockfishLoader();
+    calert("Engine handshake failed");
+  }
+}
+
 
   function makeAIMove(depth) {
     if (currentGameId) return;
     if (chess.isGameOver()) { checkForEndAndNotify(); return; }
-    if (!engine && !engineInitializing) initStockfish({ showLoader: false });
+    if (!engine && !engineInitializing) initStockfish({ showLoader: true });
     engineSearching = true;
     enginePost("position fen " + chess.fen());
     enginePost("go depth " + (depth || aiDepth));

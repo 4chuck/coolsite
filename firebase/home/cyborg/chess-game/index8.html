@@ -125,12 +125,12 @@
           <!-- Chess Game -->
           <div id="chess-game" style="display: none;">
             <!-- Stockfish loader -->
-            <div id="stockfish-loader" class="loader-overlay hidden" style="display:none;">
-              <div style="background:#1f2122;border:2px solid #ec6090;padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
-                <div style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:#ec6090;animation:sfspin 1s linear infinite;margin-bottom:12px"></div>
-                <div>Loading Stockfish AI...</div>
-              </div>
-            </div>
+<!-- Stockfish loader (GLOBAL) -->
+<div id="stockfish-loader" class="loader-overlay hidden">
+  <div class="loader"></div>
+  <p style="color:white;margin-top:15px;font-size:1.1em;">Loading Stockfish AI...</p>
+</div>
+
 
             <h2 id="game-title"></h2>
 
