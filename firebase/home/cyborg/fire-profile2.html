@@ -190,53 +190,6 @@ https://templatemo.com/tm-579-cyborg-gaming
       <div class="col-lg-12">
         <div class="page-content">
 
-<div id="custom-alert"></div>
-
-<style>
-#custom-alert {
-  position: absolute;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-20px);
-  background-color: #3498db;
-  color: white;
-  padding: 12px 25px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-  font-weight: bold;
-  font-size: 1.1em;
-  min-width: 250px;
-  text-align: center;
-  pointer-events: none;
-}
-
-#custom-alert.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-</style>
-
-<script>
-function calert(message) {
-  const calertBox = document.getElementById("custom-alert");
-  calertBox.innerText = message;
-
-  // Add .show class (fade in)
-  calertBox.classList.add("show");
-
-  // Remove after 3s (fade out)
-  setTimeout(() => {
-    calertBox.classList.remove("show");
-  }, 3000);
-}
-
-// Example:
-// calert("This is a custom alert!");
-</script>
-
           <!-- ***** Banner Start ***** -->
           <div class="row">
             <div class="col-lg-12">
@@ -361,7 +314,7 @@ function calert(message) {
     // Check authentication
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        calert("loading data...");
+        alert("loading data...");
         // User is authenticated
         const userId = user.uid;
         let dataFetched = false; // Track if data is fetched
@@ -399,7 +352,7 @@ dataDisplay.innerHTML += formattedData;
         }
       } else {
         // Redirect to login page if not authenticated
-        //calert("You are not logged in. Redirecting to login page...");
+        //alert("You are not logged in. Redirecting to login page...");
         window.location.href = "../../../login/fire-login.html"; // Adjust the file name if different
       }
     });
@@ -450,13 +403,13 @@ async function uploadImage() {
   const file = fileInput.files[0];
   
   if (!file) {
-    calert('Please select an image.');
+    alert('Please select an image.');
     return;
   }
 
   const user = auth.currentUser;
   if (!user) {
-    calert('You must be logged in to upload a profile picture.');
+    alert('You must be logged in to upload a profile picture.');
     return;
   }
 
@@ -464,7 +417,6 @@ async function uploadImage() {
   const storageReference = storageRef(storage, `profile_pictures/${user.uid}`); // Save by UID
 
   try {
-    calert('Uploading image...');
     // Upload file
     await uploadBytes(storageReference, file);
     // Get URL
@@ -477,10 +429,10 @@ async function uploadImage() {
     // Update the profile picture in UI
     document.getElementById('profile-pic').src = downloadURL;
     //localStorage.setItem('profilePic', downloadURL);
-    calert('Profile picture uploaded successfully!');
+    alert('Profile picture uploaded successfully!');
   } catch (error) {
     console.error("Error uploading image:", error);
-    calert('Failed to upload profile picture.');
+    alert('Failed to upload profile picture.');
   }
 }
   // after you define uploadImage()
