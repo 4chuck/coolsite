@@ -17,12 +17,77 @@
   <link rel="stylesheet" href="../assets/css/owl.css">
   <link rel="stylesheet" href="../assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="style2.css">
+  <link rel="stylesheet" href="style3.css">
 
   <style>
-    /* Minimal inline styles for loader bubbling if you don't have them in style2.css */
-    .loader-overlay { display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.75); position:fixed; inset:0; z-index:99999; }
+    /* Global loader overlay */
+    .loader-overlay { 
+      display:flex; 
+      align-items:center; 
+      justify-content:center; 
+      background:rgba(0,0,0,0.75); 
+      position:fixed; 
+      inset:0; 
+      z-index:99999; 
+    }
     .hidden { display:none; }
+
+    /* Spinner */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #ec6090;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Difficulty modal */
+    .modal-overlay {
+      display: flex; align-items: center; justify-content: center;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 10000;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-content {
+      background: #1f2122; padding: 20px; border-radius: 10px;
+      border: 2px solid #ec6090; color: white; text-align: center;
+    }
+    .difficulty-btn {
+      background: #ec6090; border: none; padding: 10px 20px;
+      margin: 5px; border-radius: 5px; cursor: pointer;
+      font-weight: bold;
+    }
+    .difficulty-btn:hover {
+      background: #ff77a9;
+    }
+
+    /* Timer styles */
+    #timers { margin-top: 0; margin-left: 12px; }
+    #timers .btn-timer {
+      font-size: 15px;
+      font-weight: bold;
+      color: white;
+      background: #27292A;
+      border: 1px solid #ec6090;
+      border-radius: 6px;
+      padding: 4px 12px;
+      margin-right: 6px;
+      display: none;
+      min-width: 70px;
+      text-align: center;
+    }
+    #timers .active {
+      background: #ec6090;
+      color: #fff;
+    }
+    @media (max-width: 600px) {
+      #timers .btn-timer { min-width: 50px; font-size: 13px; }
+    }
   </style>
 </head>
 
@@ -82,25 +147,25 @@
 
           <!-- Chess Game -->
           <div id="chess-game" style="display: none;">
-            <!-- Stockfish loader overlay (created in JS if missing, but keep an element to style) -->
-            <div id="stockfish-loader" class="loader-overlay hidden" style="display:none;">
-              <div style="background:#1f2122;border:2px solid #ec6090;padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
-                <div style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:#ec6090;animation:sfspin 1s linear infinite;margin-bottom:12px"></div>
-                <div>Loading Stockfish AI...</div>
-              </div>
-            </div>
-
             <h2 id="game-title"></h2>
+
             <div id="custom-alert" class="hidden"></div>
             <div id="chessboard"></div>
             <br>
-            <button id="undo-btn">Undo</button>
+            <div class="game-controls" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+              <button id="undo-btn">Undo</button>
+              <div id="timers" style="display: flex; gap: 8px; margin-top: 6px; margin-left: 0; justify-content: center; width: 100%;">
+                <div id="white-timer" class="btn-timer" style="display:none;">White: <span>30s</span></div>
+                <div id="black-timer" class="btn-timer" style="display:none;">Black: <span>30s</span></div>
+              </div>
+            </div>
             <br>
             <div id="game-info">
               <p>Turn: <span id="current-turn"></span></p>
               <p>Status: <span id="game-status"></span></p>
             </div>
 
+            <!-- Chat -->
             <div id="chat-box">
               <div id="messages" style="height: 150px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px;"></div>
               <input type="text" id="chat-input" placeholder="Type a message...">
@@ -120,59 +185,60 @@
             </div>
           </div>
 
+          <!-- Difficulty Modal -->
+          <div id="difficulty-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+              <h2>Select Difficulty</h2>
+              <div style="margin: 10px;">
+                <button class="difficulty-btn" data-diff="easy">Easy</button>
+                <button class="difficulty-btn" data-diff="medium">Medium</button>
+                <button class="difficulty-btn" data-diff="hard">Hard</button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Firebase compat (must be loaded before the app script that uses firebase) -->
+  <!-- ✅ Global Stockfish Loader 
+  <div id="stockfish-loader" class="loader-overlay hidden">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:15px;">
+      <div class="loader"></div>
+      <div style="color:white;font-size:1.1em;">Loading Stockfish AI...</div>
+    </div>
+  </div>
+  -->
+  <div id="stockfish-loader" class="loader-overlay hidden" style="display:none;">
+    <div style="background:#1f2122;border:2px solid #ec6090;padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
+      <div style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:#ec6090;animation:sfspin 1s linear infinite;margin-bottom:12px"></div>
+      <div>Loading Stockfish AI...</div>
+    </div>
+  </div>
+
+  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-  <!-- OPTIONAL Stockfish CDN fallback:
-       Uncomment this line ONLY if you want the global STOCKFISH() fallback exposed.
-       Note: this runs stockfish in the main thread in some builds and may be heavy.
-  -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/stockfish/stockfish.js"></script> -->
-
-  <!-- Make the worker path available globally so your app script can use it if needed.
-       Adjust this path if your worker file is hosted elsewhere. -->
+  <!-- Stockfish path -->
   <script>
-    // Worker path used by the app. The app will try Worker(path) first, then fallback to window.STOCKFISH() if present.
     window.STOCKFISH_PATH = "stockfish/stockfish-17.1-lite-single-03e3232.js";
   </script>
 
-  <!-- Load chess.js (ESM) and then append your non-module app script.
-       This pattern ensures chess.js is ready and window.Chess is defined before your app runs. -->
+  <!-- Load chess.js before app -->
   <script type="module">
     import { Chess } from "https://esm.run/chess.js";
     window.Chess = Chess;
 
-    // Append your application script after chess is available.
     const appScript = document.createElement("script");
-    appScript.src = "script14.js"; // your main app JS (the file we discussed)
+    appScript.src = "script22.js";
     appScript.defer = true;
-
-    // Optional: if you want to warm the engine automatically (not recommended if you don't want the loader to show),
-    // you can call initStockfish() in appScript.onload. By default we DO NOT call initStockfish here to avoid showing
-    // the loader at page load and causing the loader to "stick".
-    appScript.onload = () => {
-      console.log("[page] script14.js loaded.");
-      // If you *do* want to warm the engine at page load uncomment below:
-      // if (window.initStockfish) {
-      //   // Note: initStockfish will show the loader while doing handshake.
-      //   // initStockfish(window.STOCKFISH_PATH);
-      // }
-    };
-
-    appScript.onerror = () => {
-      console.error("Failed to load script14.js");
-    };
-
+    appScript.onload = () => console.log("[page] script21.js loaded.");
+    appScript.onerror = () => console.error("Failed to load script21.js");
     document.body.appendChild(appScript);
   </script>
 
-  <!-- You can include any other page scripts here -->
 </body>
 </html>
