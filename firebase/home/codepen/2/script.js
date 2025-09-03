@@ -13,6 +13,10 @@ var scene,
     renderer,
 		container;
 
+var clock = new THREE.Clock();
+var time = 0;
+var deltaTime = 0;
+
 //SCENE
 var floor, lion, fan,
     isBlowing = false;
@@ -193,23 +197,23 @@ Fan = function(){
   this.threegroup.add(this.sphere);
 }
 
-Fan.prototype.update = function(xTarget, yTarget){
+Fan.prototype.update = function(xTarget, yTarget, deltaTime){
   this.threegroup.lookAt(new THREE.Vector3(0,80,60));
   this.tPosX = rule3(xTarget, -200, 200, -250, 250);
   this.tPosY = rule3(yTarget, -200, 200, 250, -250);
 
-  this.threegroup.position.x += (this.tPosX - this.threegroup.position.x) /10;
-  this.threegroup.position.y += (this.tPosY - this.threegroup.position.y) /10;
+  this.threegroup.position.x += (this.tPosX - this.threegroup.position.x) * deltaTime * 4;
+  this.threegroup.position.y += (this.tPosY - this.threegroup.position.y) * deltaTime * 4;
   
-  this.targetSpeed = (this.isBlowing) ? .3 : .01;
-  if (this.isBlowing && this.speed < .5){
-    this.acc +=.001;
+  this.targetSpeed = (this.isBlowing) ? 15 * deltaTime: 5 * deltaTime;
+  if (this.isBlowing && this.speed < this.targetSpeed){
+    this.acc += .01 * deltaTime;
     this.speed += this.acc;
   }else if (!this.isBlowing){
     this.acc = 0;
-    this.speed *= .98;
+    this.speed *= Math.pow(.4, deltaTime);
   }
-  this.propeller.rotation.z += this.speed; 
+  this.propeller.rotation.z += this.speed ; 
 }
 
 Lion = function(){
@@ -610,7 +614,7 @@ Lion.prototype.look = function(xTarget, yTarget){
   this.body.geometry.verticesNeedUpdate = true;
 }
 
-Lion.prototype.cool = function(xTarget, yTarget){
+Lion.prototype.cool = function(xTarget, yTarget, deltaTime){
   this.tHeagRotY = rule3(xTarget, -200, 200, Math.PI/4, -Math.PI/4);
   this.tHeadRotX = rule3(yTarget, -200,200, Math.PI/4, -Math.PI/4);
   this.tHeadPosX = rule3(xTarget, -200, 200, -70,70);
@@ -644,7 +648,7 @@ Lion.prototype.cool = function(xTarget, yTarget){
   
   var dt = 20000 / (xTarget*xTarget+yTarget*yTarget);
   dt = Math.max(Math.min(dt,1), .5);
-  this.windTime += dt;
+  this.windTime += dt * deltaTime * 40;
   
   for (var i=0; i<this.maneParts.length; i++){
     var m = this.maneParts[i].mesh;
@@ -674,14 +678,18 @@ Lion.prototype.cool = function(xTarget, yTarget){
 }
 
 function loop(){
+  
+  deltaTime = clock.getDelta();
+  time += deltaTime;
+  
   render();
   var xTarget = (mousePos.x-windowHalfX);
   var yTarget= (mousePos.y-windowHalfY);
   
   fan.isBlowing = isBlowing;
-  fan.update(xTarget, yTarget);
+  fan.update(xTarget, yTarget, deltaTime);
   if(isBlowing) {
-    lion.cool(xTarget, yTarget);
+    lion.cool(xTarget, yTarget, deltaTime);
   }else{
     lion.look(xTarget, yTarget);
   }
