@@ -445,6 +445,7 @@ dataDisplay.innerHTML += formattedData;
 
    
 // Upload Profile Image
+// Upload Profile Image
 async function uploadImage() {
   const fileInput = document.getElementById('upload-image');
   const file = fileInput.files[0];
@@ -461,28 +462,42 @@ async function uploadImage() {
   }
 
   const storage = getStorage();
-  const storageReference = storageRef(storage, `profile_pictures/${user.uid}`); // Save by UID
+  const storageReference = storageRef(storage, `profile_pictures/${user.uid}`); // Save original
 
   try {
     calert('Uploading image...');
-    // Upload file
     await uploadBytes(storageReference, file);
-    // Get URL
+
+    // Get main profile pic URL
     const downloadURL = await getDownloadURL(storageReference);
 
-    // Save URL in Realtime Database
+    // Save original URL in Realtime Database
     const dbRef = ref(database, `users/${user.uid}/profilePic`);
     await set(dbRef, downloadURL);
 
-    // Update the profile picture in UI
-    document.getElementById('profile-pic').src = downloadURL;
-    //localStorage.setItem('profilePic', downloadURL);
+    // Try fetching thumbnail (retry up to 5 times, with delay)
+    const thumbRef = storageRef(storage, `profile_pictures/thumb_${user.uid}`);
+    let thumbURL = "";
+    for (let i = 0; i < 5; i++) {
+      try {
+        thumbURL = await getDownloadURL(thumbRef);
+        if (thumbURL) break;
+      } catch {
+        // Wait 1s before retrying
+        await new Promise(res => setTimeout(res, 1000));
+      }
+    }
+
+    // Update UI: show thumbnail if ready, otherwise original
+    document.getElementById('profile-pic').src = thumbURL || downloadURL;
+
     calert('Profile picture uploaded successfully!');
   } catch (error) {
     console.error("Error uploading image:", error);
     calert('Failed to upload profile picture.');
   }
 }
+
   // after you define uploadImage()
 document
   .getElementById('upload-image')
