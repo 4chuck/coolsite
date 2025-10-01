@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Gemini in Firebase</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .config-section, .chat-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .config-section {
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .config-section label {
+            font-weight: bold;
+            color: #555;
+            margin-right: 10px;
+            flex-basis: 150px; /* Give labels a fixed width */
+            text-align: right;
+            padding-right: 10px;
+        }
+        .config-section input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 1em;
+            max-width: calc(100% - 170px); /* Adjust for label width */
+        }
+        .config-section button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+        }
+        .config-section button:hover {
+            background-color: #0056b3;
+        }
+        .login-info {
+            width: 100%;
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #2a6496;
+        }
+        .login-info strong {
+            color: #004085;
+        }
+
+        .chat-header {
+            background-color: #6200EE; /* Google Material Deep Purple */
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.3em;
+            text-align: center;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .chat-messages {
+            height: 450px; /* Fixed height for chat area */
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #e8eaf6; /* Light purple-blue */
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 70%;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .message.sent {
+            align-self: flex-end;
+            background-color: #bbdefb; /* Light blue bubble for sent messages */
+            color: #333;
+            text-align: right;
+        }
+        .message.received {
+            align-self: flex-start;
+            background-color: #d1c4e9; /* Light purple bubble for received messages */
+            color: #333;
+            border: 1px solid #c5cae9;
+        }
+        .message .user {
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+            display: block;
+            color: #3f51b5; /* Indigo for user name */
+        }
+        .message.received .user {
+            color: #512da8; /* Darker purple for bot name */
+        }
+        .message .text {
+            font-size: 1em;
+        }
+        .system-message {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+            margin: 10px 0;
+            font-size: 0.85em;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px 20px;
+            background-color: #f0f2f5;
+            border-top: 1px solid #e0e0e0;
+        }
+        .chat-input input[type="text"] {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            margin-right: 10px;
+            font-size: 1em;
+            background-color: #fff;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .chat-input button {
+            background-color: #6200EE; /* Google Material Deep Purple */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .chat-input button:hover {
+            background-color: #3700B3; /* Darker Deep Purple */
+        }
+        .chat-input input[type="text"]:disabled, .chat-input button:disabled {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+        }
+        @media (max-width: 768px) {
+            .config-section label {
+                flex-basis: 100%;
+                text-align: left;
+                margin-bottom: 5px;
+            }
+            .config-section input[type="text"] {
+                max-width: 100%;
+            }
+            .config-section button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat with Gemini in Firebase</h1>
+
+    <div class="config-section">
+        <h2>1. Configure Your Identity</h2>
+        <label for="displayNameInput">Your Display Name:</label>
+        <input type="text" id="displayNameInput" value="Firebase Developer" placeholder="e.g., Alice">
+
+        <label for="uidInput">Your User ID (UID):</label>
+        <input type="text" id="uidInput" value="yourUniqueFirebaseUid" placeholder="e.g., FirebaseAuthUID">
+
+        <button id="setUserInfoButton">Start Chatting!</button>
+
+        <div class="login-info">
+            <p><strong>Current User:</strong> <span id="currentUserName">Not set</span> (<span id="currentUserId">Not set</span>)</p>
+            <p>
+                <em>
+                    <strong>Important:</strong> This page simulates user authentication. In a real app, Firebase Authentication would provide your `UID` and `displayName`.
+                    For this chat demo, you must also have the new Realtime Database rules deployed (see instructions above).
+                </em>
+            </p>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            Conversation with Gemini in Firebase
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="system-message">Enter your details above and click 'Start Chatting!' to begin your conversation.</div>
+            <!-- Messages will be loaded here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Ask Gemini something about Firebase..." disabled>
+            <button id="sendMessageButton" disabled>Send</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs - use the latest compatible versions for your project -->
+    <!-- For modular SDK v9+, ensure your environment supports ES Modules -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, push, onChildAdded, off } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+        // Note: Firebase Auth is typically used to get a real user,
+        // but for this single-file demo, we're simulating the user object.
+        // import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+        // -----------------------------------------------------------
+        // 2. Your Firebase Project Configuration (login-b6382)
+        //    IMPORTANT: Replace "YOUR_API_KEY" and "YOUR_WEB_APP_ID" with your actual values!
+        //    You can find these in your Firebase project settings -> General -> Your apps
+        // -----------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk", // <--- REPLACE THIS
+            authDomain: "login-b6382.firebaseapp.com",
+            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+            projectId: "login-b6382",
+            storageBucket: "login-b6382.appspot.com", // This is often projectId + .appspot.com
+            messagingSenderId: "482805184778",
+            appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3" // <--- REPLACE THIS
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // UI Elements
+        const displayNameInput = document.getElementById('displayNameInput');
+        const uidInput = document.getElementById('uidInput');
+        const setUserInfoButton = document.getElementById('setUserInfoButton');
+        const currentUserNameSpan = document.getElementById('currentUserName');
+        const currentUserIdSpan = document.getElementById('currentUserId');
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendMessageButton = document.getElementById('sendMessageButton');
+
+        let currentUser = null; // Simulating Firebase's currentUser object structure
+        let chatRefListener = null; // To store the reference to the active Realtime Database listener
+        const CHAT_PATH = 'chatbot_chat/messages'; // The dedicated path for this chat
+
+        // Gemini Bot's identity (hardcoded for simulation)
+        const BOT_UID = 'geminiInFirebaseBot';
+        const BOT_DISPLAY_NAME = 'Gemini in Firebase';
+
+        // Example bot responses for simulation
+        const botResponses = [
+            "That's a great question about Firebase! Which product are you most interested in today?",
+            "Firebase is designed to help you build and grow apps users love. How can I assist you with your project?",
+            "I'm here to help with Firebase topics. Are you working with Cloud Firestore, Authentication, or something else?",
+            "Remember, Firebase is backed by Google! What's on your mind?",
+            "I'm a large language model from Firebase, ready to assist. What Firebase challenge are you tackling?",
+            "Building high-quality apps with Firebase is my expertise. How can I help clarify a concept?"
+        ];
+        let lastBotResponseIndex = -1;
+
+        /**
+         * Displays a chat message in the UI.
+         * @param {string} userDisplayName The display name of the user who sent the message.
+         * @param {string} messageText The content of the message.
+         * @param {string} messageUid The UID of the user who sent the message.
+         */
+        function displayMessage(userDisplayName, messageText, messageUid) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+
+            // Determine if the message was sent by the current (simulated) user
+            if (currentUser && messageUid === currentUser.uid) {
+                messageElement.classList.add('sent');
+            } else {
+                messageElement.classList.add('received');
+            }
+
+            messageElement.innerHTML = `<span class="user">${userDisplayName}:</span> <span class="text">${messageText}</span>`;
+            chatMessagesDiv.appendChild(messageElement);
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight; // Auto-scroll to the bottom
+        }
+
+        /**
+         * Sets up a Realtime Database listener for chat messages.
+         * Removes any existing listener first.
+         */
+        function setupChatListener() {
+            // Remove previous listener if it exists
+            if (chatRefListener) {
+                off(chatRefListener); // Firebase's 'off' function to detach the listener
+                chatRefListener = null;
+            }
+
+            // Clear existing messages when setting up
+            chatMessagesDiv.innerHTML = '<div class="system-message">Loading chat history...</div>';
+
+            const chatRef = ref(db, CHAT_PATH);
+            chatRefListener = onChildAdded(chatRef, (snapshot) => {
+                const message = snapshot.val();
+                if (chatMessagesDiv.querySelector('.system-message')) {
+                    chatMessagesDiv.innerHTML = ''; // Clear "Loading messages..."
+                }
+                displayMessage(message.user, message.text, message.userId);
+            });
+            console.log(`Now listening for messages in: ${CHAT_PATH}`);
+        }
+
+        /**
+         * Sends a chat message to the Realtime Database.
+         * @param {string} userUid The UID of the sender.
+         * @param {string} userDisplayName The display name of the sender.
+         * @param {string} messageText The message content to send.
+         */
+        async function sendChatMessage(userUid, userDisplayName, messageText) {
+            if (!messageText.trim()) {
+                return;
+            }
+
+            const message = {
+                user: userDisplayName,
+                text: messageText,
+                userId: userUid,
+                ts: Date.now()
+            };
+
+            const chatRef = ref(db, CHAT_PATH);
+            try {
+                await push(chatRef, message);
+                console.log("Message sent successfully!");
+                messageInput.value = ''; // Clear input field after sending
+            } catch (error) {
+                console.error("Error sending message:", error);
+                alert(`Failed to send message: ${error.message}. Please check your console and Realtime Database rules.`);
+            }
+        }
+
+        /**
+         * Simulates a bot response by pushing a message from "Gemini in Firebase" to the RTDB.
+         * @param {string} userMessage The user's message that triggered the bot.
+         */
+        function simulateBotResponse(userMessage) {
+            // Pick a random, but different, response
+            let responseIndex;
+            do {
+                responseIndex = Math.floor(Math.random() * botResponses.length);
+            } while (responseIndex === lastBotResponseIndex);
+            lastBotResponseIndex = responseIndex;
+
+            const botResponse = botResponses[responseIndex];
+
+            // Simulate "typing" delay
+            setTimeout(() => {
+                sendChatMessage(BOT_UID, BOT_DISPLAY_NAME, botResponse);
+            }, 1500); // 1.5 second delay
+        }
+
+        /**
+         * Updates the UI to reflect the current simulated user,
+         * and enables/disables chat input accordingly.
+         */
+        function updateUIForUser() {
+            if (currentUser) {
+                currentUserNameSpan.textContent = currentUser.displayName;
+                currentUserIdSpan.textContent = currentUser.uid;
+                messageInput.disabled = false;
+                sendMessageButton.disabled = false;
+                setupChatListener(); // Start listening for chat
+            } else {
+                currentUserNameSpan.textContent = 'Not set';
+                currentUserIdSpan.textContent = 'Not set';
+                messageInput.disabled = true;
+                sendMessageButton.disabled = true;
+                if (chatRefListener) {
+                    off(chatRefListener); // Stop listening if user is unset
+                    chatRefListener = null;
+                }
+                chatMessagesDiv.innerHTML = '<div class="system-message">Enter your details above to start chatting!</div>';
+            }
+        }
+
+        // -----------------------------------------------------------
+        // Event Listeners for UI interaction
+        // -----------------------------------------------------------
+
+        setUserInfoButton.addEventListener('click', () => {
+            const displayName = displayNameInput.value.trim();
+            const uid = uidInput.value.trim();
+
+            if (!displayName || !uid) {
+                alert("Please fill in both 'Your Display Name' and 'Your User ID'.");
+                return;
+            }
+
+            // Simulate Firebase Auth user object structure
+            currentUser = {
+                uid: uid,
+                displayName: displayName
+            };
+
+            updateUIForUser();
+        });
+
+        sendMessageButton.addEventListener('click', () => {
+            if (currentUser) {
+                const messageText = messageInput.value;
+                if (messageText) {
+                    sendChatMessage(currentUser.uid, currentUser.displayName, messageText);
+                    simulateBotResponse(messageText); // Trigger bot response after user sends
+                }
+            } else {
+                alert("Please configure your identity first!");
+            }
+        });
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (currentUser) {
+                    const messageText = messageInput.value;
+                    if (messageText) {
+                        sendChatMessage(currentUser.uid, currentUser.displayName, messageText);
+                        simulateBotResponse(messageText); // Trigger bot response after user sends
+                    }
+                } else {
+                    alert("Please configure your identity first!");
+                }
+            }
+        });
+
+        // Initial UI update when the page loads
+        updateUIForUser();
+    </script>
+</body>
+</html>

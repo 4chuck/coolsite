@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini & Firebase Chatbot</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 15px;
+            margin: 0;
+            background-color: #0b1a32;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        #chat-window {
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .user-msg {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .gemini-msg {
+            align-self: flex-start;
+            background-color: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        #send-btn {
+            padding: 10px 20px;
+            border: none;
+            background-color: #1a73e8; /* Google Blue */
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        #send-btn:hover {
+            background-color: #0c5fbf;
+        }
+
+        .status-text {
+            color: gray;
+            text-align: center;
+            font-style: italic;
+            font-size: 0.8em;
+            margin: 5px 0;
+        }
+        /* ... (Your existing CSS styles) ... */
+
+/* --- NEW STYLES FOR TYPING INDICATOR --- */
+
+.typing-indicator-container {
+    align-self: flex-start;
+    padding: 10px 15px;
+    border-radius: 20px;
+    background-color: #e9ecef;
+    width: fit-content;
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.typing-indicator {
+    height: 10px;
+    width: 10px;
+    background-color: #999;
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: bounce 1.2s infinite ease-in-out;
+}
+
+.typing-indicator:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    </head>
+<body>
+
+    <div class="chat-container">
+        <h1>💬 Gemini AI Chatbot</h1>
+        <p id="auth-status" class="status-text">Checking authentication...</p>
+        <div id="chat-window">
+            <div class="status-text">
+                (Chat will load once user is authenticated and rules allow access)
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Please log in to chat..." onkeypress="if(event.keyCode === 13) document.getElementById('send-btn').click()" disabled>
+            <button id="send-btn" disabled>Send</button>
+        </div>
+    </div>
+
+
+<script>
+    // --- 2. Firebase Configuration and Initialization ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+        authDomain: "login-b6382.firebaseapp.com",
+        projectId: "login-b6382",
+        databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+        storageBucket: "login-b6382.appspot.com",
+        messagingSenderId: "482805184778",
+        appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(); 
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const authStatus = document.getElementById('auth-status');
+    const LOADING_ID = 'gemini-loading-indicator'; // Global ID for the loading element
+
+    // --- NEW: Loading Animation Functions ---
+    function showLoading() {
+        if (!document.getElementById(LOADING_ID)) {
+            const container = document.createElement('div');
+            container.id = LOADING_ID;
+            container.className = 'typing-indicator-container';
+            container.innerHTML = `
+                <div class="typing-indicator"></div>
+                <div class="typing-indicator"></div>
+                <div class="typing-indicator"></div>
+            `;
+            chatWindow.appendChild(container);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    }
+
+    function hideLoading() {
+        const loader = document.getElementById(LOADING_ID);
+        if (loader) {
+            loader.remove();
+        }
+    }
+
+    function renderMessage(text, isUser) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${isUser ? 'user-msg' : 'gemini-msg'}`;
+        msgDiv.textContent = text;
+        chatWindow.appendChild(msgDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // --- 3. Chat Logic inside onAuthStateChanged ---
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            const userId = user.uid;
+            const MESSAGES_COLLECTION = `chats/${userId}/messages`; 
+
+            authStatus.textContent = `Authenticated. Chat ID: ${userId.substring(0, 8)}...`;
+            userInput.placeholder = "Ask Gemini anything...";
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            chatWindow.innerHTML = '<div class="status-text">Loading chat history...</div>';
+
+            const q = db.collection(MESSAGES_COLLECTION).orderBy('createdAt', 'asc');
+
+            q.onSnapshot((snapshot) => {
+                if (chatWindow.innerHTML.includes("Loading chat history...")) {
+                    chatWindow.innerHTML = '';
+                }
+
+                snapshot.docChanges().forEach((change) => {
+                    const message = change.doc.data();
+
+                    if (change.type === "added") {
+                        if (message.prompt && !message.response) {
+                            renderMessage(message.prompt, true);
+                            // New message added, immediately show loading indicator
+                            showLoading(); 
+                        } else if (message.response) {
+                            // History message, render both
+                            renderMessage(message.prompt, true);
+                            renderMessage(message.response, false);
+                        }
+                    }
+
+                    if (change.type === "modified") {
+                        if (message.response) {
+                            // Response received! Hide the loading indicator
+                            hideLoading(); 
+                            renderMessage(message.response, false);
+                        }
+                    }
+                });
+            }, (error) => {
+                console.error("Firestore Listener Error:", error);
+                hideLoading(); // Hide on error as well
+                chatWindow.innerHTML = `<div class="status-text" style="color: red;">Error: ${error.message}. Check Firebase Security Rules!</div>`;
+            });
+
+            // --- Send Message Handler ---
+            const sendMessage = async () => {
+                const messageText = userInput.value.trim();
+
+                if (messageText) {
+                    userInput.value = ''; // Clear input immediately
+                    
+                    try {
+                        await db.collection(MESSAGES_COLLECTION).add({
+                            prompt: messageText,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        userInput.focus();
+                    } catch (error) {
+                        console.error("Error sending message: ", error);
+                        alert("Could not send message. Check the console.");
+                        hideLoading();
+                    }
+                }
+            };
+            
+            sendBtn.onclick = sendMessage;
+            userInput.onkeypress = (event) => {
+                if(event.keyCode === 13) {
+                    sendMessage();
+                }
+            };
+
+        } else {
+            // USER IS LOGGED OUT: Disable Chat Features
+            authStatus.textContent = "Please sign up or log in to start chatting.";
+            userInput.placeholder = "Please log in to chat...";
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+            chatWindow.innerHTML = '<div class="status-text">Not logged in.</div>';
+        }
+    });
+</script>
+</body>
+</html>

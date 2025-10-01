@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
+    <title>Gemini & Firebase Chatbot</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 15px;
+            margin: 0;
+            background-color: #0b1a32;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        #chat-window {
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .user-msg {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .gemini-msg {
+            align-self: flex-start;
+            background-color: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        /* Message Timestamp Styles */
+        .message-timestamp {
+            display: block;
+            font-size: 0.65em;
+            opacity: 0.7;
+            margin-top: 3px;
+            text-align: right;
+            user-select: none; /* Prevent selection of timestamp */
+        }
+
+        .gemini-msg .message-timestamp {
+            text-align: left;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        #user-input:focus {
+            border-color: #1a73e8;
+        }
+
+        #send-btn {
+            padding: 10px 20px;
+            border: none;
+            background-color: #1a73e8; /* Google Blue */
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        #send-btn:hover:not(:disabled) {
+            background-color: #0c5fbf;
+        }
+
+        #send-btn:disabled {
+            background-color: #a0c4f7;
+            cursor: not-allowed;
+        }
+
+        .status-text {
+            color: gray;
+            text-align: center;
+            font-style: italic;
+            font-size: 0.8em;
+            margin: 5px 0;
+        }
+
+        /* --- STYLES FOR TYPING INDICATOR (Animation) --- */
+        .typing-indicator-container {
+            align-self: flex-start;
+            padding: 10px 15px;
+            border-radius: 20px;
+            background-color: #e9ecef;
+            width: fit-content;
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .typing-indicator {
+            height: 8px;
+            width: 8px;
+            background-color: #555;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+
+        .typing-indicator:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h1>💬 Gemini AI Chatbot</h1>
+        <p id="auth-status" class="status-text">Checking authentication...</p>
+        <div id="chat-window">
+            <div class="status-text">
+                (Chat will load once user is authenticated and rules allow access)
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Please log in to chat..." disabled>
+            <button id="send-btn" disabled>Send</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 2. Firebase Configuration and Initialization ---
+        // REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+            authDomain: "login-b6382.firebaseapp.com",
+            projectId: "login-b6382",
+            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+            storageBucket: "login-b6382.appspot.com",
+            messagingSenderId: "482805184778",
+            appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); 
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const authStatus = document.getElementById('auth-status');
+        const LOADING_ID = 'gemini-loading-indicator'; 
+
+        // --- NEW: Loading Animation Functions (with input lock) ---
+        function showLoading() {
+            // Lock UI
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+
+            if (!document.getElementById(LOADING_ID)) {
+                const container = document.createElement('div');
+                container.id = LOADING_ID;
+                container.className = 'typing-indicator-container';
+                container.innerHTML = `
+                    <div class="typing-indicator"></div>
+                    <div class="typing-indicator"></div>
+                    <div class="typing-indicator"></div>
+                `;
+                chatWindow.appendChild(container);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+        }
+
+        function hideLoading() {
+            // Unlock UI
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus(); 
+            
+            const loader = document.getElementById(LOADING_ID);
+            if (loader) {
+                loader.remove();
+            }
+        }
+
+        // --- RENDER MESSAGE FUNCTION (Updated to include timestamp) ---
+        function renderMessage(text, isUser, timestamp) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isUser ? 'user-msg' : 'gemini-msg'}`;
+            
+            let timeString = '';
+            // Check if timestamp is a valid Firestore Timestamp object
+            if (timestamp && timestamp.toDate) {
+                const date = timestamp.toDate();
+                // Format as HH:MM:SS
+                timeString = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+
+            msgDiv.innerHTML = `
+                <span>${text}</span>
+                ${timeString ? `<span class="message-timestamp">${timeString}</span>` : ''}
+            `;
+
+            chatWindow.appendChild(msgDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // --- 3. Chat Logic inside onAuthStateChanged ---
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                console.log(`[AUTH] User authenticated. UID: ${user.uid}`);
+                
+                const userId = user.uid;
+                const MESSAGES_COLLECTION = `chats/${userId}/messages`; 
+                console.log(`[DB PATH] Listening to: ${MESSAGES_COLLECTION}`);
+
+                authStatus.textContent = `Authenticated. Chat ID: ${userId.substring(0, 8)}...`;
+                userInput.placeholder = "Ask Gemini anything...";
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                chatWindow.innerHTML = '<div class="status-text">Loading chat history...</div>';
+
+                // --- Real-time Listener for Chat Messages ---
+                const q = db.collection(MESSAGES_COLLECTION).orderBy('createdAt', 'asc');
+
+                q.onSnapshot((snapshot) => {
+                    // Clear the "Loading chat history" message on first successful load
+                    if (chatWindow.innerHTML.includes("Loading chat history...")) {
+                        chatWindow.innerHTML = '';
+                    }
+
+                    snapshot.docChanges().forEach((change) => {
+                        const message = change.doc.data();
+                        const timestamp = message.createdAt; // Grab the timestamp
+                        
+                        console.log(`[FIRESTORE CHANGE] Type: ${change.type}, Doc ID: ${change.doc.id}`);
+                        console.log(`[MESSAGE DATA] Prompt: ${message.prompt}, Response: ${message.response ? 'YES' : 'NO'}`);
+
+                        if (change.type === "added") {
+                            if (message.prompt && !message.response) {
+                                // New message added by user, show prompt and loading indicator
+                                renderMessage(message.prompt, true, timestamp);
+                                showLoading(); 
+                            } else if (message.response) {
+                                // History message with response, render both
+                                renderMessage(message.prompt, true, timestamp);
+                                renderMessage(message.response, false, timestamp);
+                            }
+                        }
+
+                        // When the extension adds the 'response' field, the doc is 'modified'
+                        if (change.type === "modified") {
+                            if (message.response) {
+                                console.log(`[REPLY SUCCESS] Gemini response received for message ID: ${change.doc.id}`);
+                                // Response received! Hide the loading indicator and unlock UI
+                                hideLoading(); 
+                                // Since we already rendered the prompt on 'added', we just render the response
+                                renderMessage(message.response, false, timestamp);
+                            }
+                        }
+                    });
+                }, (error) => {
+                    console.error("[FIRESTORE ERROR] Listener failed. Check Security Rules!", error);
+                    hideLoading(); // Hide on error
+                    chatWindow.innerHTML = `<div class="status-text" style="color: red;">ERROR: ${error.message}. Check Rules/Console.</div>`;
+                });
+
+                // --- Send Message Handler ---
+                const sendMessage = async () => {
+                    const messageText = userInput.value.trim();
+
+                    if (messageText) {
+                        console.log(`[CLIENT SEND] Attempting to send prompt: "${messageText}"`);
+                        
+                        // We do NOT call showLoading() here. It is called by the 'added'
+                        // event in the listener, which ensures the doc was successfully written.
+
+                        try {
+                            const docRef = await db.collection(MESSAGES_COLLECTION).add({
+                                prompt: messageText,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            console.log(`[CLIENT SUCCESS] Document created in Firestore with ID: ${docRef.id}`);
+                            userInput.value = ''; // Clear input immediately
+                            // Focus will be handled by hideLoading() once response arrives
+                            
+                        } catch (error) {
+                            console.error("[CLIENT ERROR] Failed to create document. Check network/client permissions.", error);
+                            alert("Could not send message. Check the console.");
+                            hideLoading(); // If send fails immediately, ensure UI is unlocked
+                        }
+                    }
+                };
+                
+                // Attach event listeners
+                sendBtn.onclick = sendMessage;
+                userInput.onkeypress = (event) => {
+                    if(event.keyCode === 13) {
+                        sendMessage();
+                    }
+                };
+            
+            } else {
+                console.log("[AUTH] User logged out or unauthenticated.");
+                authStatus.textContent = "Please sign up or log in to start chatting.";
+                userInput.placeholder = "Please log in to chat...";
+                userInput.disabled = true;
+                sendBtn.disabled = true;
+                chatWindow.innerHTML = '<div class="status-text">Not logged in.</div>';
+            }
+        });
+    </script>
+</body>
+</html>
