@@ -476,7 +476,7 @@ async function uploadImage() {
     await set(dbRef, downloadURL);
 
     // Try fetching thumbnail (retry up to 5 times, with delay)
-    const thumbRef = storageRef(storage, `profile_pictures/thumb_${user.uid}`);
+    const thumbRef = storageRef(storage, `profile_pictures/${user.uid}`);
     let thumbURL = "";
     for (let i = 0; i < 5; i++) {
       try {
