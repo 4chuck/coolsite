@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <title>Cyborg - Profile</title>
+
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/fontawesome.css">
+  <link rel="stylesheet" href="assets/css/templatemo-cyborg-gaming.css">
+  <link rel="stylesheet" href="assets/css/owl.css">
+  <link rel="stylesheet" href="assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .profile-container {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      background-color: #ec6090;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .dropdown-btn:hover {
+      background-color: #d84f7f;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      z-index: 1;
+      padding: 12px;
+      text-align: center;
+      min-width: 200px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .dropdown-content input[type="file"] {
+      display: block;
+      width: 100%;
+      background-color: #ec6090;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    #custom-alert {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      font-weight: 600;
+      font-size: 1rem;
+      min-width: 200px;
+      max-width: 90%;
+      text-align: center;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    #custom-alert.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #custom-alert button {
+      background: none;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="custom-alert">
+    <span id="calert-msg"></span>
+    <button id="calert-close">×</button>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+          <div class="row">
+            <div class="col-lg-4 text-center p-3">
+              <img id="profile-pic" src="default-avatar.png" alt="Profile Picture"
+                style="border-radius:23px; width: 200px; height: 200px; object-fit: cover;">
+              <div class="dropdown mt-2">
+                <button class="dropdown-btn">Change Pic</button>
+                <div class="dropdown-content">
+                  <input type="file" id="upload-image" accept="image/*">
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 align-self-center">
+              <div class="main-info header-text">
+                <h2><strong>Name:</strong> <span id="name">Loading...</span></h2>
+                <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+                <div class="main-border-button">
+                  <a class="btn btn-password" id="logout-btn">Logout</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 align-self-center">
+              <ul>
+                <li>Games played <span>3</span></li>
+                <li>Friends Online <span>16</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="gaming-library profile-library">
+            <div id="data-container">
+              <h2>Your Data</h2>
+              <p id="load">loading data...</p>
+              <div id="data-display"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved.
+            <br>Design: <a href="https://templatemo.com" target="_blank">TemplateMo</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+      authDomain: "login-b6382.firebaseapp.com",
+      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+      projectId: "login-b6382",
+      storageBucket: "login-b6382.appspot.com",
+      messagingSenderId: "482805184778",
+      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+      measurementId: "G-ZHXBBZHN3W",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    const dataDisplay = document.getElementById("data-display");
+    const loadingMessage = document.getElementById("load");
+    const logoutBtn = document.getElementById("logout-btn");
+    const profilePicEl = document.getElementById("profile-pic");
+    const uploadInput = document.getElementById('upload-image');
+    let alertTimeout;
+
+    function calert(msg) {
+      const box = document.getElementById("custom-alert");
+      document.getElementById("calert-msg").innerText = msg;
+      box.classList.add("show");
+      clearTimeout(alertTimeout);
+      alertTimeout = setTimeout(() => box.classList.remove("show"), 3000);
+    }
+
+    document.getElementById("calert-close").addEventListener("click", () => {
+      document.getElementById("custom-alert").classList.remove("show");
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = "../../../login/fire-login.html"; return; }
+      const userId = user.uid;
+
+      // Load profile info
+      (async () => {
+        const snap = await get(ref(db, `users/${userId}`));
+        if (snap.exists()) {
+          const data = snap.val();
+          document.getElementById('name').textContent = data.displayName || "No Name";
+          document.getElementById('email').textContent = data.email || "No Email";
+        }
+      })();
+
+      // Listen for profile pic updates
+      onValue(ref(db, `users/${userId}/profilePic`), (snap) => {
+        const url = snap.exists() ? snap.val() : 'default-avatar.png';
+        profilePicEl.src = url;
+      });
+
+      // Load quiz data
+      const categoryMap = { 9: "General Knowledge", 10: "Books", 11: "Film", 12: "Music", 13: "Musicals & Theatres", 14: "Television", 15: "Video Games", 16: "Board Games", 17: "Science & Nature", 18: "Computers", 19: "Mathematics", 20: "Mythology", 21: "Sports", 22: "Geography", 23: "History", 24: "Politics", 25: "Art", 26: "Celebrities", 27: "Animals", 28: "Vehicles", 29: "Comics", 30: "Gadgets", 31: "Anime & Manga", 32: "Cartoon & Animations" };
+      let dataFetched = false;
+      dataDisplay.innerHTML = "";
+      for (let n = 9; n <= 32; n++) {
+        get(ref(db, `quiz/category_${n}/players/${userId}`))
+          .then(snap => {
+            if (snap.exists()) {
+              const score = snap.val().score ?? 0;
+              dataDisplay.innerHTML += `<div class="category-data"><h4>${categoryMap[n]}</h4><p>Score: ${score}</p></div>`;
+            }
+            if (!dataFetched) { loadingMessage.style.display = "none"; dataFetched = true; }
+          });
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        localStorage.clear();
+        calert("Logged out successfully!");
+        window.location.href = "../../../login/fire-login.html";
+      }).catch(err => calert("Logout error: " + err.message));
+    });
+
+    // Upload image
+    uploadInput.addEventListener('input', async () => {
+      const file = uploadInput.files[0];
+      if (!file) { calert('Select an image.'); return; }
+      const user = auth.currentUser;
+      if (!user) { calert('Login required.'); return; }
+      const userId = user.uid;
+      const sRef = storageRef(storage, `profile_pictures/${userId}/${file.name}`);
+      uploadInput.disabled = true;
+      try {
+        calert('Uploading image...');
+        profilePicEl.src = URL.createObjectURL(file);
+        profilePicEl.onload = () => { URL.revokeObjectURL(profilePicEl.src); };
+        await uploadBytes(sRef, file);
+        calert('Upload complete — thumbnail will appear shortly.');
+      } catch (err) {
+        calert('Upload failed.');
+        console.error(err);
+      } finally {
+        uploadInput.disabled = false;
+      }
+    });
+
+    // Dropdown click toggle
+    const dropdownBtn = document.querySelector('.dropdown-btn');
+    const dropdownContent = document.querySelector('.dropdown-content');
+
+    dropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
+
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('.dropdown')) {
+        dropdownContent.style.display = 'none';
+      }
+    });
+  </script>
+
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/tabs.js"></script>
+  <script src="assets/js/popup.js"></script>
+  <script src="assets/js/custom.js"></script>
+</body>
+</html>
