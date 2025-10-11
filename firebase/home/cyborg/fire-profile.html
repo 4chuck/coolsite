@@ -18,294 +18,257 @@
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
 
-  <style>
-    /* ---------- Page & layout ---------- */
-    :root {
-      --accent: #ec6090;
-      --danger: #f44336;
-      --card-bg: rgba(255,255,255,0.04);
-      --muted: #666;
-    }
+<style>
+  /* ============================
+     Profile page — consolidated CSS
+     Includes: stable sticky/fixed header rules,
+     high-specificity nav layout fixes, and scoped
+     profile-card / dropdown / overlays styles.
+     Apply the JS snippet (provided earlier) that
+     adds `body.profile-fixed` to make the header fixed
+     and reserve content space. If you prefer no JS,
+     you can add `.profile-fixed` to <body> manually.
+     ============================ */
 
-    body {
-      font-family: 'Poppins', Arial, sans-serif;
-      background: #0f0f17;
-      color: #eee;
+  :root{
+    --accent: #ec6090;
+    --danger: #f44336;
+    --card-bg: rgba(255,255,255,0.04);
+    --muted: #666;
+    --header-height: 72px; /* fallback height; JS will update this */
+  }
+
+  /* ---------- Page basics (dark) ---------- */
+  body{
+    font-family: 'Poppins', Arial, sans-serif;
+    background: #0f0f17;
+    color: #eee;
+    margin: 0;
+    padding: 20px 0 60px;
+    -webkit-font-smoothing: antialiased;
+    transform: translateZ(0); /* GPU hint to reduce sticky flicker */
+  }
+
+ 
+  /* ============================================================
+     Header / Nav
+     - Use sticky by default (to respect template) but provide a
+       stronger fixed rule when body.profile-fixed is present.
+     - Very specific selectors so this wins over template CSS.
+     ============================================================ */
+
+  header.header-area {
+    position: sticky;
+    top: 0;
+    z-index: 1200;
+    padding: 10px 0;
+    background: linear-gradient(90deg, rgba(7,7,12,0.95), rgba(15,15,25,0.95));
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* Defensive: keep header visible if some script tries to hide it */
+  header.header-area { display: block !important; visibility: visible !important; opacity: 1 !important; }
+
+  /* If JS adds body.profile-fixed, make header fixed (most robust) */
+  body.profile-fixed header.header-area {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1400 !important;
+    background: linear-gradient(90deg, rgba(7,7,12,0.95), rgba(15,15,25,0.95));
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Reserve space under the fixed header so content doesn't jump. */
+  body.profile-fixed main.container,
+  body.profile-fixed .container {
+    margin-top: var(--header-height, 72px);
+    transition: margin-top .12s ease;
+  }
+
+  /* Prevent transforms on header children which can create stacking contexts */
+  header.header-area * { transform: none !important; }
+
+
+  .main-nav .logo img { height: 46px; display: block; }
+
+  /* Desktop: force horizontal nav */
+  @media (min-width: 9999px) {
+    header.header-area .container > .main-nav .nav {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 20px !important;
+      list-style: none;
+      padding-left: 0;
       margin: 0;
-      padding: 20px 0 60px;
-      -webkit-font-smoothing: antialiased;
+      align-items: center;
+      white-space: nowrap; /* prevents wrapping into vertical stack */
+      box-sizing: border-box;
     }
-
-    .container {
-      max-width: 1150px;
-      margin: 0 auto;
-      padding: 0 20px;
+    header.header-area .container > .main-nav .nav li {
+      display: inline-flex !important;
+      align-items: center;
     }
-
-    header.header-area {
-      background: linear-gradient(90deg, rgba(7,7,12,0.9), rgba(15,15,25,0.85));
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      padding: 10px 0;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-    }
-
-    .main-nav .logo img {
-      height: 46px;
-    }
-
-    .main-nav .nav li a {
+    header.header-area .container > .main-nav .nav li a {
+      display: inline-block !important;
+      padding: 8px 12px;
       color: #d9d9d9;
     }
+    header.header-area .container > .main-nav .menu-trigger { display: none !important; }
+  }
 
-    /* ---------- Profile card ---------- */
-    .profile-wrapper {
-      display: flex;
-      gap: 24px;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 28px;
-    }
+  /* Mobile: allow template to control collapse via JS */
+  @media (max-width: 991px) {
+    header.header-area .container > .main-nav .nav { display: none; } /* toggled by template JS */
+    header.header-area .container > .main-nav .menu-trigger { display: inline-block; cursor: pointer; }
+  }
 
-    @media (min-width: 900px) {
-      .profile-wrapper {
-        flex-direction: row;
-        align-items: flex-start;
-      }
-    }
+  /* Make search input flex-friendly so it won't push nav onto new line */
+  .main-nav .search-input { flex: 1 1 320px; min-width:140px; max-width:520px; box-sizing: border-box; }
+  .main-nav .search-input input { width: 100%; box-sizing: border-box; }
 
-    .profile-card {
-      background: var(--card-bg);
-      color: #111;
-      border-radius: 12px;
-      padding: 20px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-      text-align: center;
-      position: relative;
-    }
+  /* ========== Profile area (scoped to avoid clashes) ========== */
+  .profile-wrapper { display: flex; gap: 24px; flex-direction: column; align-items: center; margin-top: 28px; }
+  @media (min-width: 900px) { .profile-wrapper { flex-direction: row; align-items: flex-start; } }
 
-    .profile-thumb {
-      width: 220px;
-      height: 220px;
-      border-radius: 18px;
-      object-fit: cover;
-      display: block;
-      margin: 0 auto;
-      border: 6px solid rgba(0,0,0,0.06);
-    }
+  .profile-card {
+    background: var(--card-bg);
+    color: #eee;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    text-align: center;
+    position: relative;
+  }
 
-    .profile-meta {
-      margin-top: 12px;
-    }
+  .profile-thumb { width: 220px; height: 220px; border-radius: 18px; object-fit: cover; display: block; margin: 0 auto; border: 6px solid rgba(0,0,0,0.06); }
+  .profile-meta { margin-top: 12px; }
 
-    .btn {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
+  /* Scope button styles so they don't conflict with template .btn */
+  .profile-card .btn, .profile-info .btn {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .profile-card .btn-upload { background: var(--accent); color: #fff; }
+  .profile-card .btn-logout { background: var(--danger); color: #fff; }
 
-    .btn-upload {
-      background: var(--accent);
-      color: #fff;
-    }
+  /* ========== Profile dropdown (scoped) ========== */
+  .profile-card .dropdown { position: relative; display: inline-block; margin-top: 12px; z-index: 1600; }
+  .profile-card .dropdown .dropdown-btn { padding: 10px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-weight: 600; }
+  .profile-card .dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 260px;
+    background: #121217;
+    color: #eaeaea;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    z-index: 1800; /* above header & other UI */
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .profile-card .dropdown .dropdown-content input { width: 100%; padding: 8px; margin: 6px 0; background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; outline: none; }
+  .profile-card .dropdown:hover .dropdown-content { display: block; }
+  .profile-card .dropdown .dropdown-content input[type="file"] { background: var(--accent); color: #fff; border: 1px dashed #ddd; padding: 8px; border-radius: 6px; cursor: pointer; }
 
-    .btn-logout {
-      background: var(--danger);
-      color: #fff;
-    }
+  /* ========== Profile info & data ========== */
+  .profile-info { flex: 1; min-width: 320px; background: rgba(255,255,255,0.04); padding: 18px; border-radius: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); }
+  .profile-info h2 { margin: 0 0 6px; color: #fff; }
+  .profile-info p { margin: 4px 0; color: var(--muted); }
 
-    /* dropdown styling */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-      margin-top: 12px;
-    }
+  #data-container { margin-top: 18px; width: 100%; }
+  #data-display .category-data { background: rgba(255,255,255,0.03); padding: 10px; margin: 8px 0; border-radius: 8px; }
+  #load { color: #bdbdbd; font-weight: 600; }
 
-    .dropdown-btn {
-      padding: 10px 18px;
-      border-radius: 8px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
+  /* ========== Alerts & overlays ========== */
+  #custom-alert {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: #3498db;
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 8px;
+    z-index: 3000;
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    font-weight: 700;
+    min-width: 200px;
+    text-align: center;
+    pointer-events: none;
+  }
+  #custom-alert.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .dropdown-content {
-  display: none;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 260px;
-  background: #121217; /* dark background */
-  color: #eaeaea;      /* light text */
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
-  z-index: 40;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(6px);
+.processing-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 4000; /* above dropdowns, buttons, header, etc. */
+    text-align: center;
+    padding: 12px;
+    pointer-events: auto; /* blocks clicks underneath */
 }
 
-/* inputs inside the dropdown match the dark theme */
-.dropdown-content input {
-  width: 100%;
-  padding: 8px;
-  margin: 6px 0;
-  background: rgba(255, 255, 255, 0.03);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  outline: none;
+.processing-overlay.show {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* subtle hint/tip text color */
-.dropdown-content .tip {
-  color: #bdbdbd;
-  font-size: 0.9rem;
-  margin-top: 6px;
+.spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+    margin: 4px auto;
 }
 
-
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-
-    .dropdown-content input[type="file"] {
-      width: 100%;
-      padding: 8px;
-      border: 1px dashed #ddd;
-      border-radius: 6px;
-      cursor: pointer;
-      background-color: #ec6090;
-    }
-
-    /* profile info right column */
-    .profile-info {
-      flex: 1;
-      min-width: 320px;
-      background: rgba(255,255,255,0.04);
-      padding: 18px;
-      border-radius: 12px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-    }
-
-    .profile-info h2 {
-      margin: 0 0 6px;
-      color: #fff;
-    }
-
-    .profile-info p {
-      margin: 4px 0;
-      color: var(--muted);
-    }
-
-    /* data display */
-    #data-container {
-      margin-top: 18px;
-      width: 100%;
-    }
-
-    #data-display .category-data {
-      background: rgba(255,255,255,0.03);
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-    }
-
-    #load {
-      color: #bdbdbd;
-      font-weight: 600;
-    }
-
-    /* custom alert */
-    #custom-alert {
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      background-color: #3498db;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 8px;
-      z-index: 2000;
-      opacity: 0;
-      transition: opacity 0.25s ease, transform 0.25s ease;
-      font-weight: 700;
-      min-width: 200px;
-      text-align: center;
-      pointer-events: none;
-    }
-
-    #custom-alert.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* Processing overlay ------------------ */
-    .processing-overlay {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      background: rgba(0,0,0,0.55);
-      color: #fff;
-      border-radius: 10px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 120;
-      text-align: center;
-      padding: 12px;
-    }
-
-    .processing-overlay.show {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .spinner {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.2);
-      border-top-color: white;
-      animation: spin 1s linear infinite;
-      margin: 4px auto;
-    }
-
-    @keyframes spin {
-      to {
+@keyframes spin {
+    to {
         transform: rotate(360deg);
-      }
     }
+}
 
-    .status-text {
-      font-weight: 700;
-      letter-spacing: 0.2px;
-    }
+.status-text {
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
 
-    .status-sub {
-      color: #ddd;
-      font-size: 0.92rem;
-    }
+.status-sub {
+    color: #ddd;
+    font-size: 0.92rem;
+}
+ /* footer */
+  footer { margin-top: 30px; padding: 18px 0; text-align: center; color: #9aa0b4; }
 
-    /* Footer */
-    footer {
-      margin-top: 30px;
-      padding: 18px 0;
-      text-align: center;
-      color: #9aa0b4;
-    }
-  </style>
+  /* Small helper: ensure large images and search fit without breaking nav */
+  img, input { max-width: 100%; height: auto; box-sizing: border-box; }
+</style>
+
 </head>
 
 <body>
@@ -349,7 +312,7 @@
                 </nav>
     </div>
   </header>
-
+<br><br><br><br>
   <main class="container">
     <div class="profile-wrapper">
       <!-- LEFT: profile card -->
@@ -551,16 +514,21 @@
           const userRef = dbRef(database, `users/${uid}`);
           const snapshot = await get(userRef);
           if (snapshot.exists()) {
-            const data = snapshot.val();
-            document.getElementById('name').textContent = data.displayName || data.name || "No Name";
-            document.getElementById('email').textContent = data.email || user.email || "No Email";
-            setProfileImage(data.profilePic || "default-avatar.png");
-          } else {
-            // If there's no user node yet, fall back to auth profile
-            document.getElementById('name').textContent = user.displayName || "No Name";
-            document.getElementById('email').textContent = user.email || "No Email";
-            setProfileImage("default-avatar.png");
-          }
+  const data = snapshot.val();
+  const displayName = data.displayName || data.name || user.displayName || "No Name";
+  const emailText = data.email || user.email || "No Email";
+
+  document.getElementById('name').textContent = displayName;
+  document.getElementById('email').textContent = emailText;
+
+  setProfileImage(data.profilePic || "default-avatar.png");
+} else {
+  // Fallback to Auth
+  document.getElementById('name').textContent = user.displayName || "No Name";
+  document.getElementById('email').textContent = user.email || "No Email";
+  setProfileImage("default-avatar.png");
+}
+
         } catch (err) {
           console.error("Error loading profile:", err);
           calert("Failed to load profile data.");
