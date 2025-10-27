@@ -29,6 +29,16 @@
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 <!--===============================================================================================-->
+  <style>
+    /* Small extras so the supplied markup looks good if vendor CSS missing */
+    .login100-form-title { font-size: 28px; font-weight: 700; text-transform: capitalize; color:#fff; }
+    .input100 { width:100%; padding:12px 40px; border-radius:6px; border:0px solid #ddd; color:#fff;  }
+    .wrap-login100 { height: auto; max-width:520px; margin:40px auto; background:rgba(0, 0, 0, 0.452); padding:26px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+    .label-input100 { display:block; margin-bottom:6px; font-weight:600; color:#fff; }
+    body { background:#0f1724; color:#eee; font-family:Arial, sans-serif; }
+    a.txt2 , a{ color:#ffecb2; text-decoration:none; }
+    .helper { font-size:13px; color:#ddd; margin-top:8px; }
+  </style>
 </head>
 <body>
 	
@@ -36,8 +46,8 @@
 		<div class="container-login100" style="background-image: url('images/bg-01.jpg');">
 			<div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-54"style="height: auto;">
 					<span class="login100-form-title p-b-49">
-						<p id="welcome-message" style="color:green;"></p>
-            <p id="error" style="color:red;"></p>
+					<!--	<p id="welcome-message" style="color:green;"></p>
+            			<p id="error" style="color:red;"></p> -->
                 <h2>Create an Account</h2>
 					</span>
 
@@ -68,7 +78,6 @@
 							</button>
 						</div>
 					</div>
-					<br><br>
 					<div class="txt1 text-center p-t-54 p-b-20">
              			<a href="fire-login.html">Already have an account? Login</a><br>
 						</a><br>

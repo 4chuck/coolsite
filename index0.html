@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <!-- Responsive viewport for mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tetron</title>
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Jost:300,400,500,600,700|Poppins:300,400,500,600,700" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/aos.css" rel="stylesheet">
+  <link href="assets/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/boxicons.min.css" rel="stylesheet">
+  <link href="assets/glightbox.min.css" rel="stylesheet">
+  <link href="assets/remixicon.css" rel="stylesheet">
+  <link href="assets/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/style.css" rel="stylesheet">
+  <!-- Small local overrides / improvements -->
+  <link rel="stylesheet" href="assets/go.css">
+
+  <style>
+    /* small inline improvements for consistent look */
+    header#header { background: rgba(10, 16, 25, 0.92); backdrop-filter: blur(6px); }
+    .logo a { color: #fff; font-weight: 700; text-decoration: none; }
+    .btn-header { background: transparent; border: none; color: #fff; padding: 6px 10px; }
+    .modal-custom { display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; }
+    .modal-content-custom { background:#fff; border-radius:8px; padding:18px; width:90%; max-width:720px; box-shadow:0 8px 40px rgba(2,6,23,0.6); }
+    .close-btn { background:transparent; border:0; font-size:20px; line-height:1; cursor:pointer; color:#333; }
+    .hero h1 { color:#fff; font-size:36px; margin-bottom:8px; }
+    .hero h2 { color:#dfe8f2; font-size:16px; font-weight:400; }
+    .search-input { width:calc(100% - 72px); padding:10px 14px; border-radius:40px; border:1px solid #ddd; }
+    .search-btn { width:64px; height:48px; border-radius:40px; background:#47b2e4; border:0; display:inline-flex; align-items:center; justify-content:center; color:#fff; }
+    /* swiper slider image fallback */
+    .portfolio-details-slider img { width:100%; height:auto; display:block; object-fit:cover; }
+    /* small responsive fixes */
+    @media (max-width:767px) {
+      .hero h1 { font-size:26px; }
+      .hero h2 { font-size:14px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header id="header" class="fixed-top">
+    <div class="container d-flex align-items-center">
+
+      <h1 class="logo me-auto"><a href="index.html">Tetron</a></h1>
+
+      <!-- Search button (opens modal) -->
+      <button id="searchBtn" class="btn-header me-2" aria-label="Open search" title="Search">
+        <img src="images/search9.png" width="34" height="34" alt="Search icon">
+      </button>
+
+      <!-- Login button (shows username if stored in localStorage) -->
+      <button id="loginBtn" class="btn btn-outline-light btn-sm me-2" aria-haspopup="dialog">
+        Login
+      </button>
+
+      <!-- Navbar -->
+      <nav id="navbar" class="navbar">
+        <ul style="list-style:none; margin:0; display:flex; gap:12px; align-items:center;">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="firebase/index.html" class="nav-link">Firebase</a></li>
+          <li><a href="camera.html" class="nav-link">Camera</a></li>
+          <li><a href="firebase/home/codepen/index.html" class="nav-link">Codepen</a></li>
+          <li><a href="AES.html" class="nav-link">Encryption</a></li>
+
+          <li class="dropdown">
+            <a href="#" class="nav-link"><span>More</span> <i class="bi bi-chevron-down"></i></a>
+            <ul class="dropdown-menu" style="list-style:none; padding:8px; margin:0; background:#0b1220; border-radius:8px;">
+              <li><a class="dropdown-item nav-link" href="https://4chuck.github.io/coolsite/DOG.html">Dog</a></li>
+              <li><a class="dropdown-item nav-link" href="https://4chuck.github.io/coolsite/cat.html">Cat</a></li>
+              <li><a class="dropdown-item nav-link" href="https://be-marvel.blogspot.com">g-blogger</a></li>
+            </ul>
+          </li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
+    </div>
+  </header>
+
+  <!-- Search Modal (custom, accessible) -->
+  <div id="searchModal" class="modal-custom" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+    <div class="modal-content-custom">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <h3 id="searchTitle">Search</h3>
+        <button class="close-btn" aria-label="Close search" id="searchClose">&times;</button>
+      </div>
+
+      <form action="ser.html" method="get" role="search" style="margin-top:12px;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input name="q" id="searchBox" class="search-input" type="search" placeholder="Search... (e.g. codepen, camera, dog, encryption)" aria-label="Search" autocomplete="off">
+          <button type="submit" class="search-btn" aria-label="Submit search">
+            <img src="images/search9.png" width="22" height="22" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </form>
+
+      <div style="margin-top:12px; background:#f7f8fa; padding:12px; border-radius:6px;">
+        <strong>Quick suggestions (auto-redirect keywords):</strong>
+        <ol style="margin:8px 0 0 18px;">
+          <li>codepen</li>
+          <li>camera</li>
+          <li>dog</li>
+          <li>encryption</li>
+        </ol>
+        <p style="margin:8px 0 0; font-size:13px; color:#444;">
+          ℹ️ Tip: no leading/trailing spaces. Click search or press Enter.
+        </p>
+      </div>
+
+      <div style="margin-top:12px; text-align:right;">
+        <button id="searchCancel" class="btn btn-sm btn-light">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Modal (custom, simple actions) -->
+  <div id="loginModal" class="modal-custom" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal-content-custom">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="loginTitle">Account</h3>
+        <button class="close-btn" aria-label="Close login" id="loginClose">&times;</button>
+      </div>
+
+      <div style="padding-top:12px;">
+        <p style="margin:0 0 8px;">If you are new, create an account; otherwise log in.</p>
+        <div class="d-grid gap-2">
+          <a href="https://4chuck.great-site.net/myapp/signup2.html" class="btn btn-primary">Register</a>
+          <a href="https://4chuck.great-site.net/myapp/login2.html" class="btn btn-outline-primary">Login</a>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; text-align:right;">
+        <button id="loginCancel" class="btn btn-sm btn-light">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="hero" class="d-flex align-items-center" style="padding-top:110px; padding-bottom:48px;">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <div class="hero">
+            <h1>Welcome to Tetron</h1>
+            <h2>Where the power of Information Technology transforms the online experience. Explore the limitless possibilities of Infotech on our digital frontier.</h2>
+            <div class="mt-4">
+              <a class="btn btn-primary me-2" href="for.html">Create</a>
+              <a class="btn btn-outline-light" href="#portfolio-details">See gallery</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 hero-img text-center">
+          <img src="assets/hero-img.png" class="img-fluid animated" alt="Hero illustration" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="main">
+
+    <!-- Portfolio / slider -->
+    <section id="portfolio-details" class="portfolio-details py-4">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-8">
+            <div class="portfolio-details-slider swiper">
+              <div class="swiper-wrapper align-items-center">
+                <div class="swiper-slide"><img src="images/drone3.jpg" alt="drone" loading="lazy"></div>
+                <div class="swiper-slide"><img src="images/keyboard.jpg" alt="keyboard" loading="lazy"></div>
+                <div class="swiper-slide"><img src="images/drone1.jpg" alt="drone" loading="lazy"></div>
+                <div class="swiper-slide"><img src="images/tech1.jpg" alt="tech" loading="lazy"></div>
+                <div class="swiper-slide"><img src="images/drone2.jpg" alt="drone" loading="lazy"></div>
+                <div class="swiper-slide"><img src="images/tech2.jpg" alt="tech" loading="lazy"></div>
+                <div class="swiper-slide"><img src="images/drone4.jpg" alt="drone" loading="lazy"></div>
+              </div>
+              <div class="swiper-pagination"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills section -->
+    <section id="skills" class="skills py-4">
+      <div class="container" data-aos="fade-up">
+        <div class="row">
+          <div class="col-lg-6 d-flex align-items-center" data-aos="fade-right" data-aos-delay="100">
+            <img src="images/skills.png" class="img-fluid" alt="skills" loading="lazy">
+          </div>
+          <div class="col-lg-6 pt-4 pt-lg-0 content" data-aos="fade-left" data-aos-delay="100">
+            <h3>Tech world</h3>
+            <p class="fst-italic">Build your own website — learn HTML, CSS and JavaScript through hands-on practice.</p>
+            <div class="skills-content">
+              <div class="progress">
+                <span class="skill">HTML <i class="val">100%</i></span>
+                <div class="progress-bar-wrap"><div class="progress-bar" role="progressbar" style="width:100%"></div></div>
+              </div>
+              <div class="progress">
+                <span class="skill">CSS <i class="val">90%</i></span>
+                <div class="progress-bar-wrap"><div class="progress-bar" role="progressbar" style="width:90%"></div></div>
+              </div>
+              <div class="progress">
+                <span class="skill">JavaScript <i class="val">75%</i></span>
+                <div class="progress-bar-wrap"><div class="progress-bar" role="progressbar" style="width:75%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to action -->
+    <section id="cta" class="cta py-4">
+      <div class="container" data-aos="zoom-in">
+        <div class="row align-items-center">
+          <div class="col-lg-9 text-center text-lg-start">
+            <h3>Create</h3>
+            <p>You can build your own site for free and even get a free domain for practice.</p>
+          </div>
+          <div class="col-lg-3 text-center">
+            <a class="btn btn-primary" href="for.html"><strong>Create it</strong></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files (deferred for performance) -->
+  <script src="assets/bootstrap.bundle.min.js" defer></script>
+  <script src="assets/aos.js" defer></script>
+  <script src="assets/glightbox.min.js" defer></script>
+  <script src="assets/isotope.pkgd.min.js" defer></script>
+  <script src="assets/swiper-bundle.min.js" defer></script>
+  <script src="assets/noframework.waypoints.js" defer></script>
+  <script src="assets/validate.js" defer></script>
+
+  <!-- Template Main JS (defer) -->
+  <script src="assets/main.js" defer></script>
+
+  <!-- Small inline script to handle modal open/close and login label -->
+  <script>
+    (function () {
+      // Elements
+      const searchModal = document.getElementById('searchModal');
+      const searchBtn = document.getElementById('searchBtn');
+      const searchClose = document.getElementById('searchClose');
+      const searchCancel = document.getElementById('searchCancel');
+
+      const loginModal = document.getElementById('loginModal');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginClose = document.getElementById('loginClose');
+      const loginCancel = document.getElementById('loginCancel');
+
+      // Open / close helpers
+      function openModal(modal) {
+        modal.style.display = 'flex';
+      }
+      function closeModal(modal) {
+        modal.style.display = 'none';
+      }
+
+      // Search modal events
+      searchBtn.addEventListener('click', function () { openModal(searchModal); document.getElementById('searchBox').focus(); });
+      searchClose.addEventListener('click', function () { closeModal(searchModal); });
+      searchCancel.addEventListener('click', function (e) { e.preventDefault(); closeModal(searchModal); });
+
+      // Login modal events
+      loginBtn.addEventListener('click', function () { openModal(loginModal); });
+      loginClose.addEventListener('click', function () { closeModal(loginModal); });
+      loginCancel.addEventListener('click', function (e) { e.preventDefault(); closeModal(loginModal); });
+
+      // Close modals when clicking outside content
+      document.addEventListener('click', function (e) {
+        if (e.target === searchModal) closeModal(searchModal);
+        if (e.target === loginModal) closeModal(loginModal);
+      });
+
+      // Keyboard: close on ESC
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeModal(searchModal);
+          closeModal(loginModal);
+        }
+      });
+
+      // Set login button text from localStorage if present
+      try {
+        const storedName = localStorage.getItem('name');
+        if (storedName && storedName.trim().length > 0) {
+          loginBtn.textContent = storedName;
+        } else {
+          loginBtn.textContent = 'Login';
+        }
+      } catch (err) {
+        // ignore localStorage errors
+      }
+
+      // Initialize AOS and Swiper (when scripts load)
+      document.addEventListener('DOMContentLoaded', function () {
+        if (window.AOS) AOS.init({ once: true });
+        if (window.Swiper) {
+          new Swiper('.portfolio-details-slider', {
+            speed: 600,
+            loop: true,
+            autoplay: { delay: 3500, disableOnInteraction: false },
+            pagination: { el: '.swiper-pagination', type: 'bullets', clickable: true }
+          });
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

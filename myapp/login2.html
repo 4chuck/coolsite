@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.7">
+  <title>Login</title>
+
+  <!-- Favicon & CSS -->
+  <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+  <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+  <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+  <link rel="stylesheet" type="text/css" href="css/util.css">
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+
+  <style>
+     /* Small extras so the supplied markup looks good if vendor CSS missing */
+    .login100-form-title { font-size: 28px; font-weight: 700; text-transform: capitalize; color:#fff; }
+    .input100 { width:100%; padding:12px 40px; border-radius:6px; border:0px solid #ddd; color:#fff;  }
+    .wrap-login100 { height: auto; max-width:520px; margin:40px auto; background:rgba(0, 0, 0, 0.452); padding:26px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+    .label-input100 { display:block; margin-bottom:6px; font-weight:600; color:#fff; }
+    body { background:#0f1724; color:#eee; font-family:Arial, sans-serif; }
+    a.txt2 { color:#ffd966; text-decoration:none; }
+    .helper { font-size:13px; color:#ddd; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <!-- This login form posts to log.php and expects POST fields: email, pass -->
+  <script>
+    // client-side validation, only; do NOT store password
+    function validation() {
+      var email = document.getElementById('email').value.trim();
+      var pw = document.getElementById('password').value;
+      if (email === '') { alert('Please enter your email'); return false; }
+      if (pw === '') { alert('Please enter your password'); return false; }
+      return true;
+    }
+
+    // remember email only (no password)
+    function loadRememberedEmail() {
+      try {
+        var e = localStorage.getItem('rememberedEmail');
+        if (e) document.getElementById('email').value = e;
+      } catch(e) {}
+    }
+
+    function rememberEmailOnLogin() {
+      var chk = document.getElementById('rememberEmail');
+      var email = document.getElementById('email').value.trim();
+      if (chk && chk.checked && email !== '') {
+        try { localStorage.setItem('rememberedEmail', email); } catch(e) {}
+      } else {
+        try { localStorage.removeItem('rememberedEmail'); } catch(e) {}
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadRememberedEmail);
+  </script>
+
+  <div class="limiter">
+    <div class="container-login100" style="background-image: url('images/bg.jpg'); padding:40px 12px;">
+      <div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-54">
+        <form class="login100-form validate-form" name="f1" id="loginForm"
+              method="post" action="https://4chuck.great-site.net/myapp/log.php"
+              onsubmit="if(validation()){ rememberEmailOnLogin(); return true;} else return false;">
+
+          <span class="login100-form-title p-b-49">Login</span>
+
+          <div class="wrap-input100 validate-input m-b-23" data-validate="Email is required" style="margin-bottom:18px;">
+            <label class="label-input100" for="email">Email</label>
+            <input class="input100" id="email" name="email" type="email" placeholder="Type your Email" autocomplete="email" required>
+            <span class="focus-input100" data-symbol="&#xf206;"></span>
+          </div>
+
+          <div class="wrap-input100 validate-input" data-validate="Password is required" style="margin-bottom:8px;">
+            <label class="label-input100" for="password">Password</label>
+            <!-- note: name 'pass' is required to match log.php handler -->
+            <input class="input100" id="password" name="pass" type="password" placeholder="Type your password" autocomplete="current-password" required>
+            <span class="focus-input100" data-symbol="&#xf190;"></span>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+            <input type="checkbox" id="rememberEmail" />
+            <label for="rememberEmail" style="color:#ddd; font-size:14px;">Remember my email</label>
+          </div>
+
+          <div class="container-login100-form-btn" style="margin-bottom:20px;">
+            <div class="wrap-login100-form-btn">
+              <div class="login100-form-bgbtn"></div>
+              <button class="login100-form-btn" id="btn" type="submit">Login</button>
+            </div>
+          </div>
+
+          <div class="txt1 text-center p-t-54 p-b-20" style="color:#ddd;">
+            New user?<br>
+            <a href="signup2.html" class="txt2">Signup</a>
+          </div>
+
+          <div style="text-align:center; margin-top:12px;">
+            <a href="#" id="forgotLink" class="txt2">Forgot password</a>
+            <div class="helper" style="margin-top:8px;">
+              For password reset implement server-side token email flow. This demo will not reveal stored passwords.
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor JS (keep these files in your project) -->
+  <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+  <script src="vendor/animsition/js/animsition.min.js"></script>
+  <script src="vendor/bootstrap/js/popper.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="vendor/select2/select2.min.css"></script>
+  <script src="vendor/daterangepicker/moment.min.js"></script>
+  <script src="vendor/daterangepicker/daterangepicker.js"></script>
+  <script src="vendor/countdowntime/countdowntime.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    // Simple forgot link behavior: remain secure, explain how to implement reset
+    document.getElementById('forgotLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert("To reset your password, implement a server-side 'forgot password' flow: user provides email, server generates a one-time token and mails a reset link. Do not reveal stored passwords or use localStorage for passwords.");
+    });
+  </script>
+
+</body>
+</html>

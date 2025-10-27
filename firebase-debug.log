@@ -1,0 +1,11 @@
+[debug] [2025-10-15T16:44:15.323Z] ----------------------------------------------------------------------
+[debug] [2025-10-15T16:44:15.332Z] Command:       /usr/local/bin/firebase /home/chuck4/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/bin/firebase deploy --project login-b6382 --only functions:generateThumbnail --debug
+[debug] [2025-10-15T16:44:15.333Z] CLI Version:   14.19.1
+[debug] [2025-10-15T16:44:15.333Z] Platform:      linux
+[debug] [2025-10-15T16:44:15.333Z] Node Version:  v20.18.2
+[debug] [2025-10-15T16:44:15.334Z] Time:          Wed Oct 15 2025 16:44:15 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-10-15T16:44:15.334Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-15T16:44:15.338Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[error] 
+[error] Error: Not in a Firebase app directory (could not locate firebase.json)
