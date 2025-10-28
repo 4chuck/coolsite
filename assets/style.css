@@ -10,12 +10,12 @@
 
 /*--------------------------------------------------------------
 # General
---------------------------------------------------------------*/
+--------------------------------------------------------------
 Content-Security-Policy: default-src 'self';
 X-Content-Type-Options: nosniff;
 X-XSS-Protection: 1; mode=block;
 Referrer-Policy: same-origin;
-
+*/
 body {
   font-family: "Open Sans", sans-serif;
   color: #209dd8;
@@ -1519,7 +1519,7 @@ section {
   color: #47b2e4;
 }
 
-.faq .faq-list a. collapsed .icon-show {
+.faq .faq-list a.collapsed .icon-show {
   display: inline-block;
 }
 
