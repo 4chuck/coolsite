@@ -35,51 +35,33 @@
   </style>
 </head>
 <body>
-  <!-- IMPORTANT:
-       Ne.php must be the API handler on InfinityFree:
-       - It should accept JSON POST (Content-Type: application/json)
-       - It returns JSON { success: true, redirect: "..." } or { success: false, error: "..." }
-       - CORS must allow your frontend origin (https://4chuck.github.io) -->
-       
-  <script>
-    // Do NOT store passwords. This script only optionally remembers email.
-    function loadRememberedEmailToSignup() {
-      try {
-        var e = localStorage.getItem('rememberedEmail');
-        if (e) document.getElementById('signupEmail').value = e;
-      } catch(e) {}
-    }
-    document.addEventListener('DOMContentLoaded', loadRememberedEmailToSignup);
-  </script>
+  <!-- Hidden messages above the heading (as requested) -->
+  <div style="max-width:520px;margin:16px auto 0;">
+    <p id="successMsg" class="success-msg hidden" aria-live="polite"></p>
+    <p id="errorMsg" class="error-msg hidden" aria-live="assertive"></p>
+  </div>
 
   <div class="limiter">
     <div class="container-login100" style="background-image: url('images/bg.jpg'); padding:40px 12px;">
       <div class="wrap-login100 p-l-55 p-r-55 p-t-40 p-b-40">
-
-        <!-- Hidden messages above the heading (as requested) -->
-        <p id="successMsg" class="success-msg hidden" aria-live="polite"></p>
-        <p id="errorMsg" class="error-msg hidden" aria-live="assertive"></p>
 
         <form id="signupForm" class="login100-form validate-form" novalidate>
           <span class="login100-form-title p-b-8">Create account</span>
 
           <div class="wrap-input100 validate-input" data-validate="Name is required" style="margin-bottom:14px;">
             <label class="label-input100" for="name">Full name</label>
-            <!-- use 'name' field to match Ne.php -->
             <input class="input100" id="name" name="name" type="text" placeholder="Enter your full name" autocomplete="name" required>
             <span class="focus-input100" data-symbol="&#xf206;"></span>
           </div>
 
           <div class="wrap-input100 validate-input" data-validate="Email is required" style="margin-bottom:14px;">
             <label class="label-input100" for="signupEmail">Email</label>
-            <!-- name 'email' must match server -->
             <input class="input100" id="signupEmail" name="email" type="email" placeholder="Enter your email" autocomplete="email" required>
             <span class="focus-input100" data-symbol="&#xf206;"></span>
           </div>
 
           <div class="wrap-input100 validate-input" data-validate="Password is required" style="margin-bottom:8px;">
             <label class="label-input100" for="password">Password</label>
-            <!-- name 'password' must match server -->
             <input class="input100" id="password" name="password" type="password" placeholder="Create a password (min 6 chars)" autocomplete="new-password" required>
             <span class="focus-input100" data-symbol="&#xf190;"></span>
           </div>
@@ -123,7 +105,7 @@
   <script src="vendor/countdowntime/countdowntime.js"></script>
   <script src="js/main.js"></script>
 
-  <!-- Custom JS to submit via fetch() and show messages -->
+  <!-- Custom JS to submit via form-encoded POST (avoids CORS preflight) -->
   <script>
     (function () {
       // API endpoint (InfinityFree)
@@ -151,6 +133,12 @@
         statusEl.textContent = '';
       }
 
+      // Prefill remembered email if present
+      try {
+        const e = localStorage.getItem('rememberedEmail');
+        if (e) document.getElementById('signupEmail').value = e;
+      } catch(e) {}
+
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
         // reset messages
@@ -166,69 +154,50 @@
         const password = document.getElementById('password').value;
 
         // client-side validation
-        if (!name) {
-          showError('Please enter your full name.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Signup';
-          return;
-        }
-        if (!email) {
-          showError('Please enter your email address.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Signup';
-          return;
-        }
+        if (!name) { showError('Please enter your full name.'); submitBtn.disabled=false; submitBtn.textContent='Signup'; return; }
+        if (!email) { showError('Please enter your email address.'); submitBtn.disabled=false; submitBtn.textContent='Signup'; return; }
         // basic email check
         const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRe.test(email)) {
-          showError('Please enter a valid email address.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Signup';
-          return;
-        }
-        if (!password || password.length < 6) {
-          showError('Password must be at least 6 characters.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Signup';
-          return;
-        }
+        if (!emailRe.test(email)) { showError('Please enter a valid email address.'); submitBtn.disabled=false; submitBtn.textContent='Signup'; return; }
+        if (!password || password.length < 6) { showError('Password must be at least 6 characters.'); submitBtn.disabled=false; submitBtn.textContent='Signup'; return; }
 
         // remember email if checkbox checked (do not store password)
         try {
-          if (rememberCheckbox.checked) {
-            localStorage.setItem('rememberedEmail', email);
-          } else {
-            localStorage.removeItem('rememberedEmail');
-          }
-        } catch (err) {
-          // ignore storage errors
-        }
+          if (rememberCheckbox.checked) localStorage.setItem('rememberedEmail', email);
+          else localStorage.removeItem('rememberedEmail');
+        } catch (err) {}
 
-        // send request
+        // Build form-encoded body (this avoids CORS preflight)
+        const params = new URLSearchParams();
+        params.append('name', name);
+        params.append('email', email);
+        params.append('password', password);
+
         try {
           statusEl.textContent = 'Contacting server...';
+
           const resp = await fetch(API_URL, {
             method: 'POST',
             mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password })
+            headers: {
+              // IMPORTANT: use a *simple* content-type to avoid a preflight
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
           });
 
           const status = resp.status;
           let data = null;
           try { data = await resp.json(); } catch (ex) { data = null; }
 
-          if (status >= 200 && status < 300 && data && data.success) {
-            // success
+          if ((status >= 200 && status < 300) && data && data.success) {
             showSuccess(data.message || 'Account created. Redirecting...');
-            // prefer redirect returned by server, otherwise fallback
             const redirectUrl = (data.redirect && typeof data.redirect === 'string') ? data.redirect : FALLBACK_REDIRECT;
-            // short delay so user sees message
-            setTimeout(() => { window.location.href = redirectUrl; }, 800);
+            setTimeout(() => { window.location.href = redirectUrl; }, 700);
             return;
           }
 
-          // handle different error cases
+          // handle errors
           let message = 'Signup failed. Please try again.';
           if (data && data.error) message = data.error;
           else if (status === 409) message = 'An account with that email already exists.';
