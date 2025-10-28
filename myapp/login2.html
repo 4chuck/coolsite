@@ -21,12 +21,14 @@
   <style>
      /* Small extras so the supplied markup looks good if vendor CSS missing */
     .login100-form-title { font-size: 28px; font-weight: 700; text-transform: capitalize; color:#fff; }
-    .input100 { width:100%; padding:12px 40px; border-radius:6px; border:0px solid #ddd; color:#fff;  }
+    .input100 { width:100%; padding:12px 16px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); color:#fff; background:transparent; }
     .wrap-login100 { height: auto; max-width:520px; margin:40px auto; background:rgba(0, 0, 0, 0.452); padding:26px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.2); }
     .label-input100 { display:block; margin-bottom:6px; font-weight:600; color:#fff; }
     body { background:#0f1724; color:#eee; font-family:Arial, sans-serif; }
     a.txt2 { color:#ffd966; text-decoration:none; }
     .helper { font-size:13px; color:#ddd; margin-top:8px; }
+    .status-inline { margin-left:10px; color:#ffd966; }
+    .btn-primary { background:#2d89ff; border-color:#2d89ff; }
   </style>
 </head>
 <body>
@@ -118,7 +120,8 @@
   <script src="vendor/animsition/js/animsition.min.js"></script>
   <script src="vendor/bootstrap/js/popper.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-  <script src="vendor/select2/select2.min.css"></script>
+  <!-- fixed: load select2 JS (not CSS) -->
+  <script src="vendor/select2/select2.min.js"></script>
   <script src="vendor/daterangepicker/moment.min.js"></script>
   <script src="vendor/daterangepicker/daterangepicker.js"></script>
   <script src="vendor/countdowntime/countdowntime.js"></script>
