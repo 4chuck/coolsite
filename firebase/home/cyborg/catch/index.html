@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Trash Catcher — Enhanced</title>
+  <style>
+    body { margin:0; font-family:Arial,system-ui; background:#eef2f3; text-align:center; }
+    #topBar { padding:8px; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;}
+    #info { min-width:220px; }
+    button { padding:8px 12px; border-radius:8px; border:1px solid #666; background:white; cursor:pointer; }
+    #gameCanvas { display:block; margin:8px auto; border:3px solid #333; background:linear-gradient(#fff,#f6f6f6); touch-action:none; }
+    #controls { display:flex; gap:8px; justify-content:center; margin:6px 0; }
+    .touchBtn { width:80px; height:48px; border-radius:8px; font-size:18px; }
+    #leaderboard { max-width:420px; margin:8px auto; text-align:left; }
+    .small { font-size:13px; color:#333; }
+  </style>
+</head>
+<body>
+
+  <h1>Trash Catcher ♻️ — Enhanced</h1>
+
+  <div id="topBar">
+    <div id="info">
+      <div id="targetText" style="font-weight:700"></div>
+      <div id="scoreText">Score: 0</div>
+      <div id="stats" class="small"></div>
+    </div>
+
+    <div>
+      <button id="restartBtn">Restart</button>
+      <button id="muteBtn">Mute</button>
+      <button id="showLbBtn">Leaderboard</button>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas" width="420" height="700"></canvas>
+
+  <div id="controls">
+    <button class="touchBtn" id="leftBtn">◀ Left</button>
+    <button class="touchBtn" id="rightBtn">Right ▶</button>
+  </div>
+
+  <div id="leaderboard" style="display:none"></div>
+
+<script>
+/* =========================
+   Trash Catcher — Enhanced
+   Features:
+   - Single falling item at a time
+   - Random from 6 categories
+   - Increasing speed & spawn rate (level)
+   - Combo multiplier for consecutive correct catches
+   - Lives system, Game Over
+   - WebAudio sounds (success/wrong/miss)
+   - Particle effects
+   - Mobile touch controls & drag
+   - Local leaderboard (localStorage)
+   ========================= */
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const emojis = {
+  plastic: ["🧃","🥤","🍼","🧴","🥛","🛢️"],
+  paper:   ["📄","📃","📰","📦","📚","📑"],
+  ewaste:  ["💻","📱","🖥️","⌚","🎧","🕹️"],
+  organic: ["🍎","🍌","🥕","🌽","🍃"],
+  glass:   ["🍾","🍷","🥛","🫙"],
+  metal:   ["⚙️","🔋","🪙","🔧"]
+};
+const trashTypes = Object.keys(emojis);
+
+// Game state
+let targetType, score, lives, combo, level, bestLocal;
+let bin, trash, particles;
+let fallSpeedBase, spawnDelay, lastSpawnTime, running, muted;
+let lastFrameTime = performance.now();
+
+// Leaderboard key
+const LB_KEY = 'trashcatcher_local_lb_v1';
+
+// Init WebAudio
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioEnabled = true;
+function playTone(freq, type='sine', duration=0.1, volume=0.08) {
+  if (muted || !audioEnabled) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type;
+  o.frequency.value = freq;
+  g.gain.value = volume;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  o.stop(audioCtx.currentTime + duration);
+}
+
+// Particles
+function spawnParticles(x,y,color,count=12) {
+  for (let i=0;i<count;i++){
+    particles.push({
+      x, y,
+      vx: (Math.random()-0.5)*4,
+      vy: (Math.random()-1.5)*4,
+      life: 30 + Math.round(Math.random()*30),
+      size: 2 + Math.random()*4,
+      color
+    });
+  }
+}
+
+// Utility: pick random from array
+const rand = a => a[Math.floor(Math.random()*a.length)];
+
+// UI elements
+const targetText = document.getElementById('targetText');
+const scoreText = document.getElementById('scoreText');
+const stats = document.getElementById('stats');
+const restartBtn = document.getElementById('restartBtn');
+const muteBtn = document.getElementById('muteBtn');
+const showLbBtn = document.getElementById('showLbBtn');
+const leaderboardDiv = document.getElementById('leaderboard');
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+
+restartBtn.onclick = startGame;
+muteBtn.onclick = () => { muted = !muted; muteBtn.innerText = muted ? 'Unmute' : 'Mute'; };
+showLbBtn.onclick = toggleLeaderboard;
+
+// Touch and button controls
+let touchDragging = false;
+canvas.addEventListener('touchstart', (e)=> {
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const x = t.clientX - rect.left;
+  // if touch near bin => drag mode
+  if (x > bin.x - 40 && x < bin.x + bin.width + 40 && e.touches.length===1) {
+    touchDragging = true;
+  }
+});
+canvas.addEventListener('touchmove', (e)=> {
+  if (!touchDragging) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const x = t.clientX - rect.left;
+  bin.x = Math.max(0, Math.min(canvas.width - bin.width, x - bin.width/2));
+});
+canvas.addEventListener('touchend', ()=> { touchDragging = false; });
+
+// left/right buttons
+leftBtn.addEventListener('touchstart', ()=> moveBin(-1));
+rightBtn.addEventListener('touchstart', ()=> moveBin(1));
+leftBtn.addEventListener('mousedown', ()=> moveBin(-1));
+rightBtn.addEventListener('mousedown', ()=> moveBin(1));
+
+function moveBin(dir){
+  bin.x += dir * 28;
+  bin.x = Math.max(0, Math.min(canvas.width - bin.width, bin.x));
+}
+
+// Keyboard controls
+document.addEventListener('keydown',(e)=>{
+  if (e.key === 'ArrowLeft') moveBin(-1);
+  if (e.key === 'ArrowRight') moveBin(1);
+  if (e.key === ' ' && !running) startGame();
+});
+
+// Leaderboard functions (local)
+function loadLeaderboard(){
+  try {
+    const raw = localStorage.getItem(LB_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e){ return []; }
+}
+function saveScoreToLeaderboard(scoreVal){
+  const lb = loadLeaderboard();
+  lb.push({score: scoreVal, when: new Date().toISOString()});
+  lb.sort((a,b)=>b.score-a.score);
+  while (lb.length>5) lb.pop();
+  localStorage.setItem(LB_KEY, JSON.stringify(lb));
+}
+function toggleLeaderboard(){
+  const lb = loadLeaderboard();
+  if (leaderboardDiv.style.display === 'none') {
+    leaderboardDiv.style.display = 'block';
+    let html = '<h3>Local Leaderboard (Top 5)</h3>';
+    if (lb.length === 0) html += '<div class="small">No scores yet — play to save!</div>';
+    else {
+      html += '<ol>';
+      lb.forEach(r => {
+        html += `<li>${r.score} — <span class="small">${(new Date(r.when)).toLocaleString()}</span></li>`;
+      });
+      html += '</ol>';
+    }
+    html += '<div style="margin-top:8px"><button onclick="clearLeaderboard()">Clear</button></div>';
+    leaderboardDiv.innerHTML = html;
+    showLbBtn.innerText = 'Hide Leaderboard';
+  } else {
+    leaderboardDiv.style.display = 'none';
+    showLbBtn.innerText = 'Leaderboard';
+  }
+}
+function clearLeaderboard(){
+  if (confirm('Clear local leaderboard?')) {
+    localStorage.removeItem(LB_KEY);
+    toggleLeaderboard(); // refresh
+  }
+}
+
+// Game start/reset
+function startGame(){
+  // resume audio context on user gesture
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  targetType = rand(trashTypes);
+  targetText.innerText = `Catch Only: ${targetType.toUpperCase()}`;
+  score = 0;
+  lives = 3;
+  combo = 0;
+  level = 1;
+  fallSpeedBase = 2.0;
+  spawnDelay = 1300;
+  lastSpawnTime = 0;
+  running = true;
+  muted = false;
+  particles = [];
+  trash = null;
+  bin = { x: canvas.width/2 - 50, y: canvas.height - 120, width: 100, height: 44 };
+
+  scoreText.innerText = `Score: ${score}`;
+  stats.innerText = `Lives: ${lives}  |  Combo: x${combo}  |  Level: ${level}`;
+
+  // visual
+  muteBtn.innerText = muted ? 'Unmute' : 'Mute';
+  if (leaderboardDiv.style.display === 'block') toggleLeaderboard();
+
+  requestAnimationFrame(gameLoop);
+}
+
+// Spawn new trash (only if none present)
+function spawnTrash(){
+  const type = rand(trashTypes);
+  const emoji = rand(emojis[type]);
+  trash = {
+    x: 30 + Math.random()*(canvas.width-60),
+    y: -40,
+    vy: fallSpeedBase + Math.random()*1.2 + (level-1)*0.35,
+    type, emoji
+  };
+  lastSpawnTime = performance.now();
+}
+
+// Game over
+function endGame(){
+  running = false;
+  playTone(120, 'sine', 0.25, 0.08);
+  spawnParticles(bin.x + bin.width/2, bin.y + 6, '#ff4444', 36);
+  // Save score to leaderboard
+  saveScoreToLeaderboard(score);
+  setTimeout(()=> {
+    if (confirm(`Game Over — Score: ${score}\nPlay again?`)) startGame();
+  }, 200);
+}
+
+// Update & draw
+function gameLoop(now){
+  if (!running) return;
+  const dt = (now - lastFrameTime) / 1000;
+  lastFrameTime = now;
+
+  // difficulty scaling: level up every 12 seconds (approx)
+  if (now - lastSpawnTime > 12000) {
+    level++;
+    if (level > 12) level = 12;
+    fallSpeedBase += 0.35;
+    spawnDelay = Math.max(500, spawnDelay - 120);
+    lastSpawnTime = now;
+    playTone(880, 'sawtooth', 0.08, 0.03);
+  }
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Draw background grid/ground
+  ctx.fillStyle = '#cfe8d8';
+  ctx.fillRect(0, canvas.height - 70, canvas.width, 70);
+
+  // Draw target and hint
+  ctx.fillStyle = '#222';
+  ctx.font = '16px sans-serif';
+  ctx.fillText(`Target: ${targetType.toUpperCase()}`, 12, 24);
+
+  // Spawn if none & spawnDelay passed
+  if (!trash && (now - lastSpawnTime > spawnDelay || lastSpawnTime === 0)) {
+    spawnTrash();
+  }
+
+  // Update & draw trash
+  if (trash) {
+    trash.y += trash.vy;
+    // draw emoji
+    ctx.font = '40px serif';
+    ctx.fillText(trash.emoji, trash.x, trash.y);
+
+    // catch detection (simple bounding)
+    const caught = (trash.y > bin.y - 6) && (trash.y < bin.y + bin.height) && (trash.x > bin.x - 20) && (trash.x < bin.x + bin.width + 20);
+    if (caught) {
+      if (trash.type === targetType) {
+        combo++;
+        const points = 1 * Math.max(1, Math.floor(combo/2)); // slightly increasing with combo
+        score += points;
+        playTone(800 + combo*30, 'triangle', 0.08, 0.06);
+        spawnParticles(trash.x, trash.y, '#66bb6a', 18 + combo*2);
+      } else {
+        combo = 0;
+        score -= 2;
+        lives -= 1;
+        playTone(220, 'sine', 0.12, 0.09);
+        spawnParticles(trash.x, trash.y, '#ff6666', 18);
+      }
+      trash = null;
+      lastSpawnTime = now;
+    } else if (trash.y > canvas.height + 20) {
+      // missed
+      if (trash.type === targetType) {
+        combo = 0;
+        score -= 1;
+        lives -= 1;
+        playTone(250, 'sine', 0.12, 0.08);
+        spawnParticles(trash.x, canvas.height - 40, '#ffcc66', 24);
+      } else {
+        // harmless miss (optional small reward?)
+        combo = 0;
+        // small neutral sound
+        playTone(480, 'sine', 0.06, 0.03);
+      }
+      trash = null;
+      lastSpawnTime = now;
+    }
+  }
+
+  // Update particles
+  for (let i = particles.length-1; i>=0; i--){
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.12; // gravity on particles
+    p.life--;
+    ctx.globalAlpha = Math.max(0, p.life/60);
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    if (p.life <= 0) particles.splice(i,1);
+  }
+
+  // Draw bin
+  ctx.fillStyle = '#4CAF50';
+  ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
+  ctx.fillStyle = '#063';
+  ctx.font = '20px sans-serif';
+  ctx.fillText('BIN', bin.x + 10, bin.y + 28);
+
+  // HUD update
+  scoreText.innerText = `Score: ${score}`;
+  stats.innerText = `Lives: ${lives}  |  Combo: x${combo}  |  Level: ${level}`;
+
+  // Game Over check
+  if (lives <= 0) {
+    endGame();
+    return;
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+// Start first time
+startGame();
+
+/* =========================
+   Optional: expose clear leaderboard to window for button to call
+   ========================= */
+window.clearLeaderboard = clearLeaderboard;
+
+</script>
+
+</body>
+</html>
