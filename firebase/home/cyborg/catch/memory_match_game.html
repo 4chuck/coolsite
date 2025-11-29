@@ -20,6 +20,9 @@
 
     .controls {
         margin-top: 10px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
     }
 
     button {
@@ -36,28 +39,33 @@
         background: #444;
     }
 
-    .grid {
-        display: grid;
-        justify-content: center;
-        margin: 40px auto;
-        gap: 12px;
-        padding-bottom: 40px;
-    }
+.grid {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    margin: 40px auto;
+    gap: 12px;
+    width: fit-content;
+    height: fit-content;
+    padding: 20px;
+}
 
-    /* 🔥 Smaller cards (85px) */
-    .card {
-        width: 85px;
-        height: 85px;
-        background: #2b2b2b;
-        border-radius: 14px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 60px; /* 🔥 VERY BIG EMOJIS */
-        cursor: pointer;
-        user-select: none;
-        transition: transform 0.25s, background 0.25s;
-    }
+
+    /* Card styling */
+.card {
+    width: min(80px, 8vw);
+    height: min(80px, 8vw);
+    background: #2b2b2b;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: min(55px, 6vw);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.25s, background 0.25s;
+}
+
 
     .card.flipped {
         background: #fff;
@@ -70,6 +78,12 @@
         transform: scale(1.1);
         pointer-events: none;
     }
+
+    .hint-glow {
+        background: #5588ff !important;
+        transform: scale(1.1);
+    }
+
 </style>
 </head>
 <body>
@@ -79,11 +93,18 @@
 <div class="top-bar">
     Level: <span id="level">1</span> &nbsp; | &nbsp;
     Grid: <span id="gridSize">4×4</span> &nbsp; | &nbsp;
-    Score: <span id="score">0</span>
+    Score: <span id="score">0</span> &nbsp; | &nbsp;
+    Time: <span id="timer">0</span>s
+</div>
+
+<div class="top-bar" style="font-size:17px; opacity:0.8;">
+    Best Score: <span id="bestScore">0</span> &nbsp; | &nbsp;
+    Best Time: <span id="bestTime">0</span>s
 </div>
 
 <div class="controls">
     <button onclick="restartGame()">Restart</button>
+    <button id="hintBtn" onclick="useHint()">Hint (3)</button>
 </div>
 
 <div id="game" class="grid"></div>
@@ -93,10 +114,36 @@
     let gridSize = 4;
     let score = 0;
 
-    const emojis = ["😀", "😎", "😈", "🤖", "👻", "🐶", "🐱", "🐼", "🦁", "🐸", "🍔", "🍕", "⚽", "🚗", "🏆", "💎"];
+    let hintUses = 3;        // 3 hints per level
+    let usedPairs = [];      // Stores pairs already hinted
+
+    const emojis = ["😀", "😎", "😈", "🤖", "👻", "🐶", "🐱", "🐼", "🦁",
+                    "🐸", "🍔", "🍕", "⚽", "🚗", "🏆", "💎"];
 
     let firstCard = null;
     let lockBoard = false;
+
+    /* TIMER */
+    let timer = 0;
+    let timerInterval = null;
+
+    /* SCOREBOARD */
+    let bestScore = localStorage.getItem("bestScore") || 0;
+    let bestTime = localStorage.getItem("bestTime") || 999999;
+
+    document.getElementById("bestScore").textContent = bestScore;
+    document.getElementById("bestTime").textContent = bestTime == 999999 ? 0 : bestTime;
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timer = 0;
+        document.getElementById("timer").textContent = 0;
+
+        timerInterval = setInterval(() => {
+            timer++;
+            document.getElementById("timer").textContent = timer;
+        }, 1000);
+    }
 
     function generateBoard() {
         const game = document.getElementById("game");
@@ -106,7 +153,12 @@
         document.getElementById("gridSize").textContent = `${gridSize}×${gridSize}`;
         document.getElementById("score").textContent = score;
 
-        // Adjust grid columns
+        hintUses = 3;
+        usedPairs = [];
+        document.getElementById("hintBtn").textContent = `Hint (${hintUses})`;
+
+        startTimer();
+
         game.style.gridTemplateColumns = `repeat(${gridSize}, 85px)`;
 
         const totalCards = gridSize * gridSize;
@@ -122,7 +174,6 @@
             card.className = "card";
             card.dataset.value = emoji;
             card.dataset.index = i;
-
             card.onclick = () => flip(card);
 
             game.appendChild(card);
@@ -147,22 +198,15 @@
             return;
         }
 
-        // Second card
         if (firstCard.dataset.value === card.dataset.value) {
-            // Match
             card.classList.add("matched");
             firstCard.classList.add("matched");
             score++;
-
             firstCard = null;
-
-            // Check win
             setTimeout(checkWin, 300);
 
         } else {
-            // Not a match
             lockBoard = true;
-
             setTimeout(() => {
                 card.classList.remove("flipped");
                 firstCard.classList.remove("flipped");
@@ -174,14 +218,73 @@
         }
     }
 
-    function checkWin() {
-        if (![...document.querySelectorAll(".card")].some(c => !c.classList.contains("matched"))) {
-            // Increase level
-            level++;
-            if (gridSize < 10) gridSize += 2;
+    /* HINT FEATURE */
+    function useHint() {
+        if (hintUses <= 0 || lockBoard) return;
 
-            setTimeout(generateBoard, 700);
+        const cards = [...document.querySelectorAll(".card")];
+        const unmatched = cards.filter(c => !c.classList.contains("matched"));
+
+        let pair = null;
+
+        for (let card of unmatched) {
+            let value = card.dataset.value;
+
+            if (usedPairs.includes(value)) continue;
+
+            let match = unmatched.filter(c => c.dataset.value === value);
+
+            if (match.length === 2) {
+                pair = match;
+                usedPairs.push(value);
+                break;
+            }
         }
+
+        if (!pair) return;
+
+        hintUses--;
+        document.getElementById("hintBtn").textContent = `Hint (${hintUses})`;
+
+        pair.forEach(c => {
+            c.classList.add("hint-glow");
+            c.textContent = c.dataset.value;
+        });
+
+        setTimeout(() => {
+            pair.forEach(c => {
+                if (!c.classList.contains("matched")) {
+                    c.textContent = "";
+                    c.classList.remove("hint-glow");
+                }
+            });
+        }, 1200);
+    }
+
+    function checkWin() {
+        const allMatched = [...document.querySelectorAll(".card")]
+            .every(c => c.classList.contains("matched"));
+
+        if (!allMatched) return;
+
+        clearInterval(timerInterval);
+
+        if (score > bestScore) {
+            localStorage.setItem("bestScore", score);
+            bestScore = score;
+            document.getElementById("bestScore").textContent = bestScore;
+        }
+
+        if (timer < bestTime) {
+            localStorage.setItem("bestTime", timer);
+            bestTime = timer;
+            document.getElementById("bestTime").textContent = bestTime;
+        }
+
+        level++;
+        if (gridSize < 10) gridSize += 2;
+
+        setTimeout(generateBoard, 800);
     }
 
     function restartGame() {
