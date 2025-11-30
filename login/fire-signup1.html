@@ -38,22 +38,6 @@
     body { background:#0f1724; color:#eee; font-family:Arial, sans-serif; }
     a.txt2 , a{ color:#ffecb2; text-decoration:none; }
     .helper { font-size:13px; color:#ddd; margin-top:8px; }
-    #welcome-message {
-        color:rgba(1,187,1,0.85);
-        background-color:rgba(0,0,0,0.35);
-        border-radius:10px;
-        display:none;
-        padding:10px 12px;
-        margin-bottom:15px;
-    }
-    #error {
-        color:#ff4e4e;
-        background-color:rgba(0,0,0,0.35);
-        border-radius:10px;
-        display:none;
-        padding:10px 12px;
-        margin-bottom:15px;
-    }
   </style>
 </head>
 <body>
@@ -62,8 +46,8 @@
 		<div class="container-login100" style="background-image: url('images/bg-01.jpg');">
 			<div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-54"style="height: auto;">
 					<span class="login100-form-title p-b-49">
-                <p id="welcome-message"></p>
-                <p id="error"></p>
+          <p id="welcome-message" style="color:rgba(1, 187, 1, 0.856);background-color: rgba(0,0,0,0.35);border-radius:10px;"></p>
+          <p id="error" style="color:#ff4e4e;background-color: rgba(0,0,0,0.35);border-radius:10px;"></p>
                 <h2>Create an Account</h2>
 					</span>
 
@@ -106,49 +90,6 @@
 		</div>
 	</div>
 	
-      <script>
-  function getFirebaseErrorMessage(errorCode) {
-    const errors = {
-      "auth/invalid-email": "Please enter a valid email address.",
-      "auth/email-already-in-use": "This email is already registered. Try logging in.",
-      "auth/weak-password": "Password is too weak. Use at least 6 characters.",
-      "auth/missing-password": "Please enter a password.",
-      "auth/user-not-found": "No account found with this email.",
-      "auth/wrong-password": "Incorrect password. Please try again.",
-      "auth/too-many-requests": "Too many attempts. Please wait a moment.",
-      "auth/network-request-failed": "Network error. Check your internet connection.",
-      "auth/internal-error": "Internal error. Try again.",
-    };
-
-    return errors[errorCode] || "An unexpected error occurred. Please try again.";
-  }
-
-function showProcessing(msg = "Processing...") {
-  hideError();
-  const w = document.getElementById("welcome-message");
-  w.innerText = msg;
-  w.style.display = "block";
-}
-
-function hideProcessing() {
-  const w = document.getElementById("welcome-message");
-  w.innerText = "";
-  w.style.display = "none";
-}
-
-function showError(msg) {
-  hideProcessing();
-  const e = document.getElementById("error");
-  e.innerText = msg;
-  e.style.display = "block";
-}
-
-function hideError() {
-  const e = document.getElementById("error");
-  e.innerText = "";
-  e.style.display = "none";
-}
-</script>
 
 	<script>
     const firebaseConfig = {
@@ -168,8 +109,6 @@ function hideError() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      showProcessing("Processing...");
-
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
           return userCredential.user.updateProfile({ displayName: name }).then(() => {
@@ -178,9 +117,7 @@ function hideError() {
           });
         })
         .catch((error) => {
-          hideProcessing();
-          const readable = getFirebaseErrorMessage(error.code);
-          showError(readable);
+          document.getElementById("error").innerText = error.message;
         });
     }
 
@@ -192,7 +129,7 @@ function hideError() {
         saveUserData(user);
         localStorage.setItem("name", firstName);
       } else {
-        console.log("No user is signed in.");
+        document.getElementById("welcome-message").innerText = "";
       }
     });
 
