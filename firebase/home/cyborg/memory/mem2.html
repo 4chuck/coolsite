@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emoji Memory Game</title>
+
+<style>
+/* RESET */
+body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    overflow-x: hidden;
+}
+
+/* TITLE */
+h1 {
+    margin-top: 20px;
+    font-size: 32px;
+}
+
+/* TOP BAR */
+.top-bar {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+/* CONTROLS */
+.controls {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+button {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #444;
+}
+
+/* GRID: RESPONSIVE & SYMMETRIC */
+.grid {
+    display: grid;
+    justify-content: center;
+    margin: 30px auto;
+    gap: 10px;
+    padding-bottom: 40px;
+}
+
+/* MOBILE FRIENDLY CARD SIZE */
+.card {
+    width: min(65px, 20vw);
+    height: min(65px, 20vw);
+    background: #2b2b2b;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: min(55px, 14vw);
+    cursor: pointer;
+    user-select: none;
+    transform-style: preserve-3d;
+    transition: transform 0.35s ease, background 0.25s;
+}
+
+/* FLIP ANIMATION */
+.card.flipped {
+    transform: rotateY(180deg);
+    background: white;
+}
+
+/* MATCHED */
+.card.matched {
+    background: #00cc66 !important;
+    color: white;
+    transform: scale(1.12);
+    pointer-events: none;
+    transition: 0.25s;
+}
+
+/* HINT EFFECT */
+.hint-glow {
+    background: #5588ff !important;
+    transform: scale(1.13);
+}
+
+/* TIMER ANIMATION */
+.timerPulse {
+    animation: pulse 0.6s ease;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+/* MUSIC OVERLAY */
+#musicOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    font-size: 22px;
+}
+
+.overlayBtn {
+    margin-top: 15px;
+    background: #00cc66;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Emoji Memory Game</h1>
+
+<div class="top-bar">
+    Level: <span id="level">1</span> &nbsp; | &nbsp;
+    Grid: <span id="gridSize">4×4</span> &nbsp; | &nbsp;
+    Score: <span id="score">0</span> &nbsp; | &nbsp;
+    Time: <span id="timer">0</span>s
+</div>
+
+<div class="top-bar" style="opacity:0.7;">
+    Best Score: <span id="bestScore">0</span> &nbsp; | &nbsp;
+    Best Time: <span id="bestTime">0</span>s
+</div>
+
+<div class="controls">
+    <button onclick="restartGame()">Restart</button>
+    <button id="hintBtn" onclick="useHint()">Hint (3)</button>
+    <button id="musicToggle" onclick="toggleMusic()">🔊 Music On</button>
+</div>
+
+<!-- GAME GRID -->
+<div id="game" class="grid"></div>
+
+<!-- TAP TO START MUSIC OVERLAY -->
+<div id="musicOverlay">
+    <div>Tap to Start Game 🎵</div>
+    <button class="overlayBtn" onclick="startMusic()">Start</button>
+</div>
+
+<script>
+// -------------- RETRO / ARCADE SOUND PACK (8‑bit / arcade‑style) --------------
+// You can swap these URLs with local files after download
+
+const flipSound  = new Audio("flipcard.m4a");
+const matchSound = new Audio("https://opengameart.org/sites/default/files/cork.flac");
+
+const levelUpSound = new Audio("https://opengameart.org/sites/default/files/shimmer_1.flac");
+
+const hintSound = new Audio("https://opengameart.org/sites/default/files/Accept.mp3");
+    // alternate blip/beep sound
+const bgm = new Audio("https://opengameart.org/sites/default/files/Free%20jump_0.mp3"); // retro background loop
+
+// Looping background music
+bgm.loop = true;
+bgm.volume = 0.35;
+
+// ------------------------------------------------------------------------------
+
+let level = 1;
+let gridSize = 4;
+let score = 0;
+
+let firstCard = null;
+let lockBoard = false;
+
+let hintUses = 3;
+let usedPairs = [];
+
+let timer = 0;
+let timerInterval = null;
+
+let musicEnabled = true;
+
+// BEST SCORE DATA
+let bestScore = localStorage.getItem("bestScore") || 0;
+let bestTime = localStorage.getItem("bestTime") || 999999;
+
+document.getElementById("bestScore").textContent = bestScore;
+document.getElementById("bestTime").textContent = bestTime == 999999 ? 0 : bestTime;
+
+const emojis = [
+    "😀","😎","😈","🤖","👻","🐶","🐱","🐼","🦁",
+    "🐸","🍔","🍕","⚽","🚗","🏆","💎","🍎","🎲"
+];
+
+// MUSIC OVERLAY HANDLER
+function startMusic() {
+    bgm.play().catch(e => console.log("BGM play failed:", e));
+    document.getElementById("musicOverlay").style.display = "none";
+}
+
+function toggleMusic() {
+    musicEnabled = !musicEnabled;
+    const toggleBtn = document.getElementById("musicToggle");
+    if (musicEnabled) {
+        bgm.play().catch(e => console.log("BGM play failed:", e));
+        toggleBtn.textContent = "🔊 Music On";
+    } else {
+        bgm.pause();
+        toggleBtn.textContent = "🔇 Music Off";
+    }
+}
+
+// TIMER
+function startTimer() {
+    clearInterval(timerInterval);
+    timer = 0;
+    timerInterval = setInterval(() => {
+        timer++;
+        let timerEl = document.getElementById("timer");
+        timerEl.textContent = timer;
+        timerEl.classList.add("timerPulse");
+        setTimeout(() => timerEl.classList.remove("timerPulse"), 300);
+    }, 1000);
+}
+
+// GAME BOARD
+function generateBoard() {
+    const game = document.getElementById("game");
+    game.innerHTML = "";
+
+    document.getElementById("level").textContent = level;
+    document.getElementById("gridSize").textContent = `${gridSize}×${gridSize}`;
+    document.getElementById("score").textContent = score;
+
+    hintUses = 3;
+    usedPairs = [];
+    document.getElementById("hintBtn").textContent = `Hint (${hintUses})`;
+
+    startTimer();
+
+    game.style.gridTemplateColumns = `repeat(${gridSize}, min(65px, 20vw))`;
+
+    const totalCards = gridSize * gridSize;
+    const pairs = totalCards / 2;
+
+    let chosen = emojis.slice(0, pairs);
+    let cardSet = [...chosen, ...chosen];
+    shuffle(cardSet);
+
+    cardSet.forEach((emoji, idx) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.value = emoji;
+        card.dataset.index = idx;
+        card.onclick = () => flip(card);
+        game.appendChild(card);
+    });
+}
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function flip(card) {
+    if (lockBoard || card.classList.contains("flipped") || card.classList.contains("matched")) return;
+
+    if (musicEnabled) {
+        flipSound.currentTime = 0;
+        flipSound.play().catch(e => console.log("Flip sound failed:", e));
+    }
+
+    card.textContent = card.dataset.value;
+    card.classList.add("flipped");
+
+    if (!firstCard) {
+        firstCard = card;
+        return;
+    }
+
+    if (firstCard.dataset.value === card.dataset.value) {
+        if (musicEnabled) {
+            matchSound.currentTime = 0;
+            matchSound.play().catch(e => console.log("Match sound failed:", e));
+        }
+
+        card.classList.add("matched");
+        firstCard.classList.add("matched");
+        score++;
+        firstCard = null;
+        setTimeout(checkWin, 350);
+
+    } else {
+        lockBoard = true;
+        setTimeout(() => {
+            card.classList.remove("flipped");
+            firstCard.classList.remove("flipped");
+            card.textContent = "";
+            firstCard.textContent = "";
+            firstCard = null;
+            lockBoard = false;
+        }, 900);
+    }
+}
+
+// HINT FEATURE
+function useHint() {
+    if (hintUses <= 0 || lockBoard) return;
+
+    if (musicEnabled) {
+        hintSound.currentTime = 0;
+        hintSound.play().catch(e => console.log("Hint sound failed:", e));
+    }
+
+    const cards = [...document.querySelectorAll(".card")];
+    const unmatched = cards.filter(c => !c.classList.contains("matched"));
+    let pair = null;
+
+    for (let c of unmatched) {
+        let v = c.dataset.value;
+        if (usedPairs.includes(v)) continue;
+        let match = unmatched.filter(x => x.dataset.value === v);
+        if (match.length === 2) {
+            pair = match;
+            usedPairs.push(v);
+            break;
+        }
+    }
+
+    if (!pair) return;
+
+    hintUses--;
+    document.getElementById("hintBtn").textContent = `Hint (${hintUses})`;
+
+    pair.forEach(c => {
+        c.classList.add("hint-glow");
+        c.textContent = c.dataset.value;
+    });
+
+    setTimeout(() => {
+        pair.forEach(c => {
+            if (!c.classList.contains("matched")) {
+                c.classList.remove("hint-glow");
+                c.textContent = "";
+            }
+        });
+    }, 1200);
+}
+
+function checkWin() {
+    const allMatched = [...document.querySelectorAll(".card")]
+        .every(c => c.classList.contains("matched"));
+
+    if (!allMatched) return;
+
+    clearInterval(timerInterval);
+
+    if (score > bestScore) {
+        localStorage.setItem("bestScore", score);
+        bestScore = score;
+        document.getElementById("bestScore").textContent = bestScore;
+    }
+
+    if (timer < bestTime) {
+        localStorage.setItem("bestTime", timer);
+        bestTime = timer;
+        document.getElementById("bestTime").textContent = bestTime;
+    }
+
+    if (musicEnabled) {
+        levelUpSound.currentTime = 0;
+        levelUpSound.play().catch(e => console.log("Level-up sound failed:", e));
+    }
+
+    level++;
+    if (gridSize < 10) gridSize += 2;
+
+    setTimeout(generateBoard, 900);
+}
+
+function restartGame() {
+    level = 1;
+    gridSize = 4;
+    score = 0;
+    generateBoard();
+}
+
+// First board generation
+generateBoard();
+</script>
+
+</body>
+</html>
