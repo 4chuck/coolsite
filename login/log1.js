@@ -9,8 +9,7 @@ function store(){
     }
       else{
         localStorage.setItem('name', name.value);
-        var encryptedPassword = CryptoJS.AES.encrypt(document.getElementById('pw').value, 'VjG6e$hN9@Lp2*qZ
-').toString();
+        var encryptedPassword = CryptoJS.AES.encrypt(document.getElementById('pw').value, 'VjG6e$hN9@Lp2*qZ').toString();
     localStorage.setItem('pw', encryptedPassword);
     
         alert('success redirecting to home page');
