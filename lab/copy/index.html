@@ -4,11 +4,22 @@
   <meta charset="UTF-8">
   <title>Copy C Programs</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
     button {
       margin: 5px;
       padding: 10px 15px;
       cursor: pointer;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+      color: green;
+    }
+    .error {
+      color: red;
     }
   </style>
 </head>
@@ -16,26 +27,29 @@
 
 <h2>Copy C Programs</h2>
 
-<button onclick="copyFile('p1.c')">Copy P1</button>
-<button onclick="copyFile('p2.c')">Copy P2</button>
-<button onclick="copyFile('p3.c')">Copy P3</button>
-<button onclick="copyFile('p4.c')">Copy P4</button>
-<button onclick="copyFile('p5.c')">Copy P5</button>
 <button onclick="copyFile('p6.c')">Copy P6</button>
 <button onclick="copyFile('p7.c')">Copy P7</button>
 <button onclick="copyFile('p8.c')">Copy P8</button>
 <button onclick="copyFile('p9.c')">Copy P9</button>
 <button onclick="copyFile('p10.c')">Copy P10</button>
 
+<p id="status"></p>
+
 <script>
 async function copyFile(file) {
+  const status = document.getElementById("status");
+  status.className = "";
+  status.textContent = "Copying " + file + "...";
+
   try {
     const res = await fetch(file);
+    if (!res.ok) throw new Error("Fetch failed");
     const text = await res.text();
     await navigator.clipboard.writeText(text);
-    alert(file + " copied to clipboard ✔");
+    status.textContent = file + " copied to clipboard ✔";
   } catch (e) {
-    alert("Failed to copy " + file);
+    status.textContent = "Failed to copy " + file;
+    status.className = "error";
   }
 }
 </script>
