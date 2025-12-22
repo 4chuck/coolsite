@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Quiz Master - Cyborg Theme</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="assets/css/fontawesome.css">
+  <link rel="stylesheet" href="assets/css/templatemo-cyborg-gaming.css">
+  <link rel="stylesheet" href="assets/css/owl.css">
+  <link rel="stylesheet" href="assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+
+  <!-- Firebase Scripts (preloaded for logic) -->
+</head>
+
+<body>
+
+  <!-- Preloader
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+ -->
+  <!-- Header -->
+  <header class="header-area header-sticky"style="background-color:#27292A">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <nav class="main-nav">
+            <a href="index.html" class="logo">
+              <img src="assets/images/logo.png" alt=""style="object-fit: cover;min-width: 40px;min-height: 40px;width: auto;height: auto;">
+            </a>
+            <ul class="nav">
+              <li><a href="index.html" class="active">Home</a></li>
+              <li><a href="browse.html">Browse</a></li>
+              <li><a href="details.html">Details</a></li>
+              <li><a href="streams.html">Streams</a></li>
+              <li><a href="fire-profile.html">Profile <img src="assets/images/profile-header.jpg" alt=""></a></li>
+            </ul>
+            <a class="menu-trigger"><span>Menu</span></a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+
+          <div class="main-banner"style="min-height: 150px; padding: 30px 0;">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="header-text">
+                  <h6>Multiplayer Quiz Game</h6>
+                  <h4><em>Compete</em> in Real-Time</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="most-popular">
+            <div class="row">
+              <div class="col-lg-12">
+                <div id="quiz-container" style="padding: 20px; background: #1f2122; border-radius: 20px; color: white;">
+<div id="customcalert" style="
+  position: relative; top: 2px; left: 50%; transform: translateX(-50%);
+  background: #27292a; color: #ec6090; padding: 5px; border-radius: 5px;
+  margin-bottom: 0px; display: none; z-index: 9999;">
+    This is a non-blocking calert!
+</div>
+
+<script>
+function calert(message) {
+    let calertBox = document.getElementById("customcalert");
+    calertBox.innerText = message;
+    calertBox.style.display = "block";
+
+    // Hide after 3 seconds
+    setTimeout(() => { calertBox.style.display = "none"; }, 3000);
+}
+
+// Show calert without blocking execution
+//calert("This is a non-blocking calert!");
+//console.log("This executes immediately.");
+</script>
+
+    <section class="inner-page"style="margin-top: 20px;">
+        
+     <div class="container">
+ <div class="container"style="border:8px outset #5533ff">
+  <audio id="bg-music" loop autoplay>
+    <source src="assets/spring_in_my_step.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <button id="music-toggle-btn" style="position: fixed; top: 90px; right: 20px; z-index: 999;">🔊 Music On</button>
+
+  <script>
+    const bgMusic = document.getElementById("bg-music");
+    const musicToggleBtn = document.getElementById("music-toggle-btn");
+    let musicPlaying = false;
+    
+    // Some browsers need user interaction to start music, so we wait until button is clicked.
+    
+    musicToggleBtn.addEventListener("click", () => {
+      if (musicPlaying) {
+        bgMusic.pause();
+        musicToggleBtn.textContent = "🔇 Music Off";
+      } else {
+        bgMusic.play().catch(e => console.log("Music play blocked until user interacts."));
+        musicToggleBtn.textContent = "🔊 Music On";
+      }
+      musicPlaying = !musicPlaying;
+    });
+    
+    // Optionally start music automatically when page fully loads  (after a click anywhere)
+    document.addEventListener("click", () => {
+      if (!musicPlaying) {
+        bgMusic.play().catch(() => {});
+        musicPlaying = true;
+        musicToggleBtn.textContent = "🔊 Music On";
+      }
+    }, { once: true }); // Only run once
+    </script>
+
+  <div id="game-container">
+  <!-- <select id="category-dropdown">
+      <option value="">Select a Category</option>
+    </select> -->
+      <!-- Play Again button -->
+ <center> <button id="play-again-btn" style="display: none;" onclick="location.reload();">Play Again</button></center>
+ 
+ <div id="player-info">
+  <button id="join-btn">Join Game</button>
+</div>
+
+    <div id="waiting-room" style="display: none;">
+      <h2>Waiting for other players...</h2>
+      <button id="ready-btn">I'm Ready</button>
+    </div>
+    <div id="countdown" style="display: none;">Starting in <span id="countdown-timer">3</span></div>
+    <div id="quiz" style="display: none;">
+      <div id="question-container">
+        <p id="question"style="color:white;font-size: 20px;"></p>
+        <div id="answers"></div>
+      </div>
+      <p id="timer">Time Left: <span id="time">10</span>s</p>
+    </div>
+
+    <div id="online-players" style="display:none; margin-top: 20px; padding: 20px; background: #27292a; border-radius: 10px;">
+      <h2>Online Players</h2>
+      <h3 id="players-count" style="font-size: 22px; color: #ec6090; margin-bottom: 10px;">Players Online: 0</h3>
+      <ul id="online-players-list" style="list-style: none; padding: 0;"></ul>
+    </div>        
+
+  <div id="leaderboard" style="display: none;">
+    <br>
+  <h2>Leaderboard</h2>
+  <ul id="leaderboard-list"></ul>
+</div>
+
+  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      font-size: 22px;
+    }
+    #game-container {
+      padding: 20px;
+    }
+    select, input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 23px;
+      width: 100%;
+      max-width: 90%;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #ec6090;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 23px;
+    }
+    button:hover {
+      background-color: #ff367b;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #answers button {
+      margin: 5px;
+      width: 100%;
+      max-width: 300px;
+    }
+    #leaderboard ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #leaderboard ul li {
+      background: #1f2122;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .highlighted-item {
+      background-color: #B2EBF2;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    @media (max-width: 600px) {
+      #answers button {
+      max-width: 90%;
+      font-size: 18px;
+    }
+    }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#online-players {
+  max-height: 500px; /* Or any sensible limit */
+  overflow-y: visible; /* Allow content to expand naturally */
+}
+
+#online-players-list li {
+  word-wrap: break-word;
+  font-size: 20px;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  background: #ec6090;
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Extra mobile-friendly tweaks */
+@media (max-width: 600px) {
+  #online-players {
+    max-height: 200px;
+    padding: 15px;
+  }
+  #online-players-list li {
+    font-size: 18px;
+    padding: 8px;
+  }
+}
+img {
+  object-fit: cover;
+  
+  width: 40px;
+  height: 40px;
+}
+  </style>
+
+
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { getDatabase, ref, set, update, onValue, onDisconnect, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+  import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+  import { runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+  import { remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+  import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+    authDomain: "login-b6382.firebaseapp.com",
+    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+    projectId: "login-b6382",
+    storageBucket: "login-b6382.appspot.com",
+    messagingSenderId: "482805184778",
+    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+    measurementId: "G-ZHXBBZHN3W",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const firestore = getFirestore(app);
+  
+  const joinBtn = document.getElementById("join-btn");
+  const waitingRoom = document.getElementById("waiting-room");
+  const readyBtn = document.getElementById("ready-btn");
+  const countdownDiv = document.getElementById("countdown");
+  const countdownTimer = document.getElementById("countdown-timer");
+  const quizDiv = document.getElementById("quiz");
+  const questionEl = document.getElementById("question");
+  const answersEl = document.getElementById("answers");
+  const leaderboardDiv = document.getElementById("leaderboard");
+  const leaderboardList = document.getElementById("leaderboard-list");
+  const timerEl = document.getElementById("time");
+  const play = document.getElementById("play-again-btn");
+
+  let playerId;
+  //let playerName = localStorage.getItem("name") || "Player";
+  let currentScore = 0;
+  let questionIndex = 0;
+  let questions = [];
+  let timer;
+  let countdownStarted = false;
+
+  //  Retrieve and validate category ID from localStorage
+  let selectedCategory = localStorage.getItem("categoryId");
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      playerName = user.displayName || "Player"; // Use displayName if available
+      localStorage.setItem("name", playerName);
+      console.log("User authenticated: ", playerName);
+    } else {
+      console.log("You are not logged in. Redirecting to login page...");
+      window.location.href = "../../../login/fire-login.html";
+    }
+  });
+  let playerName = localStorage.getItem("name") || "Player";//global variable for player name
+  // Validate selectedCategory
+  if (!selectedCategory || isNaN(parseInt(selectedCategory, 10))) {
+    calert("No category selected. Redirecting to category selection page...");
+    window.location.href = "category.html";  // Redirects if no valid category is found
+  } else {
+    selectedCategory = parseInt(selectedCategory, 10); // Convert to number
+  }
+
+  console.log("Selected Category ID:", selectedCategory);
+  //confirm("Do you want to continue?")
+  //   Check user authentication
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      playerId = user.uid;
+      localStorage.setItem("userUID", playerId);
+      console.log("User authenticated: ", playerId);
+      const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${user.uid}`);
+      update(playerRef, { online: false, ready: false });
+    } else {
+      console.log("You are not logged in. Redirecting to login page...");
+      window.location.href = "../../../login/fire-login.html";
+    }
+  });
+
+  //   Join game logic
+  joinBtn.addEventListener("click", async () => {
+    if (!selectedCategory || isNaN(selectedCategory)) {
+      calert("Invalid category. Please select again.");
+      window.location.href = "category.html";
+      return;
+    }
+    calert("Loading quiz.");
+    const storedUid = localStorage.getItem("userUID");
+    
+    if (storedUid) {
+      playerId = storedUid;
+      const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
+
+
+        await set(playerRef, { 
+        name: playerName,
+        ready: false,
+        online: true 
+      });
+      
+// 1) Transaction only flips online/ready
+// on join: normal set (no transaction)
+// 1) on join: simple set everything including joinedAt
+
+
+
+
+
+
+      //   Correct usage of onDisconnect
+      onDisconnect(playerRef).update({ online: false, ready: false });
+
+      console.log("Player joined the game. Waiting for others...");
+      waitingRoom.style.display = "block";
+      joinBtn.style.display = "none"; // Hide the join button
+      document.getElementById("online-players").style.display = "block"; // Show the online players div
+      listenToOnlinePlayers(); // Start listening to online players
+    } else {
+      console.log("You are not logged in. Redirecting to login page...");
+      window.location.href = "../../../login/fire-login.html";
+    }
+  });
+  
+  const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
+const usersRef = ref(db, `users`);
+
+onValue(playersRef, (snapshot) => {
+  const players = snapshot.val();
+  const onlineList = document.getElementById("online-players-list");
+  const playersCount = document.getElementById("players-count");
+
+  onlineList.innerHTML = "";
+
+  if (!players) {
+    onlineList.innerHTML = "<li>No players online yet.</li>";
+    playersCount.textContent = "Players Online: 0";
+    return;
+  }
+
+  let onlineCount = 0;
+
+  Object.entries(players).forEach(([uid, player]) => {
+    if (player.online) {
+      onlineCount++;
+
+      const li = document.createElement("li");
+      li.style.display = "flex";
+      li.style.alignItems = "center";
+      li.style.gap = "10px";
+
+      // 🆕 Create img element for profile pic
+      const img = document.createElement("img");
+      img.src = "assets/images/default-avatar.png"; // default avatar first
+      img.style.width = "40px";
+      img.style.height = "40px";
+      img.style.borderRadius = "50%";
+      img.style.objectFit = "cover";
+
+      // 🆕 Fetch user's profilePic if available
+      get(ref(db, `users/${uid}/profilePic`)).then((picSnap) => {
+        if (picSnap.exists()) {
+          img.src = picSnap.val(); // Use actual photo
+        }
+      }).catch(err => {
+        console.error("Failed to fetch profile pic:", err);
+      });
+
+      // Player Name + Ready Badge
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = player.name || "Unknown Player";
+      if (player.ready) {
+        nameSpan.textContent += " ✔ Ready";
+      }
+
+      if (uid === playerId) {
+  li.style.background = "#ec6090";
+  nameSpan.style.color = "white";
+  nameSpan.style.fontWeight = "bold";
+}
+
+
+      li.appendChild(img); // Add avatar
+      li.appendChild(nameSpan); // Add name
+      onlineList.appendChild(li);
+    }
+  });
+
+  playersCount.textContent = `Players Online: ${onlineCount}`;
+});
+
+
+  //   Mark player as ready
+  readyBtn.addEventListener("click", async () => {
+    console.log("Marking player as ready...");
+    calert("Loading questions.");
+    const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`);
+    
+    await set(ref(db, `quiz/category_${selectedCategory}/players/${playerId}`), {
+  name: playerName , online: true, ready: false, joinedAt: serverTimestamp()
+});
+// 2) on “I’m Ready”: transaction only flips ready
+await runTransaction(
+  ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`),
+  (r) => true
+);
+
+    document.getElementById("online-players").style.display = "none";
+    readyBtn.style.display = "none"; // Hide the ready button
+    
+    const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
+    onValue(playersRef, (snapshot) => {
+      const players = snapshot.val();
+      if (!players) {
+        calert("No players found. Waiting for others...");
+        return;
+      }
+
+      const onlinePlayers = Object.values(players).filter((player) => player.online);
+      const allReady = onlinePlayers.every((player) => player.ready);
+
+      if (allReady) {
+        console.log("All players are ready! Starting countdown...");
+        startCountdown();
+      } else {
+        calert("Waiting for all players to mark ready...");
+      }
+    });
+  });
+
+  //   Start countdown and quiz
+  function startCountdown() {
+    if (countdownStarted) {
+      console.log("Countdown already started.");
+      return;
+    }
+
+    countdownStarted = true;
+    waitingRoom.style.display = "none";
+    joinBtn.style.display = "none";
+    readyBtn.style.display = "none";
+
+    let countdown = 3;
+    countdownDiv.style.display = "block";
+    countdownTimer.textContent = countdown;
+
+    const interval = setInterval(() => {
+      countdown--;
+      countdownTimer.textContent = countdown;
+
+      if (countdown < 0) {
+        clearInterval(interval);
+        countdownDiv.style.display = "none";
+        console.log("Starting quiz...");
+        quizDiv.style.opacity = 0;
+        setTimeout(() => {
+        quizDiv.style.transition = "opacity 0.7s";
+        quizDiv.style.opacity = 1;
+        startQuiz();
+        }, 200); 
+
+        //startQuiz(); 
+      }
+    }, 1000);
+  }
+
+  const categoryMap = {
+  9: "General Knowledge",
+  10: "Entertainment: Books",
+  11: "Entertainment: Film",
+  12: "Entertainment: Music",
+  13: "Entertainment: Musicals & Theatres",
+  14: "Entertainment: Television",
+  15: "Entertainment: Video Games",
+  16: "Entertainment: Board Games",
+  17: "Science & Nature",
+  18: "Science: Computers",
+  19: "Science: Mathematics",
+  20: "Mythology",
+  21: "Sports",
+  22: "Geography",
+  23: "History",
+  24: "Politics",
+  25: "Art",
+  26: "Celebrities",
+  27: "Animals",
+  28: "Vehicles",
+  29: "Entertainment: Comics",
+  30: "Science: Gadgets",
+  31: "Entertainment: Japanese Anime & Manga",
+  32: "Entertainment: Cartoon & Animations"
+};
+
+
+  //   Fetch and start the quiz
+  async function startQuiz() {
+  countdownDiv.style.display = "none";
+  quizDiv.style.display = "block";
+  console.log("Fetching questions from Firestore...");
+  
+  questionEl.innerHTML = "Loading questions...";
+  answersEl.innerHTML = "";
+
+  
+  const categoryName = categoryMap[selectedCategory];
+  if (!categoryName) {
+    calert("Invalid category selected.");
+    return;
+  }
+
+  try {
+    const qSnap = await getDocs(query(
+      collection(firestore, "questions"),
+      where("category", "==", categoryName),
+      limit(30)
+    ));
+
+    if (qSnap.empty) {
+      calert("No questions found. Please choose another category.");
+      setTimeout(() => window.location.href = "category.html", 1500);
+      return;
+    }
+
+    const docs = qSnap.docs.map(doc => doc.data());
+    const shuffledDocs = shuffle(docs).slice(0, 10); // Random 10
+
+    questions = shuffledDocs.map(q => ({
+      question: q.question,
+      answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
+      correct: q.correct_answer
+    }));
+
+    console.log("Loaded Firestore Questions:", questions);
+    displayQuestion();
+  } catch (error) {
+    console.error("Error loading Firestore questions:", error.message, error.stack);
+    calert("An error occurred while loading questions.");
+    questionEl.innerHTML = `
+    <p>Failed to load questions. Check your internet or try again.</p>
+    <button onclick="location.reload()" style="margin-top:10px;">Retry</button>`;
+  }
+}
+  //   Shuffle function for answers
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  //   Display question logic
+  function displayQuestion() {
+    if (questionIndex >= questions.length) return endGame();
+
+    const { question, answers } = questions[questionIndex];
+    questionEl.innerHTML = question;
+    answersEl.innerHTML = "";
+
+    answers.forEach((answer) => {
+      const btn = document.createElement("button");
+      btn.textContent = answer;
+      btn.onclick = () => checkAnswer(answer);
+      answersEl.appendChild(btn);
+    });
+
+    startTimer();
+  }
+
+  //   Check answer and update score
+  function checkAnswer(selected) {
+    clearInterval(timer);
+    const correct = questions[questionIndex].correct;
+    
+    Array.from(answersEl.children).forEach((btn) => {
+      btn.style.backgroundColor = btn.textContent === correct ? "green" : "red";
+      btn.disabled = true;
+    });
+
+    if (selected === correct) currentScore += 10;
+    updatePlayerScore(currentScore);
+
+    questionIndex++;
+    setTimeout(displayQuestion, 2000);
+  }
+
+  function startTimer() {
+    let time = 10;
+    timerEl.textContent = time;
+    timer = setInterval(() => {
+      time--;
+      timerEl.textContent = time;
+      if (time <= 0) {
+        clearInterval(timer);
+        questionIndex++;
+        displayQuestion();
+      }
+    }, 1000);
+  }
+
+  async function cleanupPlayer() {
+  const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
+  await remove(playerRef);
+  console.log("Cleaned up player after game over.");
+}
+
+async function endGame() {
+  quizDiv.style.display = "none";
+  leaderboardDiv.style.display = "block";
+
+  onValue(ref(db, `quiz/category_${selectedCategory}/players`), async (snapshot) => {
+    const players = snapshot.val();
+    const uniquePlayers = {};
+
+    Object.entries(players).forEach(([uid, player]) => {
+      const score = player.score;
+
+      if (score === undefined || score === null) return;
+
+      if (!uniquePlayers[player.name]) {
+        uniquePlayers[player.name] = { score, uid };  // use UID from key!
+      } else {
+        uniquePlayers[player.name] = {
+          score: Math.max(uniquePlayers[player.name].score, score),
+          uid,
+        };
+      }
+    });
+
+    const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1].score - a[1].score);
+
+    const leaderboardItems = await Promise.all(
+      sortedPlayers.map(async ([name, { score, uid }]) => {
+        const li = document.createElement("li");
+        li.style.display = "flex";
+        li.style.alignItems = "center";
+        li.style.gap = "10px";
+        li.style.backgroundColor = name === playerName ? "#ec6090" : "";
+
+        const img = document.createElement("img");
+        img.src = "assets/images/default-avatar.png";
+        img.width = 40;
+        img.height = 40;
+        img.style.borderRadius = "50%";
+        img.style.objectFit = "cover"; // important for correct crop
+
+        // Properly fetch profilePic now using correct UID
+        try {
+          const picSnap = await get(ref(db, `users/${uid}/profilePic`));
+          if (picSnap.exists()) {
+            img.src = picSnap.val();
+          }
+        } catch (err) {
+          console.error(`Failed to fetch profile pic for ${uid}:`, err);
+        }
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = `${name}: ${score}`;
+        if (name === playerName) {
+          nameSpan.style.color = "white";
+          nameSpan.style.fontWeight = "bold";
+        }
+
+        li.append(img, nameSpan);
+        return li;
+      })
+    );
+
+    leaderboardList.innerHTML = "";
+    leaderboardItems.forEach((item) => leaderboardList.appendChild(item));
+  });
+
+  play.style.display = "block";
+}
+
+
+
+
+function updatePlayerScore(newScore) {
+  if (typeof newScore !== "number" || isNaN(newScore)) {
+    console.warn("Invalid score. Must be a number.");
+    return;
+  }
+
+  const playerRef = ref(
+    db,
+    `quiz/category_${selectedCategory}/players/${playerId}`
+  );
+
+  update(playerRef, { score: newScore })
+    .then(() => console.log(`Score updated to ${newScore}`))
+    .catch((error) => console.error("Failed to update score:", error));
+}
+
+function listenToOnlinePlayers() {
+    const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
+
+    onValue(playersRef, (snapshot) => {
+      const players = snapshot.val();
+      const onlineList = document.getElementById("online-players-list");
+      const playersCount = document.getElementById("players-count");
+      onlineList.innerHTML = "";
+      let onlineCount = 0;
+
+      if (players) {
+        Object.entries(players).forEach(([uid, player]) => {
+          if (!player.online) return;
+          onlineCount++;
+
+          const li = document.createElement("li");
+          li.style.display = "flex";
+          li.style.alignItems = "center";
+          li.style.gap = "10px";
+          li.style.background = "#ec6090";
+          li.style.padding = "8px";
+          li.style.borderRadius = "8px";
+
+          // avatar img
+          const img = document.createElement("img");
+          img.src = "assets/images/default-avatar.png";
+          img.width = 40; img.height = 40;
+          img.style.borderRadius = "50%";
+
+          // fetch real photo if exists
+          get(ref(db, `users/${uid}/profilePic`))
+            .then(picSnap => {
+              if (picSnap.exists()) img.src = picSnap.val();
+            })
+            .catch(err => console.error("avatar-get failed:", err));
+
+          // name + ready
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = player.name + (player.ready ? " ✔ Ready" : "");
+          if (uid === playerId) {
+    li.style.background = "#ec6090";
+    nameSpan.style.color = "white";
+    nameSpan.style.fontWeight = "bold";
+  }
+
+          li.append(img, nameSpan);
+          onlineList.appendChild(li);
+        });
+      }
+
+      playersCount.textContent = `Players Online: ${onlineCount}`;
+    });
+  }
+</script>
+
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a>. All rights reserved.
+          <br>Design: <a href="https://templatemo.com" target="_blank">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/tabs.js"></script>
+  <script src="assets/js/popup.js"></script>
+  <script src="assets/js/custom.js"></script>
+
+</body>
+</html>

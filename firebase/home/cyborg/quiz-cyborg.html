@@ -332,6 +332,10 @@ img {
   const timerEl = document.getElementById("time");
   const play = document.getElementById("play-again-btn");
 
+  // minimal additions:
+  const avatarCache = new Map();              // cache for profilePic URLs
+  let playersListenerAttached = false;        // guard to avoid duplicate listeners
+
   let playerId;
   //let playerName = localStorage.getItem("name") || "Player";
   let currentScore = 0;
@@ -378,6 +382,24 @@ img {
     }
   });
 
+  // ---------- minimal helper: cache-aware avatar loader ----------
+  async function getAvatar(uid) {
+    if (!uid) return "assets/images/default-avatar.png";
+    if (avatarCache.has(uid)) return avatarCache.get(uid);
+
+    try {
+      const snap = await get(ref(db, `users/${uid}/profilePic`));
+      const url = snap.exists() ? snap.val() : "assets/images/default-avatar.png";
+      avatarCache.set(uid, url);
+      return url;
+    } catch (err) {
+      console.error("avatar fetch error for", uid, err);
+      const fallback = "assets/images/default-avatar.png";
+      avatarCache.set(uid, fallback);
+      return fallback;
+    }
+  }
+
   //   Join game logic
   joinBtn.addEventListener("click", async () => {
     if (!selectedCategory || isNaN(selectedCategory)) {
@@ -392,21 +414,12 @@ img {
       playerId = storedUid;
       const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
 
-
-        await set(playerRef, { 
+      await set(playerRef, { 
         name: playerName,
         ready: false,
-        online: true 
+        online: true,
+        joinedAt: serverTimestamp()
       });
-      
-// 1) Transaction only flips online/ready
-// on join: normal set (no transaction)
-// 1) on join: simple set everything including joinedAt
-
-
-
-
-
 
       //   Correct usage of onDisconnect
       onDisconnect(playerRef).update({ online: false, ready: false });
@@ -423,25 +436,30 @@ img {
   });
   
   const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
-const usersRef = ref(db, `users`);
+  const usersRef = ref(db, `users`);
 
-onValue(playersRef, (snapshot) => {
-  const players = snapshot.val();
-  const onlineList = document.getElementById("online-players-list");
-  const playersCount = document.getElementById("players-count");
+  // Keep the original top-level onValue but use getAvatar to avoid refetch storms.
+  // This runs for everyone (not only after join) — we keep it to preserve original UX.
+  onValue(playersRef, async (snapshot) => {
+    const players = snapshot.val();
+    const onlineList = document.getElementById("online-players-list");
+    const playersCount = document.getElementById("players-count");
 
-  onlineList.innerHTML = "";
+    onlineList.innerHTML = "";
 
-  if (!players) {
-    onlineList.innerHTML = "<li>No players online yet.</li>";
-    playersCount.textContent = "Players Online: 0";
-    return;
-  }
+    if (!players) {
+      onlineList.innerHTML = "<li>No players online yet.</li>";
+      playersCount.textContent = "Players Online: 0";
+      return;
+    }
 
-  let onlineCount = 0;
+    let onlineCount = 0;
 
-  Object.entries(players).forEach(([uid, player]) => {
-    if (player.online) {
+    // NOTE: use Promise.all for avatar loads but keep DOM insertion order stable
+    const rows = [];
+
+    for (const [uid, player] of Object.entries(players)) {
+      if (!player.online) continue;
       onlineCount++;
 
       const li = document.createElement("li");
@@ -449,7 +467,6 @@ onValue(playersRef, (snapshot) => {
       li.style.alignItems = "center";
       li.style.gap = "10px";
 
-      // 🆕 Create img element for profile pic
       const img = document.createElement("img");
       img.src = "assets/images/default-avatar.png"; // default avatar first
       img.style.width = "40px";
@@ -457,16 +474,10 @@ onValue(playersRef, (snapshot) => {
       img.style.borderRadius = "50%";
       img.style.objectFit = "cover";
 
-      // 🆕 Fetch user's profilePic if available
-      get(ref(db, `users/${uid}/profilePic`)).then((picSnap) => {
-        if (picSnap.exists()) {
-          img.src = picSnap.val(); // Use actual photo
-        }
-      }).catch(err => {
-        console.error("Failed to fetch profile pic:", err);
-      });
+      // use cache-aware loader
+      // do not block rendering; update image when url resolves
+      getAvatar(uid).then(url => { img.src = url; }).catch(() => { /* ignore */ });
 
-      // Player Name + Ready Badge
       const nameSpan = document.createElement("span");
       nameSpan.textContent = player.name || "Unknown Player";
       if (player.ready) {
@@ -474,20 +485,20 @@ onValue(playersRef, (snapshot) => {
       }
 
       if (uid === playerId) {
-  li.style.background = "#ec6090";
-  nameSpan.style.color = "white";
-  nameSpan.style.fontWeight = "bold";
-}
-
+        li.style.background = "#ec6090";
+        nameSpan.style.color = "white";
+        nameSpan.style.fontWeight = "bold";
+      }
 
       li.appendChild(img); // Add avatar
       li.appendChild(nameSpan); // Add name
-      onlineList.appendChild(li);
+      rows.push(li);
     }
-  });
 
-  playersCount.textContent = `Players Online: ${onlineCount}`;
-});
+    // append rows after building to reduce reflows
+    rows.forEach(r => onlineList.appendChild(r));
+    playersCount.textContent = `Players Online: ${onlineCount}`;
+  });
 
 
   //   Mark player as ready
@@ -497,27 +508,28 @@ onValue(playersRef, (snapshot) => {
     const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`);
     
     await set(ref(db, `quiz/category_${selectedCategory}/players/${playerId}`), {
-  name: playerName , online: true, ready: false, joinedAt: serverTimestamp()
-});
-// 2) on “I’m Ready”: transaction only flips ready
-await runTransaction(
-  ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`),
-  (r) => true
-);
+      name: playerName , online: true, ready: false, joinedAt: serverTimestamp()
+    });
+    // 2) on “I’m Ready”: transaction only flips ready
+    await runTransaction(
+      ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`),
+      (r) => true
+    );
 
     document.getElementById("online-players").style.display = "none";
     readyBtn.style.display = "none"; // Hide the ready button
     
-    const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
-    onValue(playersRef, (snapshot) => {
-      const players = snapshot.val();
+    // Instead of adding another listener every time, use a one-off check here:
+    try {
+      const snap = await get(playersRef);
+      const players = snap.val();
       if (!players) {
         calert("No players found. Waiting for others...");
         return;
       }
 
       const onlinePlayers = Object.values(players).filter((player) => player.online);
-      const allReady = onlinePlayers.every((player) => player.ready);
+      const allReady = onlinePlayers.length > 0 && onlinePlayers.every((player) => player.ready);
 
       if (allReady) {
         console.log("All players are ready! Starting countdown...");
@@ -525,7 +537,10 @@ await runTransaction(
       } else {
         calert("Waiting for all players to mark ready...");
       }
-    });
+    } catch (err) {
+      console.error("Error checking ready state:", err);
+      calert("Error while checking players. Try again.");
+    }
   });
 
   //   Start countdown and quiz
@@ -554,92 +569,89 @@ await runTransaction(
         console.log("Starting quiz...");
         quizDiv.style.opacity = 0;
         setTimeout(() => {
-        quizDiv.style.transition = "opacity 0.7s";
-        quizDiv.style.opacity = 1;
-        startQuiz();
+          quizDiv.style.transition = "opacity 0.7s";
+          quizDiv.style.opacity = 1;
+          startQuiz();
         }, 200); 
-
-        //startQuiz(); 
       }
     }, 1000);
   }
 
   const categoryMap = {
-  9: "General Knowledge",
-  10: "Entertainment: Books",
-  11: "Entertainment: Film",
-  12: "Entertainment: Music",
-  13: "Entertainment: Musicals & Theatres",
-  14: "Entertainment: Television",
-  15: "Entertainment: Video Games",
-  16: "Entertainment: Board Games",
-  17: "Science & Nature",
-  18: "Science: Computers",
-  19: "Science: Mathematics",
-  20: "Mythology",
-  21: "Sports",
-  22: "Geography",
-  23: "History",
-  24: "Politics",
-  25: "Art",
-  26: "Celebrities",
-  27: "Animals",
-  28: "Vehicles",
-  29: "Entertainment: Comics",
-  30: "Science: Gadgets",
-  31: "Entertainment: Japanese Anime & Manga",
-  32: "Entertainment: Cartoon & Animations"
-};
+    9: "General Knowledge",
+    10: "Entertainment: Books",
+    11: "Entertainment: Film",
+    12: "Entertainment: Music",
+    13: "Entertainment: Musicals & Theatres",
+    14: "Entertainment: Television",
+    15: "Entertainment: Video Games",
+    16: "Entertainment: Board Games",
+    17: "Science & Nature",
+    18: "Science: Computers",
+    19: "Science: Mathematics",
+    20: "Mythology",
+    21: "Sports",
+    22: "Geography",
+    23: "History",
+    24: "Politics",
+    25: "Art",
+    26: "Celebrities",
+    27: "Animals",
+    28: "Vehicles",
+    29: "Entertainment: Comics",
+    30: "Science: Gadgets",
+    31: "Entertainment: Japanese Anime & Manga",
+    32: "Entertainment: Cartoon & Animations"
+  };
 
 
   //   Fetch and start the quiz
   async function startQuiz() {
-  countdownDiv.style.display = "none";
-  quizDiv.style.display = "block";
-  console.log("Fetching questions from Firestore...");
-  
-  questionEl.innerHTML = "Loading questions...";
-  answersEl.innerHTML = "";
+    countdownDiv.style.display = "none";
+    quizDiv.style.display = "block";
+    console.log("Fetching questions from Firestore...");
+    
+    questionEl.innerHTML = "Loading questions...";
+    answersEl.innerHTML = "";
 
-  
-  const categoryName = categoryMap[selectedCategory];
-  if (!categoryName) {
-    calert("Invalid category selected.");
-    return;
-  }
-
-  try {
-    const qSnap = await getDocs(query(
-      collection(firestore, "questions"),
-      where("category", "==", categoryName),
-      limit(30)
-    ));
-
-    if (qSnap.empty) {
-      calert("No questions found. Please choose another category.");
-      setTimeout(() => window.location.href = "category.html", 1500);
+    const categoryName = categoryMap[selectedCategory];
+    if (!categoryName) {
+      calert("Invalid category selected.");
       return;
     }
 
-    const docs = qSnap.docs.map(doc => doc.data());
-    const shuffledDocs = shuffle(docs).slice(0, 10); // Random 10
+    try {
+      const qSnap = await getDocs(query(
+        collection(firestore, "questions"),
+        where("category", "==", categoryName),
+        limit(30)
+      ));
 
-    questions = shuffledDocs.map(q => ({
-      question: q.question,
-      answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
-      correct: q.correct_answer
-    }));
+      if (qSnap.empty) {
+        calert("No questions found. Please choose another category.");
+        setTimeout(() => window.location.href = "category.html", 1500);
+        return;
+      }
 
-    console.log("Loaded Firestore Questions:", questions);
-    displayQuestion();
-  } catch (error) {
-    console.error("Error loading Firestore questions:", error.message, error.stack);
-    calert("An error occurred while loading questions.");
-    questionEl.innerHTML = `
-    <p>Failed to load questions. Check your internet or try again.</p>
-    <button onclick="location.reload()" style="margin-top:10px;">Retry</button>`;
+      const docs = qSnap.docs.map(doc => doc.data());
+      const shuffledDocs = shuffle(docs).slice(0, 10); // Random 10
+
+      questions = shuffledDocs.map(q => ({
+        question: q.question,
+        answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
+        correct: q.correct_answer
+      }));
+
+      console.log("Loaded Firestore Questions:", questions);
+      displayQuestion();
+    } catch (error) {
+      console.error("Error loading Firestore questions:", error.message, error.stack);
+      calert("An error occurred while loading questions.");
+      questionEl.innerHTML = `
+      <p>Failed to load questions. Check your internet or try again.</p>
+      <button onclick="location.reload()" style="margin-top:10px;">Retry</button>`;
+    }
   }
-}
   //   Shuffle function for answers
   function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
@@ -695,103 +707,105 @@ await runTransaction(
   }
 
   async function cleanupPlayer() {
-  const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
-  await remove(playerRef);
-  console.log("Cleaned up player after game over.");
-}
-
-async function endGame() {
-  quizDiv.style.display = "none";
-  leaderboardDiv.style.display = "block";
-
-  onValue(ref(db, `quiz/category_${selectedCategory}/players`), async (snapshot) => {
-    const players = snapshot.val();
-    const uniquePlayers = {};
-
-    Object.entries(players).forEach(([uid, player]) => {
-      const score = player.score;
-
-      if (score === undefined || score === null) return;
-
-      if (!uniquePlayers[player.name]) {
-        uniquePlayers[player.name] = { score, uid };  // use UID from key!
-      } else {
-        uniquePlayers[player.name] = {
-          score: Math.max(uniquePlayers[player.name].score, score),
-          uid,
-        };
-      }
-    });
-
-    const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1].score - a[1].score);
-
-    const leaderboardItems = await Promise.all(
-      sortedPlayers.map(async ([name, { score, uid }]) => {
-        const li = document.createElement("li");
-        li.style.display = "flex";
-        li.style.alignItems = "center";
-        li.style.gap = "10px";
-        li.style.backgroundColor = name === playerName ? "#ec6090" : "";
-
-        const img = document.createElement("img");
-        img.src = "assets/images/default-avatar.png";
-        img.width = 40;
-        img.height = 40;
-        img.style.borderRadius = "50%";
-        img.style.objectFit = "cover"; // important for correct crop
-
-        // Properly fetch profilePic now using correct UID
-        try {
-          const picSnap = await get(ref(db, `users/${uid}/profilePic`));
-          if (picSnap.exists()) {
-            img.src = picSnap.val();
-          }
-        } catch (err) {
-          console.error(`Failed to fetch profile pic for ${uid}:`, err);
-        }
-
-        const nameSpan = document.createElement("span");
-        nameSpan.textContent = `${name}: ${score}`;
-        if (name === playerName) {
-          nameSpan.style.color = "white";
-          nameSpan.style.fontWeight = "bold";
-        }
-
-        li.append(img, nameSpan);
-        return li;
-      })
-    );
-
-    leaderboardList.innerHTML = "";
-    leaderboardItems.forEach((item) => leaderboardList.appendChild(item));
-  });
-
-  play.style.display = "block";
-}
-
-
-
-
-function updatePlayerScore(newScore) {
-  if (typeof newScore !== "number" || isNaN(newScore)) {
-    console.warn("Invalid score. Must be a number.");
-    return;
+    const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
+    await remove(playerRef);
+    console.log("Cleaned up player after game over.");
   }
 
-  const playerRef = ref(
-    db,
-    `quiz/category_${selectedCategory}/players/${playerId}`
-  );
+  async function endGame() {
+    quizDiv.style.display = "none";
+    leaderboardDiv.style.display = "block";
 
-  update(playerRef, { score: newScore })
-    .then(() => console.log(`Score updated to ${newScore}`))
-    .catch((error) => console.error("Failed to update score:", error));
-}
+    onValue(ref(db, `quiz/category_${selectedCategory}/players`), async (snapshot) => {
+      const players = snapshot.val();
+      const uniquePlayers = {};
 
-function listenToOnlinePlayers() {
-    const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
+      Object.entries(players).forEach(([uid, player]) => {
+        const score = player.score;
 
-    onValue(playersRef, (snapshot) => {
+        if (score === undefined || score === null) return;
+
+        if (!uniquePlayers[player.name]) {
+          uniquePlayers[player.name] = { score, uid };  // use UID from key!
+        } else {
+          uniquePlayers[player.name] = {
+            score: Math.max(uniquePlayers[player.name].score, score),
+            uid,
+          };
+        }
+      });
+
+      const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1].score - a[1].score);
+
+      const leaderboardItems = await Promise.all(
+        sortedPlayers.map(async ([name, { score, uid }]) => {
+          const li = document.createElement("li");
+          li.style.display = "flex";
+          li.style.alignItems = "center";
+          li.style.gap = "10px";
+          li.style.backgroundColor = name === playerName ? "#ec6090" : "";
+
+          const img = document.createElement("img");
+          img.src = "assets/images/default-avatar.png";
+          img.width = 40;
+          img.height = 40;
+          img.style.borderRadius = "50%";
+          img.style.objectFit = "cover"; // important for correct crop
+
+          // Use cache-aware loader
+          try {
+            const url = await getAvatar(uid);
+            if (url) img.src = url;
+          } catch (err) {
+            console.error(`Failed to fetch profile pic for ${uid}:`, err);
+          }
+
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = `${name}: ${score}`;
+          if (name === playerName) {
+            nameSpan.style.color = "white";
+            nameSpan.style.fontWeight = "bold";
+          }
+
+          li.append(img, nameSpan);
+          return li;
+        })
+      );
+
+      leaderboardList.innerHTML = "";
+      leaderboardItems.forEach((item) => leaderboardList.appendChild(item));
+    });
+
+    play.style.display = "block";
+  }
+
+
+
+
+  function updatePlayerScore(newScore) {
+    if (typeof newScore !== "number" || isNaN(newScore)) {
+      console.warn("Invalid score. Must be a number.");
+      return;
+    }
+
+    const playerRef = ref(
+      db,
+      `quiz/category_${selectedCategory}/players/${playerId}`
+    );
+
+    update(playerRef, { score: newScore })
+      .then(() => console.log(`Score updated to ${newScore}`))
+      .catch((error) => console.error("Failed to update score:", error));
+  }
+
+  // listenToOnlinePlayers originally created repeated listeners: guard it.
+  function listenToOnlinePlayers() {
+    if (playersListenerAttached) return;
+    playersListenerAttached = true;
+
+    const playersRefLocal = ref(db, `quiz/category_${selectedCategory}/players`);
+
+    onValue(playersRefLocal, (snapshot) => {
       const players = snapshot.val();
       const onlineList = document.getElementById("online-players-list");
       const playersCount = document.getElementById("players-count");
@@ -799,6 +813,8 @@ function listenToOnlinePlayers() {
       let onlineCount = 0;
 
       if (players) {
+        // build rows first to reduce reflows
+        const rows = [];
         Object.entries(players).forEach(([uid, player]) => {
           if (!player.online) return;
           onlineCount++;
@@ -811,31 +827,27 @@ function listenToOnlinePlayers() {
           li.style.padding = "8px";
           li.style.borderRadius = "8px";
 
-          // avatar img
+          // avatar img (default -> replaced by cache-aware loader)
           const img = document.createElement("img");
           img.src = "assets/images/default-avatar.png";
           img.width = 40; img.height = 40;
           img.style.borderRadius = "50%";
 
-          // fetch real photo if exists
-          get(ref(db, `users/${uid}/profilePic`))
-            .then(picSnap => {
-              if (picSnap.exists()) img.src = picSnap.val();
-            })
-            .catch(err => console.error("avatar-get failed:", err));
+          getAvatar(uid).then(url => { img.src = url; }).catch(() => { /* noop */ });
 
           // name + ready
           const nameSpan = document.createElement("span");
           nameSpan.textContent = player.name + (player.ready ? " ✔ Ready" : "");
           if (uid === playerId) {
-    li.style.background = "#ec6090";
-    nameSpan.style.color = "white";
-    nameSpan.style.fontWeight = "bold";
-  }
+            li.style.background = "#ec6090";
+            nameSpan.style.color = "white";
+            nameSpan.style.fontWeight = "bold";
+          }
 
           li.append(img, nameSpan);
-          onlineList.appendChild(li);
+          rows.push(li);
         });
+        rows.forEach(r => onlineList.appendChild(r));
       }
 
       playersCount.textContent = `Players Online: ${onlineCount}`;
