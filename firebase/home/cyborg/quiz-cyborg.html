@@ -106,39 +106,38 @@ function calert(message) {
         
      <div class="container">
  <div class="container"style="border:8px outset #5533ff">
-  <audio id="bg-music" loop autoplay>
+<audio id="bg-music" loop preload="none">
     <source src="assets/spring_in_my_step.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
-  <button id="music-toggle-btn" style="position: fixed; top: 90px; right: 20px; z-index: 999;">🔊 Music On</button>
+    <button id="music-toggle-btn" style="position: fixed; top: 90px; right: 20px; z-index: 999;">
+    Play Music
+  </button>
 
-  <script>
+<script>
     const bgMusic = document.getElementById("bg-music");
     const musicToggleBtn = document.getElementById("music-toggle-btn");
     let musicPlaying = false;
-    
-    // Some browsers need user interaction to start music, so we wait until button is clicked.
-    
-    musicToggleBtn.addEventListener("click", () => {
-      if (musicPlaying) {
-        bgMusic.pause();
-        musicToggleBtn.textContent = "🔇 Music Off";
-      } else {
-        bgMusic.play().catch(e => console.log("Music play blocked until user interacts."));
-        musicToggleBtn.textContent = "🔊 Music On";
-      }
-      musicPlaying = !musicPlaying;
-    });
-    
-    // Optionally start music automatically when page fully loads  (after a click anywhere)
-    document.addEventListener("click", () => {
+
+    musicToggleBtn.addEventListener("click", async () => {
       if (!musicPlaying) {
-        bgMusic.play().catch(() => {});
-        musicPlaying = true;
-        musicToggleBtn.textContent = "🔊 Music On";
+        // Attempt to play — user interaction via the button should allow playback
+        try {
+          await bgMusic.play();
+          musicToggleBtn.textContent = "Pause Music";
+          musicPlaying = true;
+        } catch (err) {
+          // Play might fail for other reasons; log and optionally inform the user
+          console.warn("Audio playback failed:", err);
+          // Optionally show a user-visible message: calert("Unable to play audio.");
+        }
+      } else {
+        bgMusic.pause();
+        musicToggleBtn.textContent = "Play Music";
+        musicPlaying = false;
       }
-    }, { once: true }); // Only run once
-    </script>
+    });
+  </script>
 
   <div id="game-container">
   <!-- <select id="category-dropdown">

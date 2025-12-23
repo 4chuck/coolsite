@@ -181,6 +181,7 @@
     border: 1px solid rgba(255,255,255,0.04);
   }
   .profile-card .dropdown .dropdown-content input { width: 100%; padding: 8px; margin: 6px 0; background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; outline: none; }
+  .profile-card .dropdown:hover .dropdown-content { display: block; }
   .profile-card .dropdown .dropdown-content input[type="file"] { background: var(--accent); color: #fff; border: 1px dashed #ddd; padding: 8px; border-radius: 6px; cursor: pointer; }
 
   /* ========== Profile info & data ========== */
@@ -266,10 +267,6 @@
 
   /* Small helper: ensure large images and search fit without breaking nav */
   img, input { max-width: 100%; height: auto; box-sizing: border-box; }
-  .profile-card .dropdown .dropdown-content {
-  display: none;
-}
-
 </style>
 
 </head>
@@ -328,10 +325,13 @@
 
         <img id="profile-pic" class="profile-thumb" src="default-avatar.png" alt="Profile Picture" />
         <div style="margin-top:12px;">
-        <div class="dropdown">
-            <button id="changePicBtn" class="dropdown-btn">Change Pic</button>
-            <input type="file" id="upload-image" accept="image/*" style="display:none" />
-        </div>
+          <div class="dropdown">
+            <button class="dropdown-btn">Change Pic</button>
+            <div class="dropdown-content">
+              <input type="file" id="upload-image" accept="image/*" />
+              <div style="margin-top:8px;font-size:0.9rem;color:#444;">Tip: Choose a square-ish image for best results.</div>
+            </div>
+          </div>
         </div>
 
         <div class="profile-meta" style="margin-top:12px;">
@@ -428,15 +428,6 @@
     const processingOverlay = document.getElementById("processingOverlay");
     const processingStatus = document.getElementById("processingStatus");
     const processingSub = document.getElementById("processingSub");
-
-    const changePicBtn = document.getElementById("changePicBtn");
-
-/* Open file picker ONLY on button click */
-changePicBtn.addEventListener("click", () => {
-  uploadInput.click();
-});
-
-    
 
     /* Category map (existing) */
     const categoryMap = {

@@ -1643,7 +1643,7 @@ body {
 
 @media (max-width: 767px) {
   body .page-content {
-    padding: 0px 30px;
+    padding: 30px 30px 30px 30px;
   }
   .main-banner {
     text-align: center;

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Quiz Master - Cyborg Theme</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="assets/css/fontawesome.css">
+  <link rel="stylesheet" href="assets/css/templatemo-cyborg-gaming.css">
+  <link rel="stylesheet" href="assets/css/owl.css">
+  <link rel="stylesheet" href="assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+
+  <!-- Firebase Scripts (preloaded for logic) -->
+</head>
+
+<body>
+
+  <!-- Preloader
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+ -->
+  <!-- Header -->
+  <header class="header-area header-sticky"style="background-color:#27292A">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <nav class="main-nav">
+            <a href="index.html" class="logo">
+              <img src="assets/images/logo.png" alt=""style="object-fit: cover;min-width: 40px;min-height: 40px;width: auto;height: auto;">
+            </a>
+            <ul class="nav">
+              <li><a href="index.html" class="active">Home</a></li>
+              <li><a href="browse.html">Browse</a></li>
+              <li><a href="details.html">Details</a></li>
+              <li><a href="streams.html">Streams</a></li>
+              <li><a href="fire-profile.html">Profile <img src="assets/images/profile-header.jpg" alt=""></a></li>
+            </ul>
+            <a class="menu-trigger"><span>Menu</span></a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+
+          <div class="main-banner"style="min-height: 150px; padding: 30px 0;">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="header-text">
+                  <h6>Multiplayer Quiz Game</h6>
+                  <h4><em>Compete</em> in Real-Time</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="most-popular">
+            <div class="row">
+              <div class="col-lg-12">
+                <div id="quiz-container" style="padding: 20px; background: #1f2122; border-radius: 20px; color: white;">
+<div id="customcalert" style="
+  position: relative; top: 2px; left: 50%; transform: translateX(-50%);
+  background: #27292a; color: #ec6090; padding: 5px; border-radius: 5px;
+  margin-bottom: 0px; display: none; z-index: 9999;">
+    This is a non-blocking calert!
+</div>
+
+<script>
+function calert(message) {
+    let calertBox = document.getElementById("customcalert");
+    calertBox.innerText = message;
+    calertBox.style.display = "block";
+
+    // Hide after 3 seconds
+    setTimeout(() => { calertBox.style.display = "none"; }, 3000);
+}
+
+// Show calert without blocking execution
+//calert("This is a non-blocking calert!");
+//console.log("This executes immediately.");
+</script>
+
+    <section class="inner-page"style="margin-top: 20px;">
+        
+     <div class="container">
+ <div class="container"style="border:8px outset #5533ff">
+  <audio id="bg-music" loop autoplay>
+    <source src="assets/spring_in_my_step.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <button id="music-toggle-btn" style="position: fixed; top: 90px; right: 20px; z-index: 999;">🔊 Music On</button>
+
+  <script>
+    const bgMusic = document.getElementById("bg-music");
+    const musicToggleBtn = document.getElementById("music-toggle-btn");
+    let musicPlaying = false;
+    
+    // Some browsers need user interaction to start music, so we wait until button is clicked.
+    
+    musicToggleBtn.addEventListener("click", () => {
+      if (musicPlaying) {
+        bgMusic.pause();
+        musicToggleBtn.textContent = "🔇 Music Off";
+      } else {
+        bgMusic.play().catch(e => console.log("Music play blocked until user interacts."));
+        musicToggleBtn.textContent = "🔊 Music On";
+      }
+      musicPlaying = !musicPlaying;
+    });
+    
+    // Optionally start music automatically when page fully loads  (after a click anywhere)
+    document.addEventListener("click", () => {
+      if (!musicPlaying) {
+        bgMusic.play().catch(() => {});
+        musicPlaying = true;
+        musicToggleBtn.textContent = "🔊 Music On";
+      }
+    }, { once: true }); // Only run once
+    </script>
+
+  <div id="game-container">
+  <!-- <select id="category-dropdown">
+      <option value="">Select a Category</option>
+    </select> -->
+      <!-- Play Again button -->
+ <center> <button id="play-again-btn" style="display: none;" onclick="location.reload();">Play Again</button></center>
+ 
+ <div id="player-info">
+  <button id="join-btn">Join Game</button>
+</div>
+
+    <div id="waiting-room" style="display: none;">
+      <h2>Waiting for other players...</h2>
+      <button id="ready-btn">I'm Ready</button>
+    </div>
+    <div id="countdown" style="display: none;">Starting in <span id="countdown-timer">3</span></div>
+    <div id="quiz" style="display: none;">
+      <div id="question-container">
+        <p id="question"style="color:white;font-size: 20px;"></p>
+        <div id="answers"></div>
+      </div>
+      <p id="timer">Time Left: <span id="time">10</span>s</p>
+    </div>
+
+    <div id="online-players" style="display:none; margin-top: 20px; padding: 20px; background: #27292a; border-radius: 10px;">
+      <h2>Online Players</h2>
+      <h3 id="players-count" style="font-size: 22px; color: #ec6090; margin-bottom: 10px;">Players Online: 0</h3>
+      <ul id="online-players-list" style="list-style: none; padding: 0;"></ul>
+    </div>        
+
+  <div id="leaderboard" style="display: none;">
+    <br>
+  <h2>Leaderboard</h2>
+  <ul id="leaderboard-list"></ul>
+</div>
+
+  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      font-size: 22px;
+    }
+    #game-container {
+      padding: 20px;
+    }
+    select, input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 23px;
+      width: 100%;
+      max-width: 90%;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #ec6090;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 23px;
+    }
+    button:hover {
+      background-color: #ff367b;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #answers button {
+      margin: 5px;
+      width: 100%;
+      max-width: 300px;
+    }
+    #leaderboard ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #leaderboard ul li {
+      background: #1f2122;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .highlighted-item {
+      background-color: #B2EBF2;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    @media (max-width: 600px) {
+      #answers button {
+      max-width: 90%;
+      font-size: 18px;
+    }
+    }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#online-players {
+  max-height: 500px; /* Or any sensible limit */
+  overflow-y: visible; /* Allow content to expand naturally */
+}
+
+#online-players-list li {
+  word-wrap: break-word;
+  font-size: 20px;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  background: #ec6090;
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Extra mobile-friendly tweaks */
+@media (max-width: 600px) {
+  #online-players {
+    max-height: 200px;
+    padding: 15px;
+  }
+  #online-players-list li {
+    font-size: 18px;
+    padding: 8px;
+  }
+}
+img {
+  object-fit: cover;
+  
+  width: 40px;
+  height: 40px;
+}
+  </style>
+
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import {
+  getDatabase, ref, set, update, onValue, onDisconnect,
+  get, serverTimestamp, runTransaction, remove
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+import {
+  getFirestore, collection, query, where, getDocs, limit
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+/* ---------------- Firebase ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+  authDomain: "login-b6382.firebaseapp.com",
+  databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+  projectId: "login-b6382",
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const firestore = getFirestore(app);
+
+/* ---------------- Elements ---------------- */
+const joinBtn = document.getElementById("join-btn");
+const readyBtn = document.getElementById("ready-btn");
+const waitingRoom = document.getElementById("waiting-room");
+const countdownDiv = document.getElementById("countdown");
+const countdownTimer = document.getElementById("countdown-timer");
+const quizDiv = document.getElementById("quiz");
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const leaderboardDiv = document.getElementById("leaderboard");
+const leaderboardList = document.getElementById("leaderboard-list");
+const timerEl = document.getElementById("time");
+
+/* ---------------- State ---------------- */
+let playerId, playerName;
+let selectedCategory = Number(localStorage.getItem("categoryId"));
+let countdownStarted = false;
+let questions = [];
+let qIndex = 0;
+let timer;
+
+/* ---------------- Guards ---------------- */
+const avatarCache = new Map();
+let playersListenerUnsub = null;
+let startListenerAttached = false;
+
+/* ---------------- Refs ---------------- */
+const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
+const gameStateRef = ref(db, `quiz/category_${selectedCategory}/state`);
+
+/* ---------------- Auth ---------------- */
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    window.location.href = "../../../login/fire-login.html";
+    return;
+  }
+  playerId = user.uid;
+  playerName = user.displayName || "Player";
+});
+
+/* ---------------- Avatar Cache ---------------- */
+async function getAvatar(uid) {
+  if (avatarCache.has(uid)) return avatarCache.get(uid);
+  const snap = await get(ref(db, `users/${uid}/profilePic`));
+  const url = snap.exists() ? snap.val() : "assets/images/default-avatar.png";
+  avatarCache.set(uid, url);
+  return url;
+}
+
+/* ---------------- Join ---------------- */
+joinBtn.onclick = async () => {
+  const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
+  await set(playerRef, {
+    name: playerName,
+    online: true,
+    ready: false,
+    joinedAt: serverTimestamp()
+  });
+  onDisconnect(playerRef).update({ online: false, ready: false });
+
+  joinBtn.style.display = "none";
+  readyBtn.style.display = "inline-block";
+  waitingRoom.style.display = "block";
+
+  attachPlayersListener();
+  listenForGameStart();
+};
+
+/* ---------------- Ready ---------------- */
+readyBtn.onclick = async () => {
+  readyBtn.style.display = "none";
+  await update(ref(db, `quiz/category_${selectedCategory}/players/${playerId}`), {
+    ready: true
+  });
+};
+
+/* ---------------- Players Listener ---------------- */
+function attachPlayersListener() {
+  if (playersListenerUnsub) return;
+
+  playersListenerUnsub = onValue(playersRef, async snap => {
+    const players = snap.val() || {};
+    renderPlayers(players);
+    await tryStartGame(players);
+  });
+}
+
+async function renderPlayers(players) {
+  const list = document.getElementById("online-players-list");
+  const count = document.getElementById("players-count");
+  list.innerHTML = "";
+
+  let online = 0;
+  for (const [uid, p] of Object.entries(players)) {
+    if (!p.online) continue;
+    online++;
+
+    const li = document.createElement("li");
+    const img = document.createElement("img");
+    img.src = await getAvatar(uid);
+    const span = document.createElement("span");
+    span.textContent = p.name + (p.ready ? " ✔ Ready" : "");
+
+    if (uid === playerId) {
+      li.style.background = "#ec6090";
+      span.style.color = "white";
+    }
+
+    li.append(img, span);
+    list.appendChild(li);
+  }
+  count.textContent = `Players Online: ${online}`;
+}
+
+/* ---------------- Authoritative Start ---------------- */
+async function tryStartGame(players) {
+  const online = Object.values(players).filter(p => p.online);
+  if (!online.length) return;
+  if (!online.every(p => p.ready)) return;
+
+  await runTransaction(gameStateRef, state => {
+    if (state && state.startAt) return state;
+    return { startAt: Date.now() };
+  });
+}
+
+/* ---------------- Start Listener ---------------- */
+function listenForGameStart() {
+  if (startListenerAttached) return;
+  startListenerAttached = true;
+
+  onValue(gameStateRef, snap => {
+    const state = snap.val();
+    if (!state || !state.startAt) return;
+    if (countdownStarted) return;
+
+    startCountdown();
+  });
+}
+
+/* ---------------- Countdown ---------------- */
+function startCountdown() {
+  countdownStarted = true;
+  waitingRoom.style.display = "none";
+  quizDiv.style.display = "block";
+
+  let t = 3;
+  countdownDiv.style.display = "block";
+  countdownTimer.textContent = t;
+
+  const iv = setInterval(() => {
+    t--;
+    countdownTimer.textContent = t;
+    if (t < 0) {
+      clearInterval(iv);
+      countdownDiv.style.display = "none";
+      startQuiz();
+    }
+  }, 1000);
+}
+
+/* ---------------- Quiz ---------------- */
+async function startQuiz() {
+  const catMap = {
+    18: "Science: Computers",
+    17: "Science & Nature",
+  };
+  const category = catMap[selectedCategory];
+
+  const snap = await getDocs(query(
+    collection(firestore, "questions"),
+    where("category", "==", category),
+    limit(10)
+  ));
+
+  questions = snap.docs.map(d => d.data());
+  qIndex = 0;
+  showQuestion();
+}
+
+function showQuestion() {
+  if (qIndex >= questions.length) return endGame();
+  const q = questions[qIndex];
+  questionEl.innerHTML = q.question;
+  answersEl.innerHTML = "";
+
+  [...q.incorrect_answers, q.correct_answer]
+    .sort()
+    .forEach(a => {
+      const b = document.createElement("button");
+      b.textContent = a;
+      b.onclick = () => {
+        clearInterval(timer);
+        qIndex++;
+        setTimeout(showQuestion, 1000);
+      };
+      answersEl.appendChild(b);
+    });
+
+  let t = 10;
+  timerEl.textContent = t;
+  timer = setInterval(() => {
+    t--;
+    timerEl.textContent = t;
+    if (t <= 0) {
+      clearInterval(timer);
+      qIndex++;
+      showQuestion();
+    }
+  }, 1000);
+}
+
+/* ---------------- End ---------------- */
+function endGame() {
+  quizDiv.style.display = "none";
+  leaderboardDiv.style.display = "block";
+}
+</script>
+
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a>. All rights reserved.
+          <br>Design: <a href="https://templatemo.com" target="_blank">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/tabs.js"></script>
+  <script src="assets/js/popup.js"></script>
+  <script src="assets/js/custom.js"></script>
+
+</body>
+</html>
