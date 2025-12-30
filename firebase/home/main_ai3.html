@@ -1,441 +1,680 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini & Firebase Chatbot</title>
-    <style>
-        /* --- 1. CSS Variables for Theming --- */
-        :root {
-            /* Fallback bright mode */
-            --bg-color: #f4f7f6;
-            --container-bg: white;
-            --header-bg: #0b1a32;
-            --header-text: white;
-            --text-color: #333;
-            --border-color: #eee;
-            --input-bg: white;
-            --status-text: gray;
-            --gemini-msg-bg: #e9ecef;
-            --gemini-msg-text: #333;
-            --user-msg-bg: #007bff;
-            --user-msg-text: white;
-            --btn-bg: #1a73e8;
-            --btn-hover: #0c5fbf;
-            --typing-indicator-bg: #ccc;
-            --typing-dot: #555;
-            --base-font-size: 0.85em; 
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gemini & Firebase — Modern Chat UI</title>
 
-        /* Dark Mode Overrides */
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --container-bg: #1e1e1e;
-            --header-bg: #000000;
-            --header-text: #e0e0e0;
-            --text-color: #e0e0e0;
-            --border-color: #333;
-            --input-bg: #2d2d2d;
-            --status-text: #a0a0a0;
-            --gemini-msg-bg: #333333;
-            --gemini-msg-text: #e0e0e0;
-            --user-msg-bg: #0056b3;
-            --user-msg-text: white;
-            --btn-bg: #007bff;
-            --btn-hover: #0056b3;
-            --typing-indicator-bg: #333333;
-            --typing-dot: #a0a0a0;
-        }
-        
-        /* --- 2. Base Styles using Variables --- */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            transition: background-color 0.3s;
-            font-size: var(--base-font-size);
-        }
+<!-- Marked for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-        .chat-container {
-            width: 100%;
-            max-width: 480px; 
-            max-height: 75vh; /* Further reduced height for better fit */
-            min-height: 400px; /* Added minimum height */
-            background-color: var(--container-bg);
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); /* Stronger shadow */
-            overflow: hidden;
-            transition: background-color 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* Theme Toggle Button */
-        #theme-toggle {
-            position: absolute; /* Changed to absolute for reliable positioning near chat box */
-            top: 20px;
-            right: 20px;
-            padding: 6px 10px; 
-            background-color: var(--btn-bg);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            z-index: 10;
-            transition: background-color 0.2s;
-            font-size: 0.8em; 
-        }
-        #theme-toggle:hover {
-            background-color: var(--btn-hover);
-        }
+<!-- Firebase compat libraries (keep your versioning if needed) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-        h1 {
-            text-align: center;
-            padding: 10px; 
-            margin: 0;
-            background-color: var(--header-bg);
-            color: var(--header-text);
-            font-size: 1.2em; 
-            flex-shrink: 0; 
-        }
+<style>
+/* ===========================================================
+   Theme variables (page-level)
+   - Controls background, text, and component colors.
+   - Toggle bright/dark by setting `data-theme="bright"` on <html>.
+=========================================================== */
+:root{
+  --bg: #050505;                  /* page background (dark default) */
+  --glass-dark: rgba(255,255,255,0.04);
+  --glass-bright: rgba(255,255,255,0.6);
 
-        #auth-status {
-            padding: 0 10px;
-            flex-shrink: 0; 
-        }
+  --border-dark: rgba(255,255,255,0.12);
+  --border-bright: rgba(0,0,0,0.12);
 
-        #chat-window {
-            flex-grow: 1; 
-            height: 1px; /* Key for flexbox overflow */
-            overflow-y: auto;
-            padding: 10px 12px; 
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-        }
+  --text-dark: #e9eef8;
+  --text-bright: #0b1220;
 
-        .message {
-            max-width: 75%;
-            padding: 7px 11px; 
-            border-radius: 16px;
-            line-height: 1.3;
-        }
+  --subtext-dark: #a8b0c2;
+  --subtext-bright: #405064;
 
-        .user-msg {
-            align-self: flex-end;
-            background-color: var(--user-msg-bg);
-            color: var(--user-msg-text);
-            border-bottom-right-radius: 4px;
-        }
+  --btn: #4c8dff;
+  --btn-hover: #2f6ff5;
 
-        .gemini-msg {
-            align-self: flex-start;
-            background-color: var(--gemini-msg-bg);
-            color: var(--gemini-msg-text);
-            border-bottom-left-radius: 4px;
-        }
+  --user-bubble: #4c8dff;
+  --bot-bubble-dark: #222227;
+  --bot-bubble-bright: #eef3ff;
 
-        .message-timestamp {
-            display: block;
-            font-size: 0.55em; 
-            opacity: 0.7;
-            margin-top: 2px;
-            text-align: right;
-            color: inherit;
-        }
+  --header-text-dark: #ffffff;
+  --header-text-bright: #0b1220;
 
-        .input-area {
-            display: flex;
-            padding: 10px; 
-            border-top: 1px solid var(--border-color);
-            flex-shrink: 0; 
-        }
+  --container-width: 540px;
+  --card-radius: 20px;
+  --transition-fast: 180ms;
+  --transition-base: 240ms;
+}
 
-        #user-input {
-            flex-grow: 1;
-            padding: 7px 12px; 
-            border: 1px solid #ced4da;
-            border-radius: 18px;
-            margin-right: 8px; 
-            font-size: 0.9em; 
-            background-color: var(--input-bg);
-            color: var(--text-color);
-        }
-        
-        #send-btn {
-            padding: 7px 15px; 
-            border-radius: 18px;
-            font-size: 0.9em;
-            background-color: var(--btn-bg);
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
+/* Bright theme overrides when html[data-theme="bright"] */
+html[data-theme="bright"]{
+  --bg: #eef3ff;
+  --text: var(--text-bright);
+  --subtext: var(--subtext-bright);
+  --border: var(--border-bright);
+  --glass: var(--glass-bright);
+  --bot-bubble: var(--bot-bubble-bright);
+  --header-text: var(--header-text-bright);
+}
+html:not([data-theme="bright"]){
+  --text: var(--text-dark);
+  --subtext: var(--subtext-dark);
+  --border: var(--border-dark);
+  --glass: var(--glass-dark);
+  --bot-bubble: var(--bot-bubble-dark);
+  --header-text: var(--header-text-dark);
+}
 
-        #send-btn:hover:not(:disabled) {
-            background-color: var(--btn-hover);
-        }
+/* ===========================================================
+   Page base: use --bg so theme switching affects the whole page
+=========================================================== */
+html, body {
+  height:100%;
+  width:100%;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: var(--bg);
+  transition: background var(--transition-fast) ease, color var(--transition-fast) ease;
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
 
-        #send-btn:disabled {
-            background-color: #a0c4f7;
-            cursor: not-allowed;
-        }
+/* ===========================================================
+   Chat container: outer shell (glow visible outside)
+   - ::before => glow rim (behind everything)
+   - ::after  => solid inner panel (dark or frosted)
+   - content children sit above ::after
+=========================================================== */
+.chat-container {
+  width:100%;
+  max-width: var(--container-width);
+  height:90vh;
+  min-height:480px;
+  margin: 32px auto;
 
-        .status-text {
-            color: var(--status-text);
-            text-align: center;
-            font-style: italic;
-            font-size: 0.75em; 
-            margin: 5px 0;
-        }
+  position: relative;
+  display:flex;
+  flex-direction:column;
+  overflow: visible;               /* must remain to allow glow bleed */
+  isolation: isolate;              /* ensure stacking context */
+  z-index: 0;
 
-        /* --- STYLES FOR TYPING INDICATOR (Animation) --- */
-        .typing-indicator-container {
-            align-self: flex-start;
-            padding: 7px 11px; 
-            border-radius: 16px;
-            background-color: var(--typing-indicator-bg);
-            width: fit-content;
-            display: flex;
-            gap: 4px;
-            margin-top: 7px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
+  border-radius: var(--card-radius);    /* keep bottom corners rounded */
+  border: 2px solid var(--border);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+  background: transparent;               /* visible interior is ::after */
+  transition: border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+}
 
-        .typing-indicator {
-            height: 6px; 
-            width: 6px; 
-            background-color: var(--typing-dot);
-            border-radius: 50%;
-            opacity: 0.7;
-            animation: bounce 1.2s infinite ease-in-out;
-        }
+/* ===========================================================
+   Glow rim (outside visible) - sits behind overlay/contents
+=========================================================== */
+.chat-container::before{
+  content: "";
+  position: absolute;
 
-        .typing-indicator:nth-child(2) {
-            animation-delay: 0.2s;
-        }
+  /* keep glow close to border */
+  top:-10px;
+  left:-10px;
+  right:-10px;
+  bottom:-10px;
 
-        .typing-indicator:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+  border-radius: calc(var(--card-radius) + 10px);
 
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-4px); 
-            }
-        }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  /* smoother, subtle spectrum */
+  background: linear-gradient(
+    100deg,
+    rgba(255,0,0,0.65),
+    rgba(255,128,0,0.65),
+    rgba(255,255,0,0.65),
+    rgba(0,255,0,0.65),
+    rgba(0,255,255,0.65),
+    rgba(0,0,255,0.65),
+    rgba(138,0,255,0.65),
+    rgba(255,0,255,0.65),
+    rgba(255,0,0,0.65)
+  );
+
+  background-size: 300% 300%;
+  animation: chatGlow 8s linear infinite;
+
+  /* makes glow thin + fading outward */
+  filter: blur(22px);
+  opacity: .9;
+
+  pointer-events:none;
+  z-index:-1;
+}
+
+
+/* Slight slower motion for natural look */
+@keyframes chatGlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===========================================================
+   Inner overlay: actual visible interior (above glow, below content)
+   - dark: strong opaque black gradient
+   - bright: frosted white gradient
+=========================================================== */
+.chat-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--card-radius) - 2px);
+  pointer-events: none;
+
+  background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4));
+  z-index: 0;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  box-shadow: inset 0 6px 20px rgba(0,0,0,0.6);
+  transition: background var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+}
+
+/* Bright variant of inner overlay (frosted glass) */
+html[data-theme="bright"] .chat-container::after {
+  background: linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.4));
+  box-shadow: inset 0 6px 18px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Make sure content sits above overlay */
+.chat-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===========================================================
+   Header: top bar (top corners rounded)
+=========================================================== */
+.header {
+  padding: 14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  border-top-left-radius: calc(var(--card-radius));
+  border-top-right-radius: calc(var(--card-radius));
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+  background: rgba(0,0,0,0.56);
+  color: var(--header-text);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.02);
+  transition: background var(--transition-fast) ease, color var(--transition-fast) ease;
+}
+
+/* Bright header variant */
+html[data-theme="bright"] .header {
+  background: rgba(255,255,255,0.95);
+  color: var(--header-text-bright);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.04);
+}
+
+/* Header content */
+.header-left {
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.logo-dot {
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  color: var(--header-text);
+  background: rgba(255,255,255,0.12);
+}
+
+/* Title */
+.header h1 {
+  margin:0;
+  font-size:1rem;
+  color: var(--header-text);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.55);
+}
+
+/* Theme toggle control */
+#theme-toggle {
+  border: none;
+  padding:6px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+  background: rgba(255,255,255,0.12);
+  color: var(--header-text);
+  transition: transform var(--transition-fast) ease, background var(--transition-fast) ease;
+}
+#theme-toggle:hover { transform: translateY(-1px); background: rgba(255,255,255,0.22); }
+
+/* Bright theme header adjustments for readability */
+html[data-theme="bright"] .logo-dot { background: rgba(0,0,0,0.06); color: var(--header-text-bright); }
+html[data-theme="bright"] .header h1 { color: var(--header-text-bright); text-shadow: none; }
+html[data-theme="bright"] #theme-toggle { background: rgba(0,0,0,0.08); color: var(--header-text-bright); }
+
+/* ===========================================================
+   Auth status line
+=========================================================== */
+#auth-status {
+  margin: 12px 18px 0;
+  font-size: .92rem;
+  color: var(--subtext);
+  transition: color var(--transition-fast) ease;
+}
+
+/* ===========================================================
+   Chat window (scroll area)
+=========================================================== */
+#chat-window {
+  padding: 18px;
+  flex: 1;
+  overflow-y: auto;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar polish */
+#chat-window::-webkit-scrollbar { width: 10px; }
+#chat-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius:10px; }
+html[data-theme="bright"] #chat-window::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+
+/* ===========================================================
+   Message bubbles & formatting
+=========================================================== */
+.message {
+  max-width: 76%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+  transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+}
+
+/* User bubble */
+.user-msg {
+  align-self:flex-end;
+  background: var(--user-bubble);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 6px 18px rgba(20,30,60,0.12);
+}
+
+/* Bot bubble */
+.gemini-msg {
+  align-self:flex-start;
+  background: var(--bot-bubble);
+  color: var(--text);
+  border-bottom-left-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+html[data-theme="bright"] .gemini-msg { border: 1px solid rgba(0,0,0,0.08); }
+
+/* Message meta (timestamp etc.) */
+.message .message-meta {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:8px;
+  font-size:0.72rem;
+  color: var(--subtext);
+}
+
+/* Markdown-friendly styling inside bot messages */
+.gemini-msg p { margin:6px 0; }
+.gemini-msg ul, .gemini-msg ol { margin:6px 0 6px 18px; }
+.gemini-msg pre, .gemini-msg code {
+  background: rgba(0,0,0,0.12);
+  padding:8px;
+  border-radius:8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-size:0.9em;
+  overflow:auto;
+}
+
+/* ===========================================================
+   Input area (bottom) — ensure bottom corners are rounded
+=========================================================== */
+.input-area {
+  display:flex;
+  gap:10px;
+  padding: 14px;
+  border-top: 1px solid var(--border);
+  align-items:center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.03));
+  border-bottom-left-radius: calc(var(--card-radius));
+  border-bottom-right-radius: calc(var(--card-radius));
+  z-index:1;
+  position: relative;
+}
+
+/* Input field */
+#user-input {
+  flex:1;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  outline:none;
+  font-size: .95rem;
+  transition: background var(--transition-fast) ease, color var(--transition-fast) ease;
+}
+#user-input::placeholder { color: rgba(255,255,255,0.48); }
+
+/* Bright variant for input */
+html[data-theme="bright"] #user-input {
+  background: rgba(255,255,255,0.96);
+  color: var(--text-bright);
+}
+html[data-theme="bright"] #user-input::placeholder { color: rgba(0,0,0,0.34); }
+
+/* Send button */
+#send-btn {
+  border: none;
+  background: var(--btn);
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-weight:700;
+  cursor:pointer;
+  transition: transform var(--transition-fast) ease, filter var(--transition-fast) ease;
+}
+#send-btn:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.06); }
+#send-btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+/* ===========================================================
+   Responsive adjustments
+=========================================================== */
+@media (max-width: 900px) {
+  .chat-container { max-width: 720px; height:84vh; margin:24px auto; }
+}
+@media (max-width: 700px) {
+  .chat-container { max-width: 96%; height:88vh; border-radius: 16px; margin:18px auto; }
+  .input-area { padding:12px; }
+}
+@media (max-width: 520px) {
+  html, body { align-items:stretch; justify-content:stretch; }
+  .chat-container {
+    width:100%;
+    max-width:100%;
+    height:100vh;
+    min-height:100vh;
+    margin:0;
+    border-radius:0;
+    border:none;
+    box-shadow:none;
+  }
+  .chat-container::before, .chat-container::after { border-radius:0; }
+  .header { border-radius:0; padding:12px; }
+  #chat-window { padding:14px; gap:10px; }
+  .input-area { padding-left:12px; padding-right:12px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 12px)); }
+  .logo-dot { width:32px; height:32px; }
+}
+
+/* ===========================================================
+   Final polish transitions
+=========================================================== */
+* { transition: color var(--transition-fast) ease, background var(--transition-fast) ease, border-color var(--transition-fast) ease; }
+</style>
+
 </head>
-<body>
 
-    <button id="theme-toggle">Switch to Bright</button>
+<div class="chat-container">
 
-    <div class="chat-container">
-        <h1>💬 Gemini AI Chatbot</h1>
-        <p id="auth-status" class="status-text">Checking authentication...</p>
-        <div id="chat-window">
-            <div class="status-text">
-                (Chat will load once user is authenticated and rules allow access)
-            </div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Ask Gemini anything..." disabled>
-            <button id="send-btn" disabled>Send</button>
-        </div>
+  <div class="header animate">
+    <div class="header-left">
+      <div class="logo-dot">AI</div>
+      <h1>Gemini AI Assistant</h1>
     </div>
 
-    <script>
-        // --- 1. Theme Toggling Logic ---
-        const toggleButton = document.getElementById('theme-toggle');
-        const htmlElement = document.documentElement; 
+    <button id="theme-toggle">Switch Theme</button>
+  </div>
 
-        // Set default theme state on load
-        let currentTheme = localStorage.getItem('theme') || 'dark';
-        htmlElement.setAttribute('data-theme', currentTheme);
-        toggleButton.textContent = currentTheme === 'dark' ? 'Switch to Bright' : 'Switch to Dark';
+  <p id="auth-status">Checking authentication...</p>
 
-        toggleButton.addEventListener('click', () => {
-            if (htmlElement.getAttribute('data-theme') === 'dark') {
-                htmlElement.setAttribute('data-theme', 'bright');
-                localStorage.setItem('theme', 'bright');
-                toggleButton.textContent = 'Switch to Dark';
-            } else {
-                htmlElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                toggleButton.textContent = 'Switch to Bright';
-            }
+  <div id="chat-window">
+    <p class="status-text">(Chat will appear here)</p>
+  </div>
+
+  <div class="input-area">
+    <input id="user-input" placeholder="Ask Gemini anything..." disabled>
+    <button id="send-btn" disabled>Send</button>
+  </div>
+
+</div>
+
+<script>
+/*************************************************************************
+ * Robust theme toggle with localStorage persistence
+ *************************************************************************/
+const htmlEl = document.documentElement;
+const themeToggle = document.getElementById('theme-toggle');
+
+// get saved theme or fallback to html attribute or default 'dark'
+let savedTheme = localStorage.getItem('theme');
+let currentTheme = savedTheme || htmlEl.getAttribute('data-theme') || 'dark';
+
+// normalize
+if (currentTheme === 'light') currentTheme = 'bright';
+if (currentTheme !== 'bright' && currentTheme !== 'dark') currentTheme = 'dark';
+
+htmlEl.setAttribute('data-theme', currentTheme);
+themeToggle.textContent = currentTheme === 'dark' ? 'Switch to Bright' : 'Switch to Dark';
+themeToggle.setAttribute('aria-pressed', currentTheme === 'bright');
+
+// toggle handler
+themeToggle.addEventListener('click', () => {
+  const isBright = htmlEl.getAttribute('data-theme') === 'bright';
+  const newTheme = isBright ? 'dark' : 'bright';
+  htmlEl.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  themeToggle.textContent = newTheme === 'dark' ? 'Switch to Bright' : 'Switch to Dark';
+  themeToggle.setAttribute('aria-pressed', newTheme === 'bright');
+});
+
+// optional debug API
+window.__chatTheme = {
+  get: () => localStorage.getItem('theme'),
+  set: t => { htmlEl.setAttribute('data-theme', t); localStorage.setItem('theme', t); },
+  reset: () => { localStorage.removeItem('theme'); location.reload(); }
+};
+</script>
+
+  <script>
+  /*************************************************************************
+   * Firebase initialization (replace config if you want)
+   *************************************************************************/
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+    authDomain: "login-b6382.firebaseapp.com",
+    projectId: "login-b6382",
+    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+    storageBucket: "login-b6382.appspot.com",
+    messagingSenderId: "482805184778",
+    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  /*************************************************************************
+   * UI references + helper functions
+   *************************************************************************/
+  const chatWindow = document.getElementById('chat-window');
+  const userInput = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+  const authStatus = document.getElementById('auth-status');
+  const LOADER_ID = 'gemini-typing-indicator';
+
+  function escapeHtml(unsafe) {
+    return unsafe
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function showLoading() {
+    userInput.disabled = true;
+    sendBtn.disabled = true;
+    if (!document.getElementById(LOADER_ID)) {
+      const wrap = document.createElement('div');
+      wrap.id = LOADER_ID;
+      wrap.className = 'typing-indicator-container';
+      wrap.innerHTML = '<div class="typing-indicator"></div><div class="typing-indicator"></div><div class="typing-indicator"></div>';
+      chatWindow.appendChild(wrap);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+  }
+
+  function hideLoading() {
+    userInput.disabled = false;
+    sendBtn.disabled = false;
+    userInput.focus();
+    const el = document.getElementById(LOADER_ID);
+    if (el) el.remove();
+  }
+
+  // Render messages - user messages are escaped, bot messages are parsed via marked
+  function renderMessage(text, isUser=false, timestamp=null) {
+    const div = document.createElement('div');
+    div.className = 'message ' + (isUser ? 'user-msg' : 'gemini-msg');
+
+    let timeHTML = '';
+    if (timestamp && timestamp.toDate) {
+      const date = timestamp.toDate();
+      timeHTML = `<div class="message-meta">
+                    <div>${isUser ? 'You' : 'Gemini'}</div>
+                    <div>${date.toLocaleTimeString()}</div>
+                  </div>`;
+    } else {
+      timeHTML = '';
+    }
+
+    if (isUser) {
+      // escape user text
+      div.innerHTML = `<div>${escapeHtml(text)}</div>${timeHTML}`;
+    } else {
+      // bot text: render Markdown -> HTML
+      try {
+        const mdHtml = marked.parse(String(text || ''));
+        div.innerHTML = mdHtml + timeHTML;
+      } catch (e) {
+        // fallback: plain text
+        div.innerHTML = `<div>${escapeHtml(text)}</div>${timeHTML}`;
+      }
+    }
+
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  /*************************************************************************
+   * Firestore listener & message sending — similar to your code
+   *************************************************************************/
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      authStatus.textContent = 'Please sign in to use the chatbot.';
+      userInput.disabled = true;
+      sendBtn.disabled = true;
+      chatWindow.innerHTML = '<div class="status-text">Not logged in.</div>';
+      return;
+    }
+
+    const uid = user.uid;
+    const COLLECTION = `chats/${uid}/messages`; // match your extension path
+
+    authStatus.textContent = `Authenticated • Chat ID: ${uid.slice(0,8)}…`;
+    userInput.disabled = false;
+    sendBtn.disabled = false;
+    chatWindow.innerHTML = '<div class="status-text">Loading chat history…</div>';
+
+    // Query - order by createdAt (ensure extension writes createdAt or change field to match)
+    const q = db.collection(COLLECTION).orderBy('createdAt','asc');
+
+    q.onSnapshot((snapshot) => {
+      // first time: clear placeholder
+      if (chatWindow.querySelector('.status-text')) chatWindow.innerHTML = '';
+      snapshot.docChanges().forEach((change) => {
+        const msg = change.doc.data();
+        const ts = msg.createdAt || null;
+
+        if (change.type === 'added') {
+          // if a prompt exists and no response yet, show user's prompt and a loader
+          if (msg.prompt && !msg.response) {
+            renderMessage(msg.prompt, true, ts);
+            showLoading();
+          } else if (msg.response) {
+            // show the user prompt and bot response (if not already rendered)
+            renderMessage(msg.prompt, true, ts);
+            renderMessage(msg.response, false, ts);
+          }
+        }
+
+        if (change.type === 'modified') {
+          if (msg.response) {
+            hideLoading();
+            renderMessage(msg.response, false, ts);
+          }
+        }
+      });
+    }, (err) => {
+      console.error('Firestore listener error', err);
+      chatWindow.innerHTML = `<div class="status-text" style="color: #ff7b7b;">Error: ${escapeHtml(err.message || String(err))}</div>`;
+      hideLoading();
+    });
+
+    // send handler
+    const sendMessage = async () => {
+      const text = userInput.value.trim();
+      if (!text) return;
+      try {
+        await db.collection(COLLECTION).add({
+          prompt: text,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        userInput.value = '';
+      } catch (e) {
+        console.error('Send message error', e);
+        alert('Failed to send message — check console.');
+        hideLoading();
+      }
+    };
 
-        // --- 2. Firebase Configuration and Initialization ---
-        // REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-            authDomain: "login-b6382.firebaseapp.com",
-            projectId: "login-b6382",
-            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-            storageBucket: "login-b6382.appspot.com",
-            messagingSenderId: "482805184778",
-            appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
-        };
+    sendBtn.onclick = sendMessage;
+    userInput.onkeydown = (ev) => {
+      if (ev.key === 'Enter' && !ev.shiftKey) {
+        ev.preventDefault();
+        sendMessage();
+      }
+    };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); 
-        const chatWindow = document.getElementById('chat-window');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const authStatus = document.getElementById('auth-status');
-        const LOADING_ID = 'gemini-loading-indicator'; 
+  });
 
-        // --- Loading and UI Lock Functions ---
-        function showLoading() {
-            // Lock UI
-            userInput.disabled = true;
-            sendBtn.disabled = true;
-
-            if (!document.getElementById(LOADING_ID)) {
-                const container = document.createElement('div');
-                container.id = LOADING_ID;
-                container.className = 'typing-indicator-container';
-                container.innerHTML = `
-                    <div class="typing-indicator"></div>
-                    <div class="typing-indicator"></div>
-                    <div class="typing-indicator"></div>
-                `;
-                chatWindow.appendChild(container);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            }
-        }
-
-        function hideLoading() {
-            // Unlock UI
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus(); 
-            
-            const loader = document.getElementById(LOADING_ID);
-            if (loader) {
-                loader.remove();
-            }
-        }
-
-        // --- RENDER MESSAGE FUNCTION (with timestamp) ---
-        function renderMessage(text, isUser, timestamp) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${isUser ? 'user-msg' : 'gemini-msg'}`;
-            
-            let timeString = '';
-            if (timestamp && timestamp.toDate) {
-                const date = timestamp.toDate();
-                timeString = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            }
-
-            msgDiv.innerHTML = `
-                <span>${text}</span>
-                ${timeString ? `<span class="message-timestamp">${timeString}</span>` : ''}
-            `;
-
-            chatWindow.appendChild(msgDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        // --- 3. Chat Logic inside onAuthStateChanged ---
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                const userId = user.uid;
-                const MESSAGES_COLLECTION = `chats/${userId}/messages`; 
-
-                authStatus.textContent = `Authenticated. Chat ID: ${userId.substring(0, 8)}...`;
-                userInput.placeholder = "Ask Gemini anything...";
-                // Ensure UI is unlocked on successful auth if it wasn't already
-                userInput.disabled = false;
-                sendBtn.disabled = false;
-                chatWindow.innerHTML = '<div class="status-text">Loading chat history...</div>';
-
-                // --- Real-time Listener for Chat Messages ---
-                const q = db.collection(MESSAGES_COLLECTION).orderBy('createdAt', 'asc');
-
-                q.onSnapshot((snapshot) => {
-                    if (chatWindow.innerHTML.includes("Loading chat history...")) {
-                        chatWindow.innerHTML = '';
-                    }
-
-                    snapshot.docChanges().forEach((change) => {
-                        const message = change.doc.data();
-                        const timestamp = message.createdAt;
-                        
-                        if (change.type === "added") {
-                            if (message.prompt && !message.response) {
-                                renderMessage(message.prompt, true, timestamp);
-                                showLoading(); 
-                            } else if (message.response) {
-                                renderMessage(message.prompt, true, timestamp);
-                                renderMessage(message.response, false, timestamp);
-                            }
-                        }
-
-                        if (change.type === "modified") {
-                            if (message.response) {
-                                hideLoading(); 
-                                renderMessage(message.response, false, timestamp);
-                            }
-                        }
-                    });
-                }, (error) => {
-                    console.error("[FIRESTORE ERROR] Listener failed.", error);
-                    hideLoading(); 
-                    chatWindow.innerHTML = `<div class="status-text" style="color: red;">ERROR: ${error.message}. Check Rules/Console.</div>`;
-                });
-
-                // --- Send Message Handler ---
-                const sendMessage = async () => {
-                    const messageText = userInput.value.trim();
-
-                    if (messageText) {
-                        try {
-                            await db.collection(MESSAGES_COLLECTION).add({
-                                prompt: messageText,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                            userInput.value = ''; 
-                            
-                        } catch (error) {
-                            console.error("[CLIENT ERROR] Failed to create document.", error);
-                            alert("Could not send message. Check the console.");
-                            hideLoading(); 
-                        }
-                    }
-                };
-                
-                // Attach event listeners
-                sendBtn.onclick = sendMessage;
-                userInput.onkeypress = (event) => {
-                    if(event.keyCode === 13) {
-                        sendMessage();
-                    }
-                };
-            
-            } else {
-                // USER IS LOGGED OUT
-                authStatus.textContent = "Please sign up or log in to start chatting.";
-                userInput.placeholder = "Please log in to chat...";
-                userInput.disabled = true;
-                sendBtn.disabled = true;
-                chatWindow.innerHTML = '<div class="status-text">Not logged in.</div>';
-            }
-        });
-    </script>
+  </script>
 </body>
 </html>
