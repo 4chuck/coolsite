@@ -433,6 +433,37 @@ html[data-theme="bright"] #user-input::placeholder { color: rgba(0,0,0,0.34); }
   .logo-dot { width:32px; height:32px; }
 }
 
+/* Container that holds the three dots */
+.typing-indicator-container {
+  align-self: flex-start;
+  max-width: 72%;
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--bot-bubble, rgba(255,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  gap: 6px;
+}
+
+/* Each dot */
+.typing-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8ab4ff;
+  animation: bardWave 1.2s infinite ease-in-out;
+}
+
+.typing-indicator:nth-child(2){ animation-delay: .2s }
+.typing-indicator:nth-child(3){ animation-delay: .4s }
+
+@keyframes bardWave {
+  0%   { transform: translateY(0); opacity: .4; }
+  40%  { transform: translateY(-6px); opacity: 1; }
+  100% { transform: translateY(0); opacity: .4; }
+}
+
 /* ===========================================================
    Final polish transitions
 =========================================================== */
