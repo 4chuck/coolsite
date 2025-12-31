@@ -398,6 +398,11 @@
       uploadBytes
     } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
 
+    import {
+      initializeAppCheck,
+      ReCaptchaV3Provider
+    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+
     /* ===========================
        Firebase configuration
        =========================== */
@@ -413,6 +418,14 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    
+    const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'),
+  isTokenAutoRefreshEnabled: true
+});
+
+console.log("[AppCheck] initialized");
+
     const auth = getAuth(app);
     const database = getDatabase(app);
     const storage = getStorage(app);

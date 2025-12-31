@@ -301,6 +301,8 @@ img {
 
   import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+   // App Check Import
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
@@ -314,6 +316,18 @@ img {
   };
 
   const app = initializeApp(firebaseConfig);
+  /********************************************
+   * Firebase App Check (reCAPTCHA v3)
+   ********************************************/
+  const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(
+      '6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'   // your site key
+    ),
+    isTokenAutoRefreshEnabled: true
+  });
+
+  console.log("App Check enabled");
+
   const auth = getAuth(app);
   const db = getDatabase(app);
   const firestore = getFirestore(app);

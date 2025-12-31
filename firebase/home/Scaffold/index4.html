@@ -95,26 +95,38 @@ style="font-family:sans-serif;
   background: #3ecf8e;" id="login-btn">Login</button>
   
 <script type="module">
-                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-                import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-                import { getDatabase, ref, set, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-                import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { getDatabase, ref, set, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+  import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js"; //app check
 
-                const firebaseConfig = {
-                  apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-                  authDomain: "login-b6382.firebaseapp.com",
-                  databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-                  projectId: "login-b6382",
-                  storageBucket: "login-b6382.appspot.com",
-                  messagingSenderId: "482805184778",
-                  appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
-                  measurementId: "G-ZHXBBZHN3W",
-                };
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+    authDomain: "login-b6382.firebaseapp.com",
+    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+    projectId: "login-b6382",
+    storageBucket: "login-b6382.appspot.com",
+    messagingSenderId: "482805184778",
+    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+    measurementId: "G-ZHXBBZHN3W",
+  };
 
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                const db = getDatabase(app);
-                const firestore = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  /* ===============================
+  ENABLE APP CHECK (RECAPTCHA v3)
+  =============================== */
+  const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(
+      "6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"   // your site key
+    ),
+    isTokenAutoRefreshEnabled: true
+  });
+  console.log("[AppCheck] initialized");
+  
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const firestore = getFirestore(app);
 
   // Wait for the DOM to be fully loaded to ensure elements are available
   document.addEventListener('DOMContentLoaded', () => {

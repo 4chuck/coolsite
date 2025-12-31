@@ -184,6 +184,12 @@ h1 {
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
   import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
   import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  onTokenChanged
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+
 
   /* Firebase config */
   const firebaseConfig = {
@@ -197,6 +203,21 @@ h1 {
   };
 
   const app = initializeApp(firebaseConfig);
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"),
+  isTokenAutoRefreshEnabled: true
+});
+
+onTokenChanged(appCheck, (token) => {
+  if (token) {
+    console.log(
+      `[AppCheck] Token generated successfully — length: ${token.token.length}`
+    );
+  } else {
+    console.warn("[AppCheck] Token missing or invalid");
+  }
+});
+
   const auth = getAuth(app);
   const db = getDatabase(app);
   const storage = getStorage(app);

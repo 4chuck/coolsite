@@ -8,10 +8,10 @@
 <!-- Marked for Markdown rendering -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<!-- Firebase compat libraries (keep your versioning if needed) -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
 
 <style>
 /* ===========================================================
@@ -548,6 +548,23 @@ window.__chatTheme = {
   };
 
   firebase.initializeApp(firebaseConfig);
+  /*************************************************************************
+   * Firebase App Check (reCAPTCHA v3) - v8 style
+   *************************************************************************/
+  if (firebase?.appCheck) {
+    firebase.appCheck().activate(
+      '6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd', // Your site key
+      true // auto-refresh token
+    );
+
+    // Optional: listen for token refresh
+    firebase.appCheck().onTokenChanged((token) => {
+      console.log('App Check token changed:', token?.token ?? 'No token yet');
+    });
+  } else {
+    console.warn('Firebase App Check not available in this SDK version.');
+  }
+
   const db = firebase.firestore();
   const auth = firebase.auth();
 

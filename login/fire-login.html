@@ -6,6 +6,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check-compat.js"></script>
+
   <!-- <meta charset="UTF-8" name="viewport" content="width=1024"> -->
 	<meta name="viewport" content="width=device-width, initial-scale=0.7">
   <!--===============================================================================================-->	
@@ -159,6 +161,19 @@ function hideError() {
 
     firebase.initializeApp(firebaseConfig);
 
+  if (firebase && typeof firebase.appCheck === 'function') {
+    firebase.appCheck().activate('6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd', true);
+    try {
+      firebase.appCheck().onTokenChanged((token) => {
+        console.log('App Check token changed (compat):', token?.token ? '[token present]' : 'no token yet');
+      });
+    } catch(e) {
+      console.log('App Check compat initialized (onTokenChanged maybe unavailable).');
+    }
+  } else {
+    console.warn('App Check compat API not available; ensure firebase-app-check-compat.js is loaded.');
+  }
+  
     function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;

@@ -33,6 +33,30 @@
     err("Firebase init failed", e);
   }
 
+  // --- App Check (compat) ---
+try {
+  if (firebase && typeof firebase.appCheck === 'function') {
+    // replace with your public site key (you already used this earlier)
+    firebase.appCheck().activate(
+      '6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd', // reCAPTCHA v3 site key (public)
+      true // enable auto-refresh
+    );
+
+    // optional, useful for debugging
+    try {
+      firebase.appCheck().onTokenChanged(tokenResult => {
+        log('[AppCheck] token changed — length:', tokenResult?.token?.length ?? 'none');
+      });
+    } catch (e) {
+      log('[AppCheck] onTokenChanged not available on this build:', e?.message ?? e);
+    }
+  } else {
+    warn('[AppCheck] firebase.appCheck() not available — did you include firebase-app-check-compat.js?');
+  }
+} catch (e) {
+  warn('[AppCheck] initialization failed:', e);
+}
+
   const auth = firebase.auth();
   const db = firebase.database();
 
