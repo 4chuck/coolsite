@@ -7,8 +7,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check-compat.js"></script>
-  <script src="https://www.google.com/recaptcha/api.js?render=6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr"></script>
-
 
   <!-- <meta charset="UTF-8" name="viewport" content="width=1024"> -->
 	<meta name="viewport" content="width=device-width, initial-scale=0.7">
@@ -176,53 +174,22 @@ function hideError() {
     console.warn('App Check compat API not available; ensure firebase-app-check-compat.js is loaded.');
   }
   
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-  showProcessing("Verifying you are human...");
+      showProcessing("Processing...");
 
-  grecaptcha.ready(() => {
-    grecaptcha.execute("6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr", { action: "login" })
-      .then(token => {
-
-        // Call Firebase Function with CORS support
-        fetch("https://us-central1-login-b6382.cloudfunctions.net/verifyRecaptcha", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token })
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => {
+          window.location.href = "../firebase/home/cyborg/index.html";
         })
-        .then(res => res.json())
-        .then(result => {
-
-          console.log("reCAPTCHA Result:", result);
-
-          if (!result.success || result.score < 0.5) {
-            showError("Suspicious activity detected. Please try again.");
-            return;
-          }
-
-          // Passed reCAPTCHA, proceed to Firebase login
-          showProcessing("Logging in...");
-
-          firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(() => {
-              window.location.href = "../firebase/home/cyborg/index.html";
-            })
-            .catch((error) => {
-              hideProcessing();
-              const readable = getFirebaseErrorMessage(error.code);
-              showError(readable);
-            });
-
-        })
-        .catch(() => {
-          showError("Verification failed. Check internet connection.");
+        .catch((error) => {
+          hideProcessing();
+          const readable = getFirebaseErrorMessage(error.code);
+          showError(readable);
         });
-
-      });
-  });
-}
+    }
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {

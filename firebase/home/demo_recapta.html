@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Signup + reCAPTCHA Enterprise Demo</title>
+
+  <!-- Load reCAPTCHA Enterprise -->
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"></script>
+
+  <style>
+    body { font-family: Arial; background:#0d1117; color:white; padding:40px }
+    form { background:#161b22; padding:20px; width:320px; border-radius:8px }
+    input { width:100%; padding:8px; margin-top:10px }
+    button { margin-top:12px; padding:10px; width:100%; cursor:pointer }
+    #status { margin-top:10px }
+  </style>
+</head>
+
+<body>
+
+<h2>Signup Protected by reCAPTCHA Enterprise</h2>
+
+<form id="signupForm">
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button type="submit">Create Account</button>
+</form>
+
+<div id="status"></div>
+
+<script>
+const SITE_KEY = "6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd";
+
+// Your Firebase Function endpoint
+const VERIFY_URL =
+  "https://us-central1-login-b6382.cloudfunctions.net/verifyRecaptcha";
+
+document.getElementById("signupForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  document.getElementById("status").innerHTML = "Checking reCAPTCHA…";
+
+  grecaptcha.enterprise.ready(async () => {
+    const token = await grecaptcha.enterprise.execute(SITE_KEY, { action: "signup" });
+
+    const res = await fetch(VERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token })
+    });
+
+    const data = await res.json();
+    console.log("Server response:", data);
+
+    if (!data.success) {
+      document.getElementById("status").innerHTML =
+        "❌ Verification failed. Score: " + data.score;
+      return;
+    }
+
+    document.getElementById("status").innerHTML =
+      "✅ Human Verified! Score: " + data.score +
+      "<br>Now you may safely create Firebase account.";
+
+    // TODO: Next step
+    // Here you can safely call Firebase Auth createUserWithEmailAndPassword()
+  });
+});
+</script>
+
+</body>
+</html>
