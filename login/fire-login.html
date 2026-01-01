@@ -107,7 +107,7 @@
        
     </div>
   </div>
-  <script>
+<script>
 function getFirebaseErrorMessage(errorCode) {
   const errors = {
     "auth/invalid-email": "Please enter a valid email address.",
@@ -121,6 +121,16 @@ function getFirebaseErrorMessage(errorCode) {
     "auth/internal-error": "Internal error. Try again.",
   };
   return errors[errorCode] || "An unexpected error occurred. Please try again.";
+}
+
+function disableButton() {
+  const btn = document.querySelector(".login100-form-btn");
+  if (btn) btn.disabled = true;
+}
+
+function enableButton() {
+  const btn = document.querySelector(".login100-form-btn");
+  if (btn) btn.disabled = false;
 }
 
 function showProcessing(msg = "Processing...") {
@@ -181,6 +191,7 @@ function login() {
   const password = document.getElementById("password").value;
 
   showProcessing("Verifying you are human...");
+  disableButton();
 
   grecaptcha.ready(() => {
     grecaptcha.execute("6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr", { action: "login" })
@@ -199,6 +210,7 @@ function login() {
 
           if (!result.success || result.score < 0.5) {
             showError("Suspicious activity detected. Please try again.");
+            enableButton();
             return;
           }
 
@@ -211,6 +223,7 @@ function login() {
             })
             .catch((error) => {
               hideProcessing();
+              enableButton();
               const readable = getFirebaseErrorMessage(error.code);
               showError(readable);
             });
@@ -218,6 +231,7 @@ function login() {
         })
         .catch(() => {
           showError("Verification failed. Check internet connection.");
+          enableButton();
         });
 
       });
