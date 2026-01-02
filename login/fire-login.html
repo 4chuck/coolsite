@@ -70,7 +70,7 @@
                 <p id="error"></p>
               <h2>LOGIN</h2>
         </span>
-        <div class="wrap-input100 validate-input m-b-23" data-validate = "Email is reauired">
+        <div class="wrap-input100 validate-input m-b-23" data-validate = "Email is required">
           <span class="label-input100">Email</span>
           <input class="input100" id ="email" name  = "email"  type="email"placeholder="Type your Email"required>
           <span class="focus-input100" data-symbol="&#xf206;"></span>
@@ -82,9 +82,8 @@
           <span class="focus-input100" data-symbol="&#xf190;"></span>
         </div>
         <br>
-          <a href="forgot_pass.html">
-          <span class="label-input100">Forgot Password</span></a>
-
+          <a href="#" class="txt2" data-toggle="modal" data-target="#forgotModal"><b>Forgot Password?</b></a>
+        <br>
         <br>
 
         <div class="container-login100-form-btn">
@@ -264,6 +263,34 @@ function login() {
 
       localStorage.setItem("userUID", user.uid);
     }
+
+    //forgot password popup
+    function resetPassword() {
+  const email = document.getElementById("resetEmail").value;
+  const msg = document.getElementById("resetMessage");
+
+  msg.style.display = "none";
+
+  if (!email) {
+    msg.style.display = "block";
+    msg.style.color = "orange";
+    msg.innerText = "Please enter your email.";
+    return;
+  }
+
+  firebase.auth().sendPasswordResetEmail(email)
+    .then(() => {
+      msg.style.display = "block";
+      msg.style.color = "#00ff6a";
+      msg.innerText = "Password reset link sent successfully!";
+    })
+    .catch(error => {
+      msg.style.display = "block";
+      msg.style.color = "#ff4e4e";
+      msg.innerText = error.message;
+    });
+}
+
   </script>
 
   <!--===============================================================================================-->
@@ -282,5 +309,50 @@ function login() {
     <script src="vendor/countdowntime/countdowntime.js"></script>
   <!--===============================================================================================-->
     <script src="js/main.js"></script>
+
+<!--============================forgot password popup==============================================-->
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal fade" id="forgotModal">
+  <div class="modal-dialog"style="margin-top:200px;align-items:center;">
+    <div class="modal-content" style="background:rgba(0, 0, 0, 0.452);color:white;border-radius:10px">
+
+      <div class="modal-header"style="border-bottom:none">
+        <h5 class="modal-title">Reset Password</h5>
+        <button type="button" class="close" data-dismiss="modal" style="color:white">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="wrap-input100 validate-input m-b-23" data-validate="Email is required">
+          <span class="label-input100">Email</span>
+          <input class="input100" id="resetEmail" name="email" type="email" placeholder="Type your Email" required>
+          <span class="focus-input100" data-symbol="&#xf206;"></span>
+        </div>
+
+        <small class="d-block mt-2 text-white">We will send you a password reset link.</small>
+        <p id="resetMessage" style="margin-top:10px;display:none"></p>
+      </div>
+
+      <div class="modal-footer"style="border-top:none">
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" onclick="resetPassword()">Send Link</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSS for modal background -->
+<style>
+  /* Responsive background for modal */
+  #forgotModal {
+    background-image: url('images/bg-01.jpg');background-attachment: fixed;background-size: cover;
+  }
+
+  @media (max-width: 576px) {
+    #forgotModal .modal-dialog {
+      width:90% /* nearly full width on mobile */
+    }
+  }
+</style>
+
 </body>
 </html>
