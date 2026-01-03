@@ -185,9 +185,24 @@ function hideError() {
     console.warn('App Check compat API not available; ensure firebase-app-check-compat.js is loaded.');
   }
   
+  function validateLogin(email, password) {
+    if (!email && !password) return "Email & password required.";
+    else if (!email) return "Email required.";
+    else if (!password) return "Password required.";
+    return null;
+  }
+
+
 function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+
+  const localError = validateLogin(email, password);
+    if (localError) {
+      showError(localError);
+      return;
+    }
+
 
   showProcessing("Verifying you are human...");
   disableButton();

@@ -191,10 +191,37 @@ function hideError() {
   } else {
     console.warn('App Check compat API not available; ensure firebase-app-check-compat.js is loaded.');
   }
+
+  // ---------------------------  
+  // Local Validation
+  // ---------------------------  
+  function validateSignup(name, email, password) {
+    if (!name && !email && !password) return "All fields are required.";
+    else if (!name) return "Name is required.";
+    else if (!email) return "Email is required.";
+    else if (!password) return "Password is required.";
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) return "Invalid email format.";
+
+    if (password.length < 6)
+      return "Password must be at least 6 characters.";
+
+    return null; // OK
+  }
+
+
 function signup() {
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+
+    const localError = validateSignup(name, email, password);
+    if (localError) {
+      showError(localError);
+      return;
+    }
+
 
     showProcessing("Verifying you are human...");
     disableButton();
