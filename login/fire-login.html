@@ -115,12 +115,16 @@ function getFirebaseErrorMessage(errorCode) {
     "auth/missing-password": "Please enter a password.",
     "auth/user-not-found": "No account found with this email.",
     "auth/wrong-password": "Incorrect password. Please try again.",
+    "auth/invalid-credential": "Incorrect email or password.",
+    "auth/invalid-login-credentials": "Incorrect email or password.",
     "auth/too-many-requests": "Too many attempts. Please wait a moment.",
     "auth/network-request-failed": "Network error. Check your internet connection.",
-    "auth/internal-error": "Internal error. Try again.",
+    "auth/internal-error": "Internal error. Try again."
   };
+  console.log("Firebase Error Code:", errorCode);
   return errors[errorCode] || "An unexpected error occurred. Please try again.";
 }
+
 
 function disableButton() {
   const btn = document.querySelector(".login100-form-btn");
@@ -237,11 +241,10 @@ function login() {
             })
             .catch((error) => {
               hideProcessing();
-              enableButton();
-              const readable = getFirebaseErrorMessage(error.code);
-              showError(readable);
+              enableButton(); 
+              showError(getFirebaseErrorMessage(error.code));
             });
-
+            
         })
         .catch(() => {
           showError("Verification failed. Check internet connection.");

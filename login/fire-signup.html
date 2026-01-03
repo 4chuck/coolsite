@@ -111,21 +111,23 @@
 	</div>
 	
 <script>
-  function getFirebaseErrorMessage(errorCode) {
-    const errors = {
-      "auth/invalid-email": "Please enter a valid email address.",
-      "auth/email-already-in-use": "This email is already registered. Try logging in.",
-      "auth/weak-password": "Password is too weak. Use at least 6 characters.",
-      "auth/missing-password": "Please enter a password.",
-      "auth/user-not-found": "No account found with this email.",
-      "auth/wrong-password": "Incorrect password. Please try again.",
-      "auth/too-many-requests": "Too many attempts. Please wait a moment.",
-      "auth/network-request-failed": "Network error. Check your internet connection.",
-      "auth/internal-error": "Internal error. Try again.",
-    };
-
-    return errors[errorCode] || "An unexpected error occurred. Please try again.";
-  }
+function getFirebaseErrorMessage(errorCode) {
+  const errors = {
+    "auth/invalid-email": "Please enter a valid email address.",
+    "auth/email-already-in-use": "This email is already registered. Try logging in.",
+    "auth/weak-password": "Password is too weak. Use at least 6 characters.",
+    "auth/missing-password": "Please enter a password.",
+    "auth/user-not-found": "No account found with this email.",
+    "auth/wrong-password": "Incorrect password. Please try again.",
+    "auth/invalid-credential": "Incorrect email or password.",
+    "auth/invalid-login-credentials": "Incorrect email or password.",
+    "auth/too-many-requests": "Too many attempts. Please wait a moment.",
+    "auth/network-request-failed": "Network error. Check your internet connection.",
+    "auth/internal-error": "Internal error. Try again."
+  };
+  console.log("Firebase Error Code:", errorCode);
+  return errors[errorCode] || "An unexpected error occurred. Please try again.";
+}
 
 function disableButton() {
   const btn = document.querySelector(".login100-form-btn");
@@ -254,11 +256,11 @@ function signup() {
                   window.location.href = "../firebase/home/cyborg/index.html";
                 });
               })
-              .catch((error) => {
-                hideProcessing();
-                enableButton();
-                showError(getFirebaseErrorMessage(error.code));
-              });
+            .catch((error) => {
+              hideProcessing();
+              enableButton();
+              showError(getFirebaseErrorMessage(error.code));
+            });
           })
           .catch(() => {
             showError("Verification failed. Check internet connection.");
