@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login — Modern</title>
+
+  <!-- Keep your theme files -->
+  <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <style>
+    /* Match signup theme: dark background with translucent card */
+    body { background:#0f1724; color:#eee; font-family:Arial, sans-serif; }
+    .bg-image { background-image: url('images/bg-01.jpg'); background-size: cover; background-position: center; }
+    .card { background: rgba(0,0,0,0.55); border-radius:12px; padding:24px; }
+    label { font-weight:600; color:#fff; }
+    .form-control { background:transparent; color:#fff; border-radius:8px; border:1px solid rgba(255,255,255,0.08); }
+    .muted { color:#cfcfcf; font-size:0.9rem; }
+    .error { color:#ff4e4e; }
+    .visually-hidden { position:absolute!important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; }
+  </style>
+</head>
+<body>
+  <main class="container py-5 bg-image">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <section class="card">
+          <h1 class="h4 mb-3">Sign in to your account</h1>
+
+          <div id="status" role="status" aria-live="polite" class="mb-3 muted"></div>
+          <div id="error" role="alert" aria-live="assertive" class="mb-3 error" style="display:none"></div>
+
+          <form id="loginForm" autocomplete="on" novalidate>
+            <div class="mb-3">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" class="form-control" required autocomplete="email" placeholder="you@example.com">
+            </div>
+
+            <div class="mb-3">
+              <label for="password">Password</label>
+              <div class="input-group">
+                <input id="password" name="password" type="password" class="form-control" required autocomplete="current-password" placeholder="Your password">
+                <button type="button" id="togglePassword" class="btn btn-outline-light" aria-label="Toggle password visibility">Show</button>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <a href="#" id="forgotLink">Forgot password?</a>
+              <button id="submitBtn" type="submit" class="btn btn-primary">Sign in</button>
+            </div>
+
+            <div class="muted">Don't have an account? <a href="fire-signup.html">Create one</a></div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Forgot password modal (simple) -->
+  <div class="modal fade" id="forgotModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background:rgba(0,0,0,0.55);color:#fff;border-radius:10px;">
+        <div class="modal-header" style="border-bottom:none;">
+          <h5 class="modal-title">Reset password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label for="resetEmail">Enter your email</label>
+          <input id="resetEmail" class="form-control" type="email" placeholder="you@example.com">
+          <p id="resetMessage" class="mt-2" role="status" aria-live="polite"></p>
+        </div>
+        <div class="modal-footer" style="border-top:none;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button id="sendReset" type="button" class="btn btn-success">Send link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Modular Firebase SDK (v10) with async/await flow
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+      authDomain: "login-b6382.firebaseapp.com",
+      projectId: "login-b6382",
+      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+      storageBucket: "login-b6382.appspot.com",
+      messagingSenderId: "482805184778",
+      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+    };
+
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
+    import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js';
+    import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // AppCheck init (optional)
+    try {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'),
+        isTokenAutoRefreshEnabled: true
+      });
+    } catch (e) {
+      console.warn('AppCheck init skipped', e?.message || e);
+    }
+
+    // UI elements
+    const form = document.getElementById('loginForm');
+    const statusEl = document.getElementById('status');
+    const errorEl = document.getElementById('error');
+    const submitBtn = document.getElementById('submitBtn');
+    const pwInput = document.getElementById('password');
+    const togglePwBtn = document.getElementById('togglePassword');
+    const forgotLink = document.getElementById('forgotLink');
+
+    const resetModal = new bootstrap.Modal(document.getElementById('forgotModal'));
+    const resetEmailInput = document.getElementById('resetEmail');
+    const resetMessage = document.getElementById('resetMessage');
+    const sendResetBtn = document.getElementById('sendReset');
+
+    function setStatus(msg) { statusEl.textContent = msg; }
+    function showError(msg) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+    function hideError() { errorEl.textContent = ''; errorEl.style.display = 'none'; }
+
+    function disableButton() { submitBtn.disabled = true; submitBtn.textContent = 'Please wait...'; }
+    function enableButton() { submitBtn.disabled = false; submitBtn.textContent = 'Sign in'; }
+
+    function getFirebaseErrorMessage(err) {
+      const code = err?.code || '';
+      console.log('Auth error:', err);
+      const map = {
+        'auth/invalid-email': 'Please enter a valid email address.',
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/wrong-password': 'Email or password is incorrect.',
+        'auth/invalid-login-credentials': 'Email or password is incorrect.',
+        'auth/too-many-requests': 'Too many attempts. Try again later.',
+        'auth/network-request-failed': 'Network error. Check your connection.'
+      };
+      return map[code] || (err?.message || 'An unexpected error occurred. Please try again.');
+    }
+
+    togglePwBtn.addEventListener('click', () => {
+      if (pwInput.type === 'password') { pwInput.type = 'text'; togglePwBtn.textContent = 'Hide'; }
+      else { pwInput.type = 'password'; togglePwBtn.textContent = 'Show'; }
+    });
+
+    // Cloud function to verify recaptcha token
+    async function verifyRecaptcha(token) {
+      const url = 'https://us-central1-login-b6382.cloudfunctions.net/verifyRecaptcha';
+      const res = await fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token })
+      });
+      if (!res.ok) throw new Error('reCAPTCHA verification failed: ' + res.status);
+      return res.json();
+    }
+
+    // login handler
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      hideError();
+
+      const email = document.getElementById('email').value.trim();
+      const password = pwInput.value;
+      if (!email || !password) { showError('Email and password are required.'); return; }
+
+      disableButton();
+      setStatus('Verifying you are human...');
+
+      try {
+        const grecaptchaSiteKey = '6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr';
+        const token = await window.grecaptcha.execute(grecaptchaSiteKey, { action: 'login' });
+
+        const verification = await verifyRecaptcha(token);
+        if (!verification.success || verification.score < 0.5) throw new Error('Suspicious activity detected.');
+
+        setStatus('Signing in...');
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+        // Save minimal user info to DB (ensure rules enforce auth.uid === $uid)
+        await set(ref(db, 'users/' + userCredential.user.uid), {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName || ''
+        });
+
+        setStatus('Signed in. Redirecting...');
+        window.location.href = '/firebase/home/cyborg/index.html';
+
+      } catch (err) {
+        showError(getFirebaseErrorMessage(err));
+        setStatus('');
+      } finally {
+        enableButton();
+      }
+    });
+
+    // forgot password flow
+    forgotLink.addEventListener('click', (ev) => { ev.preventDefault(); resetEmailInput.value = ''; resetMessage.textContent = ''; resetModal.show(); });
+
+    sendResetBtn.addEventListener('click', async () => {
+      const email = resetEmailInput.value.trim();
+      resetMessage.textContent = '';
+      if (!email) { resetMessage.textContent = 'Please enter your email.'; return; }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        resetMessage.textContent = 'Password reset link sent. Check your inbox.';
+      } catch (err) {
+        resetMessage.textContent = getFirebaseErrorMessage(err);
+      }
+    });
+
+    // onAuthStateChanged to persist localStorage or redirect if already signed in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        try { localStorage.setItem('userUID', user.uid); localStorage.setItem('name', (user.displayName || '').split(' ')[0] || ''); } catch (e) {}
+      }
+    });
+
+    if (!window.grecaptcha) console.warn('grecaptcha not found. Include script in head: https://www.google.com/recaptcha/api.js?render=SITE_KEY');
+
+  </script>
+
+  <!-- vendor scripts -->
+  <script src="vendor/jquery/jquery-3.2.1.min.js" defer></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Live Disaster Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <!-- MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(16, 24, 40, 0.6);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --muted: #9aa4b2;
+      --ring: #60a5fa;
+      --brand-start: #4f46e5;
+      --brand-end: #06b6d4;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+    html, body { height: 100%; }
+    body{
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 85% -10%, rgba(79,70,229,0.25), transparent 60%),
+                  radial-gradient(900px 700px at -10% 10%, rgba(6,182,212,0.25), transparent 60%),
+                  linear-gradient(180deg, #0b1220 0%, #0b1220 100%);
+      color: #e5e7eb;
+      overflow: hidden;
+    }
+    .app{
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      height: 100%;
+    }
+    .glass{
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+      backdrop-filter: saturate(140%) blur(10px);
+      border-radius: 14px;
+    }
+    .header{
+      padding: 14px 16px;
+      margin: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::after{
+      content:"";
+      position:absolute; inset: -2px -2px auto auto;
+      width: 220px; height: 220px;
+      background: conic-gradient(from 180deg at 50% 50%, rgba(99,102,241,0.6), rgba(34,197,94,0.2), rgba(6,182,212,0.6), rgba(99,102,241,0.6));
+      filter: blur(40px);
+      opacity: 0.25;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(25%, -35%);
+    }
+    .brand-badge{
+      background: linear-gradient(90deg, var(--brand-start), var(--brand-end));
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent;
+      font-weight: 800; letter-spacing: -0.02em;
+    }
+    .controls{
+      margin: 0 12px 12px;
+      padding: 12px;
+      gap: 12px;
+    }
+    .layout{
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      grid-gap: 12px;
+      padding: 0 12px 12px;
+      min-height: 0;
+    }
+    .panel{
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+    }
+    .list{
+      overflow: auto;
+      border-radius: 12px;
+    }
+    .list::-webkit-scrollbar{ width: 10px; }
+    .list::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.12); border-radius: 10px; }
+    .chip{
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.03);
+      transition: all .2s ease; user-select:none;
+    }
+    .chip input{ display:none; }
+    .chip.active{ background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.35); box-shadow: inset 0 0 0 1px rgba(96,165,250,0.25); }
+    .chip .dot{ width: 10px; height: 10px; border-radius: 999px; box-shadow: 0 0 0 2px rgba(255,255,255,0.08) inset; }
+    .search{
+      background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); color: #e5e7eb;
+      border-radius: 10px; padding: 10px 12px; width: 100%;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .search:focus{ border-color: rgba(96,165,250,0.45); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+    .btn{
+      display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:10px; cursor:pointer;
+      border: 1px solid var(--card-border); background: rgba(255,255,255,0.04);
+      transition: all .2s; color: #e5e7eb;
+    }
+    .btn:hover{ border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+    .btn.primary{ background: linear-gradient(90deg,var(--brand-start),var(--brand-end)); border-color: transparent; }
+    .stat{
+      padding: 10px 12px; border-radius: 12px; border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.03); display:flex; align-items:center; gap: 10px;
+    }
+    .legend-bullet{ width: 10px; height: 10px; border-radius: 2px; }
+    .map-wrap{ position: relative; border-radius: 12px; overflow: hidden; margin: 90px 0px 10px 350px;}
+    #map{ width: 100%; height: 100%; min-height: 360px; }
+    .map-overlay{
+      position:absolute; top: 12px; right: 12px; display:flex; gap: 8px; flex-wrap: wrap;
+    }
+    .toggle{ position: relative; width: 40px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 999px; transition: .2s; border: 1px solid var(--card-border); }
+    .toggle input{ display:none; }
+    .toggle span{ position: absolute; top: 1.5px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: white; transition: .2s; }
+    .toggle input:checked + span{ transform: translateX(18px); background: #111827; }
+    .badge{
+      font-size: 11px; padding: 5px 8px; border-radius: 999px; border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.04); color: #cbd5e1;
+    }
+    .item{
+      display:flex; gap: 12px; padding: 12px; border-bottom: 1px dashed rgba(255,255,255,0.06);
+      cursor: pointer; transition: background .15s ease;
+    }
+    .item:hover{ background: rgba(255,255,255,0.04); }
+    .marker-emoji{
+      display:inline-flex; align-items:center; justify-content:center; width: 28px; height: 28px;
+      border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.22);
+    }
+    .pill { padding: 4px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.04); }
+    .footer{
+      position: fixed; left: 12px; bottom: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      pointer-events: none;
+    }
+    .footer .note{ pointer-events: auto; }
+    .fade-in{ animation: fade .3s ease both; }
+    @keyframes fade { from{ opacity:0; transform: translateY(4px); } to{ opacity:1; transform: translateY(0);} }
+
+    /* Mobile */
+    @media (max-width: 1024px){
+      .layout{ grid-template-columns: 1fr; grid-template-rows: 1fr auto; height: calc(100vh - 210px); }
+      .map-wrap{ height: 56vh; }
+      #map{ min-height: 56vh; }
+      .panel{ grid-template-rows: auto 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header glass">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-cyan-400 to-emerald-400 flex items-center justify-center shadow-lg shadow-indigo-900/30">
+            <span class="text-xl">🌐</span>
+          </div>
+          <div>
+            <div class="text-xl md:text-2xl brand-badge">Live Disaster Tracker</div>
+            <div class="text-xs text-slate-300/70">Aggregated global incidents in near real-time. Not for life-critical use.</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-refresh" class="btn">
+            <svg width="16" height="16" fill="none" stroke="currentColor"><path d="M2 10a6 6 0 1 0 2-4.472" stroke-width="1.5"/><path d="M2 3v4h4" stroke-width="1.5"/></svg>
+            Refresh
+          </button>
+          <label class="btn">
+            <span class="text-slate-300 text-sm">Auto</span>
+            <div class="toggle">
+              <input id="auto-refresh" type="checkbox" checked />
+              <span></span>
+            </div>
+            <span class="text-slate-300 text-sm">5m</span>
+          </label>
+          <label class="btn">
+            <span class="text-slate-300 text-sm">Dark</span>
+            <div class="toggle">
+              <input id="darkmode" type="checkbox" checked />
+              <span></span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <section class="controls glass">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <label class="chip" data-cat="earthquakes">
+            <input type="checkbox" checked>
+            <span class="dot" style="background:#f97316"></span>
+            <span>Earthquakes</span>
+          </label>
+          <label class="chip" data-cat="wildfires">
+            <input type="checkbox" checked>
+            <span class="dot" style="background:#ef4444"></span>
+            <span>Wildfires</span>
+          </label>
+          <label class="chip" data-cat="storms">
+            <input type="checkbox" checked>
+            <span class="dot" style="background:#60a5fa"></span>
+            <span>Storms</span>
+          </label>
+          <label class="chip" data-cat="volcanoes">
+            <input type="checkbox" checked>
+            <span class="dot" style="background:#a855f7"></span>
+            <span>Volcanoes</span>
+          </label>
+          <label class="chip" data-cat="floods">
+            <input type="checkbox" checked>
+            <span class="dot" style="background:#06b6d4"></span>
+            <span>Floods</span>
+          </label>
+          <label class="chip" data-cat="drought">
+            <input type="checkbox">
+            <span class="dot" style="background:#eab308"></span>
+            <span>Drought</span>
+          </label>
+          <label class="chip" data-cat="landslides">
+            <input type="checkbox">
+            <span class="dot" style="background:#22c55e"></span>
+            <span>Landslides</span>
+          </label>
+          <label class="chip" data-cat="manmade">
+            <input type="checkbox" checked>
+            <span class="dot" style="background:#fb7185"></span>
+            <span>Man-made</span>
+          </label>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="stat">
+            <span class="text-slate-400 text-sm">Time range</span>
+            <select id="time-range" class="search w-auto">
+              <option value="24h">Past 24 hours</option>
+              <option value="7d" selected>Past 7 days</option>
+              <option value="30d">Past 30 days</option>
+            </select>
+          </div>
+          <div class="stat">
+            <span class="text-slate-400 text-sm">Earthquake mag ≥</span>
+            <input id="mag-min" type="range" min="0" max="7" step="0.1" value="0" class="w-28 accent-indigo-400">
+            <span id="mag-label" class="badge">0.0</span>
+          </div>
+          <label class="stat">
+            <span class="text-slate-400 text-sm">Heatmap</span>
+            <div class="toggle ml-2">
+              <input id="heatmap-toggle" type="checkbox">
+              <span></span>
+            </div>
+          </label>
+          <button id="locate" class="btn">
+            <svg width="16" height="16" fill="none" stroke="currentColor"><circle cx="8" cy="8" r="6" stroke-width="1.5"/><circle cx="8" cy="8" r="1.5" stroke-width="1.5"/></svg>
+            Locate me
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1">
+            <input id="search" placeholder="Search events (title, place, source)..." class="search pl-10" />
+            <div class="absolute left-3 top-2.5 text-slate-400">
+              <svg width="18" height="18" fill="none" stroke="currentColor"><path d="M11 11l5 5" stroke-width="1.5"/><circle cx="7.5" cy="7.5" r="5.5" stroke-width="1.5"/></svg>
+            </div>
+          </div>
+          <button id="export" class="btn">
+            <svg width="16" height="16" fill="none" stroke="currentColor"><path d="M4 10v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3" stroke-width="1.5"/><path d="M8 3v8M5.5 5.5L8 3l2.5 2.5" stroke-width="1.5"/></svg>
+            Export CSV
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="glass p-3 flex items-center justify-between gap-3">
+          <div class="flex gap-2">
+            <div class="stat"><span class="legend-bullet" style="background:#f97316"></span><span class="text-sm text-slate-300">EQ</span><span id="stat-eq" class="badge">0</span></div>
+            <div class="stat"><span class="legend-bullet" style="background:#ef4444"></span><span class="text-sm text-slate-300">WF</span><span id="stat-wild" class="badge">0</span></div>
+            <div class="stat"><span class="legend-bullet" style="background:#60a5fa"></span><span class="text-sm text-slate-300">ST</span><span id="stat-storm" class="badge">0</span></div>
+            <div class="stat"><span class="legend-bullet" style="background:#a855f7"></span><span class="text-sm text-slate-300">VO</span><span id="stat-volc" class="badge">0</span></div>
+            <div class="stat"><span class="legend-bullet" style="background:#06b6d4"></span><span class="text-sm text-slate-300">FL</span><span id="stat-flood" class="badge">0</span></div>
+            <div class="stat"><span class="legend-bullet" style="background:#fb7185"></span><span class="text-sm text-slate-300">MM</span><span id="stat-man" class="badge">0</span></div>
+          </div>
+          <div class="text-xs text-slate-400">Updated <span id="last-updated">—</span></div>
+        </div>
+        <div id="event-list" class="glass list mt-3"></div>
+      </section>
+
+      <section class="map-wrap glass">
+        <div id="map"></div>
+        <div class="map-overlay">
+          <div class="badge">Base: <span id="basemap-label">Dark</span></div>
+          <button id="toggle-basemap" class="btn">Toggle Base</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="footer">
+    <div class="note glass px-3 py-2 text-xs text-slate-300/80">
+      Data sources: USGS Earthquake Hazards Program, NASA EONET (open events), GDELT (news-reported incidents). Tiles © OpenStreetMap contributors. Use at your own risk.
+    </div>
+    <div class="note glass px-3 py-2 text-xs text-slate-300/80">
+      Tip: Click list items to fly to the map marker. Double-click map to reset view.
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.10/plugin/relativeTime.js"></script>
+
+  <script>
+    dayjs.extend(window.dayjs_plugin_relativeTime);
+
+    // State
+    const state = {
+      selected: {
+        earthquakes: true,
+        wildfires: true,
+        storms: true,
+        volcanoes: true,
+        floods: true,
+        drought: false,
+        landslides: false,
+        manmade: true
+      },
+      timespan: '7d',
+      eqMinMag: 0,
+      dark: true,
+      autoRefresh: true,
+      datasets: {
+        eq: [],
+        eonet: [],
+        man: []
+      },
+      markers: {},
+      filters: {
+        search: ''
+      }
+    };
+
+    // Category meta
+    const META = {
+      earthquakes: { label: 'Earthquake', color: '#f97316', emoji: '🌎' },
+      wildfires:   { label: 'Wildfire', color: '#ef4444', emoji: '🔥' },
+      storms:      { label: 'Storm', color: '#60a5fa', emoji: '⛈️' },
+      volcanoes:   { label: 'Volcano', color: '#a855f7', emoji: '🌋' },
+      floods:      { label: 'Flood', color: '#06b6d4', emoji: '🌊' },
+      drought:     { label: 'Drought', color: '#eab308', emoji: '☀️' },
+      landslides:  { label: 'Landslide', color: '#22c55e', emoji: '🪨' },
+      manmade:     { label: 'Man-made', color: '#fb7185', emoji: '⚠️' }
+    };
+
+    // Map init
+    const osmLight = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    });
+    const cartoDark = L.tileLayer('https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap & CARTO'
+    });
+    const map = L.map('map', {
+      zoomControl: false,
+      center: [20, 0],
+      zoom: 2,
+      worldCopyJump: true,
+      layers: [cartoDark]
+    });
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    const baseLayers = { dark: cartoDark, light: osmLight };
+    const basemapLabel = document.getElementById('basemap-label');
+    document.getElementById('toggle-basemap').addEventListener('click', () => {
+      if (map.hasLayer(cartoDark)) {
+        map.removeLayer(cartoDark); map.addLayer(osmLight); basemapLabel.textContent = 'Light';
+      } else {
+        map.removeLayer(osmLight); map.addLayer(cartoDark); basemapLabel.textContent = 'Dark';
+      }
+    });
+
+    // Layers
+    const clusters = {
+      earthquakes: L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 50 }),
+      wildfires:   L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 60 }),
+      storms:      L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 60 }),
+      volcanoes:   L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 60 }),
+      floods:      L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 60 }),
+      drought:     L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 60 }),
+      landslides:  L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 60 }),
+      manmade:     L.markerClusterGroup({ disableClusteringAtZoom: 8, maxClusterRadius: 60 })
+    };
+    Object.values(clusters).forEach(cl => map.addLayer(cl)); // default on
+
+    let eqHeatLayer = null;
+
+    function createIcon(emoji, color) {
+      const html = `
+        <div style="
+          position:relative;
+          display:flex; align-items:center; justify-content:center;
+          width:28px; height:28px; border-radius:8px;
+          background: rgba(15,23,42,0.85);
+          border: 1px solid rgba(255,255,255,0.18);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 0 0 2px ${color}22 inset;
+          color: #fff; font-size: 16px;
+        ">${emoji}</div>`;
+      return L.divIcon({ html, className: '', iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -10] });
+    }
+
+    function popupContent(item) {
+      const date = item.time ? dayjs(item.time).format('YYYY-MM-DD HH:mm [UTC]') : '—';
+      const ago = item.time ? dayjs(item.time).fromNow() : '';
+      const mag = typeof item.magnitude === 'number' ? `<span class="pill">M ${item.magnitude.toFixed(1)}</span>` : '';
+      const src = item.source ? `<a href="${item.source}" target="_blank" rel="noopener" class="underline decoration-dotted">Source</a>` : '';
+      const cats = `<span class="pill" style="border-color:${META[item.category]?.color || '#999'}">${META[item.category]?.label || item.category}</span>`;
+      return `
+        <div style="min-width:220px">
+          <div style="font-weight:700;margin-bottom:4px">${item.title || 'Event'}</div>
+          <div style="font-size:12px;opacity:.85">${item.place || ''}</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin:8px 0">${cats}${mag}</div>
+          <div style="font-size:12px;opacity:.85">When: ${date} <span style="opacity:.75">(${ago})</span></div>
+          <div style="display:flex; gap:10px; margin-top:8px">
+            ${src}
+            ${item.more ? `<a href="${item.more}" target="_blank" rel="noopener" class="underline decoration-dotted">Details</a>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function clearLayers(cat) {
+      if (cat) { clusters[cat].clearLayers(); return; }
+      Object.keys(clusters).forEach(k => clusters[k].clearLayers());
+      if (eqHeatLayer) { map.removeLayer(eqHeatLayer); eqHeatLayer = null; }
+    }
+
+    // Fetchers
+    async function fetchEarthquakes() {
+      const ts = state.timespan;
+      const feed = ts === '24h' ? 'all_day' : ts === '7d' ? 'all_week' : 'all_month';
+      const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/${feed}.geojson`;
+      const res = await fetch(url, { cache: 'no-store' });
+      const json = await res.json();
+      const minMag = state.eqMinMag;
+
+      const items = [];
+      json.features.forEach(f => {
+        const p = f.properties, g = f.geometry;
+        if (!g || !g.coordinates) return;
+        const mag = typeof p.mag === 'number' ? p.mag : null;
+        if (mag !== null && mag < minMag) return;
+        const [lon, lat] = g.coordinates;
+        items.push({
+          id: 'eq_' + f.id,
+          category: 'earthquakes',
+          title: p.title || `M${mag} Earthquake`,
+          magnitude: mag,
+          place: p.place || '',
+          coords: [lat, lon],
+          time: p.time ? new Date(p.time).toISOString() : null,
+          source: p.url,
+          more: p.detail
+        });
+      });
+      state.datasets.eq = items;
+    }
+
+    const EONET_CATS = {
+      wildfires: ['Wildfires'],
+      storms: ['Severe Storms', 'Tropical Cyclones', 'Storms'],
+      volcanoes: ['Volcanoes'],
+      floods: ['Floods'],
+      drought: ['Drought'],
+      landslides: ['Landslides']
+    };
+
+    function eventHasCategory(e, ourCat) {
+      const titles = e.categories?.map(c => c.title) || [];
+      const mapTitles = EONET_CATS[ourCat] || [];
+      return titles.some(t => mapTitles.includes(t));
+    }
+
+    function withinTimespan(dateISO, span) {
+      if (!dateISO) return false;
+      const now = dayjs();
+      const d = dayjs(dateISO);
+      if (span === '24h') return now.diff(d, 'hour') <= 24;
+      if (span === '7d') return now.diff(d, 'day') <= 7;
+      return now.diff(d, 'day') <= 30;
+    }
+
+    async function fetchEONET() {
+      const url = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open';
+      const res = await fetch(url, { cache: 'no-store' });
+      const json = await res.json();
+      const items = [];
+      (json.events || []).forEach(ev => {
+        const last = (ev.geometry && ev.geometry.length) ? ev.geometry[ev.geometry.length - 1] : null;
+        if (!last || !last.coordinates) return;
+        const [lon, lat] = last.coordinates;
+        const t = last.date || ev.closed || ev.open;
+        if (!withinTimespan(t, state.timespan)) return;
+
+        for (const key of Object.keys(EONET_CATS)) {
+          if (eventHasCategory(ev, key)) {
+            items.push({
+              id: `eonet_${ev.id}_${key}`,
+              category: key,
+              title: ev.title,
+              place: (ev.sources && ev.sources[0]?.id) ? ev.sources[0].id : '',
+              coords: [lat, lon],
+              time: t,
+              source: (ev.sources && ev.sources[0]?.url) || '',
+              more: ev.link
+            });
+            break;
+          }
+        }
+      });
+      state.datasets.eonet = items;
+    }
+
+    async function fetchManmade() {
+      const tsMap = { '24h': '1d', '7d': '7d', '30d': '30d' };
+      const terms = [
+        '"industrial accident"', 'explosion', '"chemical spill"', '"oil spill"', '"factory fire"', '"radiation leak"',
+        '"train derailment"', '"plane crash"', '"bridge collapse"', '"power outage"', '"dam collapse"',
+        '"pipeline explosion"', '"mine collapse"', 'hazmat', '"gas leak"'
+      ];
+      const query = '(' + terms.join(' OR ') + ')';
+      const url = `https://api.gdeltproject.org/api/v2/events/query?query=${encodeURIComponent(query)}&timespan=${tsMap[state.timespan]}&format=json&maxrecords=200&sort=datedesc`;
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        const json = await res.json();
+        const arr = json.events || json.result || json.data || [];
+        const items = [];
+        arr.forEach(e => {
+          const lat = parseFloat(e.ActionGeo_Lat || e.Actor1Geo_Lat || e.Actor2Geo_Lat);
+          const lon = parseFloat(e.ActionGeo_Long || e.Actor1Geo_Long || e.Actor2Geo_Long);
+          if (!isFinite(lat) || !isFinite(lon)) return;
+          const title = e.EventRootCode ? `Incident (${e.EventRootCode})` : (e.EventBaseCode ? `Incident (${e.EventBaseCode})` : 'Incident');
+          const place = e.ActionGeo_FullName || e.Actor1Geo_FullName || e.Actor2Geo_FullName || '';
+          const time = e.Day ? dayjs(e.Day, 'YYYYMMDD').toISOString() : (e.SQLDate ? dayjs(e.SQLDate, 'YYYYMMDD').toISOString() : null);
+          items.push({
+            id: `man_${e.GlobalEventID || (e.GLOBALEVENTID || Math.random().toString(36).slice(2))}`,
+            category: 'manmade',
+            title: title,
+            place: place,
+            coords: [lat, lon],
+            time: time,
+            source: e.SOURCEURL || '',
+            more: e.SOURCEURL || ''
+          });
+        });
+        state.datasets.man = items;
+      } catch (err) {
+        console.warn('Man-made feed unavailable', err);
+        state.datasets.man = [];
+      }
+    }
+
+    // Rendering
+    function addMarker(item) {
+      const meta = META[item.category] || { color: '#999', emoji: '📍' };
+      const marker = L.marker(item.coords, { icon: createIcon(meta.emoji, meta.color), title: item.title || '' })
+        .bindPopup(popupContent(item), { maxWidth: 320 });
+      clusters[item.category]?.addLayer(marker);
+      state.markers[item.id] = marker;
+    }
+
+    function renderHeat() {
+      if (eqHeatLayer) { map.removeLayer(eqHeatLayer); eqHeatLayer = null; }
+      if (!document.getElementById('heatmap-toggle').checked) return;
+      const pts = state.datasets.eq.map(e => [e.coords[0], e.coords[1], Math.max(0.2, (e.magnitude || 1) / 8)]);
+      eqHeatLayer = L.heatLayer(pts, { radius: 25, blur: 20, maxZoom: 8, gradient: { 0.2: '#22d3ee', 0.4: '#60a5fa', 0.65: '#f59e0b', 0.9: '#ef4444' } });
+      map.addLayer(eqHeatLayer);
+    }
+
+    function renderList() {
+      const wrap = document.getElementById('event-list');
+      wrap.innerHTML = '';
+      const all = [
+        ...state.datasets.eq,
+        ...state.datasets.eonet,
+        ...state.datasets.man
+      ].filter(it => state.selected[it.category]);
+
+      const q = state.filters.search.trim().toLowerCase();
+      const filtered = all.filter(it => {
+        if (!q) return true;
+        return [it.title, it.place, it.source].filter(Boolean).some(s => s.toLowerCase().includes(q));
+      });
+
+      filtered.sort((a, b) => (new Date(b.time || 0)) - (new Date(a.time || 0)));
+
+      const frag = document.createDocumentFragment();
+      filtered.slice(0, 400).forEach(it => {
+        const div = document.createElement('div');
+        div.className = 'item fade-in';
+        div.innerHTML = `
+          <div class="marker-emoji" style="box-shadow: 0 8px 16px rgba(0,0,0,.22), 0 0 0 2px ${(META[it.category]?.color) || '#999'}22 inset">${META[it.category]?.emoji || '📍'}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between gap-2">
+              <div class="font-semibold truncate">${it.title || 'Event'}</div>
+              <div class="text-xs text-slate-400 whitespace-nowrap">${it.time ? dayjs(it.time).fromNow() : ''}</div>
+            </div>
+            <div class="text-xs text-slate-400 truncate">${it.place || ''}</div>
+            <div class="flex gap-2 mt-2">
+              <span class="pill" style="border-color:${META[it.category]?.color || '#999'}">${META[it.category]?.label || it.category}</span>
+              ${typeof it.magnitude === 'number' ? `<span class="pill">M ${it.magnitude.toFixed(1)}</span>` : ''}
+              ${it.source ? `<a class="pill underline decoration-dotted" href="${it.source}" target="_blank" rel="noopener">Source</a>` : ''}
+            </div>
+          </div>
+        `;
+        div.addEventListener('click', () => {
+          const m = state.markers[it.id];
+          if (m) {
+            map.flyTo(m.getLatLng(), 6, { duration: 0.8 });
+            setTimeout(() => m.openPopup(), 900);
+          } else {
+            map.flyTo(it.coords, 6, { duration: 0.8 });
+          }
+        });
+        frag.appendChild(div);
+      });
+
+      if (!filtered.length) {
+        const empty = document.createElement('div');
+        empty.className = 'p-6 text-center text-slate-400';
+        empty.textContent = 'No events match your filters.';
+        frag.appendChild(empty);
+      }
+
+      wrap.appendChild(frag);
+
+      // Stats
+      document.getElementById('stat-eq').textContent = state.datasets.eq.length;
+      document.getElementById('stat-wild').textContent = state.datasets.eonet.filter(e => e.category === 'wildfires').length;
+      document.getElementById('stat-storm').textContent = state.datasets.eonet.filter(e => e.category === 'storms').length;
+      document.getElementById('stat-volc').textContent = state.datasets.eonet.filter(e => e.category === 'volcanoes').length;
+      document.getElementById('stat-flood').textContent = state.datasets.eonet.filter(e => e.category === 'floods').length;
+      document.getElementById('stat-man').textContent = state.datasets.man.length;
+    }
+
+    function renderMap() {
+      // Clear selected layers
+      Object.keys(clusters).forEach(cat => {
+        map.removeLayer(clusters[cat]);
+        clusters[cat].clearLayers();
+        if (state.selected[cat]) map.addLayer(clusters[cat]);
+      });
+      Object.values(state.markers).forEach(m => m.remove?.());
+      state.markers = {};
+
+      // Add markers
+      const all = [...state.datasets.eq, ...state.datasets.eonet, ...state.datasets.man];
+      all.forEach(it => {
+        if (!state.selected[it.category]) return;
+        addMarker(it);
+      });
+
+      renderHeat();
+    }
+
+    function setChipStates() {
+      document.querySelectorAll('.chip').forEach(ch => {
+        const cat = ch.getAttribute('data-cat');
+        const active = !!state.selected[cat];
+        ch.classList.toggle('active', active);
+        const input = ch.querySelector('input');
+        if (input) input.checked = active;
+      });
+    }
+
+    function setUpdated() {
+      document.getElementById('last-updated').textContent = dayjs().format('HH:mm:ss [UTC]');
+    }
+
+    async function refreshAll() {
+      document.getElementById('btn-refresh').classList.add('opacity-60','pointer-events-none');
+      await Promise.all([
+        fetchEarthquakes(),
+        fetchEONET(),
+        fetchManmade()
+      ]);
+      renderMap();
+      renderList();
+      setUpdated();
+      document.getElementById('btn-refresh').classList.remove('opacity-60','pointer-events-none');
+    }
+
+    // Events
+    document.getElementById('btn-refresh').addEventListener('click', refreshAll);
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cat = chip.getAttribute('data-cat');
+        state.selected[cat] = !state.selected[cat];
+        setChipStates();
+        renderMap();
+        renderList();
+      });
+    });
+
+    document.getElementById('mag-min').addEventListener('input', (e) => {
+      state.eqMinMag = parseFloat(e.target.value);
+      document.getElementById('mag-label').textContent = state.eqMinMag.toFixed(1);
+    });
+    document.getElementById('mag-min').addEventListener('change', refreshAll);
+
+    document.getElementById('time-range').addEventListener('change', async (e) => {
+      state.timespan = e.target.value;
+      await refreshAll();
+    });
+
+    document.getElementById('heatmap-toggle').addEventListener('change', renderHeat);
+
+    document.getElementById('darkmode').addEventListener('change', (e) => {
+      state.dark = e.target.checked;
+      if (state.dark && !map.hasLayer(cartoDark)) { map.removeLayer(osmLight); map.addLayer(cartoDark); basemapLabel.textContent = 'Dark'; }
+      if (!state.dark && !map.hasLayer(osmLight)) { map.removeLayer(cartoDark); map.addLayer(osmLight); basemapLabel.textContent = 'Light'; }
+    });
+
+    document.getElementById('auto-refresh').addEventListener('change', (e) => {
+      state.autoRefresh = e.target.checked;
+    });
+
+    document.getElementById('search').addEventListener('input', (e) => {
+      state.filters.search = e.target.value;
+      renderList();
+    });
+
+    document.getElementById('locate').addEventListener('click', () => {
+      if (!navigator.geolocation) return alert('Geolocation not supported');
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const ll = [pos.coords.latitude, pos.coords.longitude];
+        map.flyTo(ll, 6, { duration: 0.8 });
+        L.circleMarker(ll, { radius: 8, color: '#60a5fa', fillColor: '#60a5fa', fillOpacity: 0.4 }).addTo(map);
+      }, (err) => alert('Location error: ' + err.message), { enableHighAccuracy: true, timeout: 8000 });
+    });
+
+    map.on('dblclick', () => map.flyTo([20, 0], 2.5, { duration: 0.8 }));
+
+    document.getElementById('export').addEventListener('click', () => {
+      const all = [
+        ...state.datasets.eq,
+        ...state.datasets.eonet,
+        ...state.datasets.man
+      ].filter(it => state.selected[it.category]);
+      const q = state.filters.search.trim().toLowerCase();
+      const filtered = all.filter(it => !q || [it.title, it.place, it.source].filter(Boolean).some(s => s.toLowerCase().includes(q)));
+      const rows = [
+        ['id','category','title','place','time','lat','lon','magnitude','source','more'],
+        ...filtered.map(it => [
+          it.id,
+          it.category,
+          (it.title || '').replace(/"/g,'""'),
+          (it.place || '').replace(/"/g,'""'),
+          it.time || '',
+          it.coords?.[0] || '',
+          it.coords?.[1] || '',
+          (typeof it.magnitude === 'number') ? it.magnitude : '',
+          it.source || '',
+          it.more || ''
+        ])
+      ];
+      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `disasters_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Auto refresh loop
+    setInterval(() => { if (state.autoRefresh) refreshAll(); }, 5 * 60 * 1000);
+
+    // Initial
+    (async function init() {
+      setChipStates();
+      document.getElementById('mag-label').textContent = state.eqMinMag.toFixed(1);
+      await refreshAll();
+    })();
+  </script>
+</body>
+</html>
