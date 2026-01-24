@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multicolumn Layout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background: #d6b5e9;
+        }
+
+        header {
+            text-align: center;
+            background: #c5cae9;
+            padding: 15px
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap
+        }
+
+        .main-content {
+            flex: 70%;
+            padding: 20px;
+        }
+
+        .sidebar {
+            flex: 30%;
+            background: #b5e3ea;
+            padding: 20px
+        }
+
+        article,
+        aside {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            display: block;
+            margin: 10px auto
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #333
+        }
+
+        ul {
+            margin-left: 20px
+        }
+
+        @media(max-width:768px) {
+
+            .main-content,
+            .sidebar {
+                flex: 100%
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Artificial Intelligence</h1>
+    </header>
+    <div class="container">
+        <main class="main-content">
+            <article>
+                <h2>About AI</h2>
+                <img src="AI Image.jpg" alt="AI Image">
+                <p>Artificial Intelligence (AI) is the simulation of human intelligence in machines.
+                    It enables systems to learn, reason, and make decisions. AI is used in speechrecognition, natural
+                    language processing, robotics, and recommendation systems.</p>
+            </article>
+            <article>
+                <h2>Applications of AI</h2>
+                <img src="AI Applications Image.jpeg" alt="AI Applications">
+                <p>AI is applied in healthcare diagnostics, self-driving cars, virtual assistants,
+                    fraud detection, and personalized recommendations. It improves efficiency, reducescosts, and
+                    delivers innovative solutions to real-world problems.</p>
+            </article>
+        </main>
+        <aside class="sidebar">
+            <div>
+                <h3>Recent Posts</h3>
+                <ul>
+                    <li>AI in Healthcare</li>
+                    <li>Machine Learning Basics</li>
+                    <li>Future of Robotics</li>
+                </ul>
+            </div>
+            <div>
+                <h3>Categories</h3>
+                <ul>
+                    <li>Deep Learning</li>
+                    <li>Computer Vision</li>
+                    <li>Natural Language Processing</li>
+                </ul>
+            </div>
+            <div>
+                <h3>Social Media Links</h3>
+                <ul>
+                    <li><a href="#">LinkedIn</a></li>
+                    <li><a href="#">Twitter</a></li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</body>
+
+</html>

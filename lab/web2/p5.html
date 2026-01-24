@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student registration form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e7f37865;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #form {
+            max-width: 600px;
+            margin: auto;
+            background: #5b51e996;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px 8px 8px 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type=radio],
+        input[type=checkbox] {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .inline {
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        input[type=submit] {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        input[type=submit] {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="form">
+        <h1>Student subject registration</h1>
+        <form>
+            <label>Name:</label>
+            <input type="text" required>
+            <label>USN:</label>
+            <input type="text" required>
+            <label>Email:</label>
+            <input type="email">
+            <label>Adress:</label>
+            <textarea required></textarea>
+            <label>Gender:</label>
+            <span class="inline">
+                <input type="radio" name="gender">Male
+            </span>
+            <span class="inline">
+                <input type="radio" name="gender">Female
+            </span>
+            <label>Subjects</label>
+            <span class="inline"><input type="checkbox">WEB</span>
+            <span class="inline"><input type="checkbox">JAVA</span>
+            <span class="inline"><input type="checkbox">Python</span>
+            <label>PHOTO :</label>
+            <input type="file" accept="image/*">
+            <label>PAYMENT method</label>
+            <select>
+                <option>credit card</option>
+                <option>debit card</option>
+                <option>paypal</option>
+                <option>bank transfer</option>
+            </select>
+            <input type="submit" value="submit">
+        </form>
+    </div>
+</body>
+
+</html>

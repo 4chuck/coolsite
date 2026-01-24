@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Colour Stacking</title>
+    <style>
+        h1 {
+            text-align: center
+        }
+
+        .red {
+            position: absolute;
+            left: 10%;
+            top: 10%;
+            z-index: 0
+        }
+
+        .yellow {
+            position: absolute;
+            left: 30%;
+            top: 30%;
+            z-index: 1
+        }
+
+        .green {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 2
+        }
+    </style>
+    <script>
+        let topIndex = 2;
+        function moveToTop(pic) { pic.style.zIndex = ++topIndex; }
+    </script>
+</head>
+
+<body>
+    <h1>Overlapping Images</h1>
+    <div>
+        <img src="Red image.jpg" class="red" width="400" height="300" onmouseover="moveToTop(this)">
+        <img src="Yellow image.jpeg" class="yellow" width="400" height="300" onmouseover="moveToTop(this)">
+        <img src="Green image.jpeg" class="green" width="400" height="300" onmouseover="moveToTop(this)">
+    </div>
+</body>
+
+</html>

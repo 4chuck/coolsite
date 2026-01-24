@@ -33,17 +33,17 @@ void pop(STACK *s)
     }
 }
 
-void display(STACK s)
+void display(STACK *s)
 {
     int i;
 
-    if (s.top == -1)
+    if (s->top == -1)
         printf("\n Stack Empty");
     else
     {
-        printf("\ Stack content are\n");
-        for (i = s.top; i >= 0; i--)
-            printf("%d\n", s.data[i]);
+        printf("\n Stack content are\n");
+        for (i = s->top; i >= 0; i--)
+            printf("%d\n", s->data[i]);
     }
 }
 
@@ -74,7 +74,7 @@ int main()
                 break;
 
             case 3:
-                display(s);
+                display(&s);
                 break;
 
             default:

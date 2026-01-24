@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Calculator</title>
+    <style>
+        table,
+        td,
+        th {
+            border: 1px solid black;
+            width: 33%;
+            text-align: center;
+            background: rgb(21, 171, 201);
+            border-collapse: collapse;
+        }
+
+        table {
+            margin: auto;
+        }
+
+        input {
+            text-align: right;
+        }
+    </style>
+    <script>
+        function calc(op) {
+            let v1 = parseFloat(document.getElementById("value1").value);
+            let v2 = parseFloat(document.getElementById("value2").value);
+            if (isNaN(v1) || isNaN(v2)) {
+                alert("Enter valid numbers");
+                return;
+            }
+            if (op == "add") ans.value = v1 + v2;
+            else if (op == "sub") ans.value = v1 - v2;
+            else if (op == "mul") ans.value = v1 * v2;
+            else if (op == "div") ans.value = v1 / v2;
+        }
+        function cls() {
+            value1.value = "";
+            value2.value = "";
+            ans.value = "";
+        }
+    </script>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <th colspan="4">SIMPLE CALCULATOR</th>
+        </tr>
+        <tr>
+            <td>Value 1</td>
+            <td><input type="text" id="value1" value="0"></td>
+            <td>Value 2</td>
+            <td><input type="text" id="value2" value="0"></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="Add" id="add" onclick="calc(this.id)"></td>
+            <td><input type="button" value="Subtract" id="sub" onclick="calc(this.id)"></td>
+            <td><input type="button" value="Multiply" id="mul" onclick="calc(this.id)"></td>
+            <td><input type="button" value="Divide" id="div" onclick="calc(this.id)"></td>
+        </tr>
+        <tr>
+            <td>Answer:</td>
+            <td><input type="text" id="ans" disabled></td>
+            <td colspan="2"><input type="button" value="Clear All" onclick="cls()"></td>
+        </tr>
+    </table>
+</body>
+
+</html>
