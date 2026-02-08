@@ -59,6 +59,12 @@
         padding:10px 12px;
         margin-bottom:15px;
     }
+    .login100-form-btn:disabled {
+      cursor: not-allowed !important;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
   </style>
 </head>
 <body>
@@ -92,9 +98,8 @@
 
             </div>
             
-                 <button class="login100-form-btn" onclick="login()" value = "Login" >
-              Login
-            </button>
+              <button class="login100-form-btn" id="loginBtn" type="button">Login</button>
+
           </div>
         </div>
           <div class="txt1 text-center p-t-54 p-b-20">
@@ -106,6 +111,14 @@
        
     </div>
   </div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document
+      .getElementById("loginBtn")
+      .addEventListener("click", login);
+  });
+</script>
+
 <script>
 function getFirebaseErrorMessage(errorCode) {
   const errors = {
@@ -127,12 +140,12 @@ function getFirebaseErrorMessage(errorCode) {
 
 
 function disableButton() {
-  const btn = document.querySelector(".login100-form-btn");
+  const btn = document.getElementById("loginBtn");
   if (btn) btn.disabled = true;
 }
 
 function enableButton() {
-  const btn = document.querySelector(".login100-form-btn");
+  const btn = document.getElementById("loginBtn");
   if (btn) btn.disabled = false;
 }
 

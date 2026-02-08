@@ -64,7 +64,18 @@
       opacity: 0.6;
       pointer-events: none;
     }
-    
+
+    /* Disable overlay layer when button is disabled */
+.login100-form-btn:disabled + .login100-form-bgbtn,
+.login100-form-btn:disabled ~ .login100-form-bgbtn {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+  .wrap-login100-form-btn {
+  cursor: not-allowed;
+}
+
   </style>
 </head>
 <body>
@@ -100,9 +111,8 @@
 					<div class="container-login100-form-btn">
 						<div class="wrap-login100-form-btn">
 							<div class="login100-form-bgbtn"></div>
-							     <button class="login100-form-btn"onclick="signup()"value="login">
-								signup
-							</button>
+                  <button class="login100-form-btn" id="signupBtn" type="button">signup</button>
+
 						</div>
 					</div>
 					<div class="txt1 text-center p-t-54 p-b-20">
@@ -116,7 +126,14 @@
 			</div>
 		</div>
 	</div>
-	
+	<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document
+      .getElementById("signupBtn")
+      .addEventListener("click", signup);
+  });
+</script>
+
 <script>
 function getFirebaseErrorMessage(errorCode) {
   const errors = {
@@ -137,12 +154,12 @@ function getFirebaseErrorMessage(errorCode) {
 }
 
 function disableButton() {
-  const btn = document.querySelector(".login100-form-btn");
+  const btn = document.getElementById("signupBtn");
   if (btn) btn.disabled = true;
 }
 
 function enableButton() {
-  const btn = document.querySelector(".login100-form-btn");
+  const btn = document.getElementById("signupBtn");
   if (btn) btn.disabled = false;
 }
 
