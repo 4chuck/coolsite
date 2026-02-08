@@ -229,6 +229,11 @@ onTokenChanged(appCheck, (token) => {
   const uploadInput = document.getElementById("upload-image");
   const changePicBtn = document.getElementById("change-pic-btn");
 
+  const withCacheBust = (url) => {
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}t=${Date.now()}`;
+  };
+
   /* Open file picker only on button click */
   changePicBtn.onclick = () => uploadInput.click();
 
@@ -246,7 +251,21 @@ onTokenChanged(appCheck, (token) => {
       const data = snap.val();
       nameEl.textContent = data.displayName || "No Name";
       if (data.profilePic) {
-        profilePicEl.src = data.profilePic + "&t=" + Date.now();
+        try {
+          const imagePath = data.profilePic;
+
+          // Backward compatibility: if older records still store full URLs,
+          // keep displaying them until the user uploads a new image.
+          if (imagePath.startsWith("http")) {
+            profilePicEl.src = withCacheBust(imagePath);
+          } else {
+            const freshDownloadURL = await getDownloadURL(sRef(storage, imagePath));
+            profilePicEl.src = withCacheBust(freshDownloadURL);
+          }
+        } catch (err) {
+          console.error("Failed to load profile picture:", err);
+          profilePicEl.src = "default-avatar.png";
+        }
       }
     }
   });
@@ -273,15 +292,16 @@ onTokenChanged(appCheck, (token) => {
 
       await uploadBytes(imageRef, file);
       const downloadURL = await getDownloadURL(imageRef);
+      const imagePath = imageRef.fullPath;
 
-      /* 3️⃣ Save final URL to RTDB */
+      /* 3️⃣ Save storage path to RTDB */
       await set(
         ref(db, `users/${user.uid}/profilePic`),
-        downloadURL
+        imagePath
       );
 
       /* 4️⃣ Replace local preview with server image */
-      profilePicEl.src = downloadURL + "&t=" + Date.now();
+      profilePicEl.src = withCacheBust(downloadURL);
       URL.revokeObjectURL(localURL);
 
     } catch (err) {
