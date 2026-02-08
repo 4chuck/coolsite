@@ -223,7 +223,7 @@ function login() {
         })
         .then(res => res.json())
         .then(result => {
-          console.log("[AppCheck] Activated (reCAPTCHA v3)");
+
           console.log("reCAPTCHA Result:", result);
 
           if (!result.success || result.score < 0.5) {
@@ -237,7 +237,6 @@ function login() {
 
           firebase.auth().signInWithEmailAndPassword(email, password)
             .then(() => {
-              disableButton();
               window.location.href = "../firebase/home/cyborg/index.html";
             })
             .catch((error) => {
@@ -260,16 +259,28 @@ function login() {
       if (user) {
         const displayName = user.displayName || "";
         const firstName = displayName.split(" ")[0];
-
-        const w = document.getElementById("welcome-message");
-        w.innerText = firstName ? `Hello, ${firstName}` : "Welcome back";
-        w.style.display = "block";
+        document.getElementById("welcome-message").innerText = `Hello, ${firstName}`;
+        saveUserData(user);
+        localStorage.setItem("name", firstName);
       } else {
-            console.log("No user is signed in.");
-          }
+        console.log("No user is signed in.");
+      }
     });
 
+    function saveUserData(user) {
+      const userRef = firebase.database().ref('users/' + user.uid);
+      userRef.set({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName
+      }).then(() => {
+        console.log("User data saved to database");
+      }).catch((error) => {
+        console.error("Error saving user data: ", error);
+      });
 
+      localStorage.setItem("userUID", user.uid);
+    }
 
     //forgot password popup
     function resetPassword() {

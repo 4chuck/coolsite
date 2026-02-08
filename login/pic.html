@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Profile Test</title>
+</head>
+<body>
+
+<h2>Profile Page</h2>
+
+<img id="pic" width="150" height="150" style="border-radius:50%;background:#ddd"><br><br>
+
+<input type="file" id="file"><br><br>
+
+<p>Name: <span id="name"></span></p>
+<p>Email: <span id="email"></span></p>
+
+<button id="logout">Logout</button>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+  import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+    authDomain: "login-b6382.firebaseapp.com",
+    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+    projectId: "login-b6382",
+    storageBucket: "login-b6382.appspot.com",
+    messagingSenderId: "482805184778",
+    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const storage = getStorage(app);
+
+  const pic = document.getElementById("pic");
+  const fileInput = document.getElementById("file");
+  const nameEl = document.getElementById("name");
+  const emailEl = document.getElementById("email");
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      location.href = "fire-login.html"; // your login page
+      return;
+    }
+
+    emailEl.textContent = user.email;
+
+    const snap = await get(ref(db, `users/${user.uid}`));
+    if (snap.exists()) {
+      const data = snap.val();
+      nameEl.textContent = data.displayName || "No Name";
+
+      if (data.profilePicPath) {
+        const imgRef = sRef(storage, data.profilePicPath);
+        const url = await getDownloadURL(imgRef);
+        pic.src = url;
+      }
+    }
+  });
+
+  fileInput.addEventListener("change", async () => {
+    const user = auth.currentUser;
+    const file = fileInput.files[0];
+    if (!user || !file) return;
+
+    const path = `profile_pictures/${user.uid}/profile.png`;
+    const imgRef = sRef(storage, path);
+
+    await uploadBytes(imgRef, file);
+
+    await set(ref(db, `users/${user.uid}/profilePicPath`), path);
+
+    const url = await getDownloadURL(imgRef);
+    pic.src = url;
+  });
+
+  document.getElementById("logout").onclick = async () => {
+    await signOut(auth);
+    location.href = "fire-login.html";
+  };
+</script>
+
+</body>
+</html>

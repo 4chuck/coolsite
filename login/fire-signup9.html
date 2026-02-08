@@ -58,13 +58,6 @@
         padding:10px 12px;
         margin-bottom:15px;
     }
-
-    .login100-form-btn:disabled {
-      cursor: not-allowed !important;
-      opacity: 0.6;
-      pointer-events: none;
-    }
-    
   </style>
 </head>
 <body>
@@ -173,7 +166,7 @@ function hideError() {
 }
 </script>
 
-<script>
+	<script>
     const firebaseConfig = {
       apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
       authDomain: "login-b6382.firebaseapp.com",
@@ -283,6 +276,8 @@ function signup() {
         const displayName = user.displayName || "";
         const firstName = displayName.split(" ")[0];
         document.getElementById("welcome-message").innerText = `Hello, ${firstName}`;
+        saveUserData(user);
+        localStorage.setItem("name", firstName);
       } else {
         console.log("No user is signed in.");
       }
@@ -290,20 +285,18 @@ function signup() {
 
     function saveUserData(user) {
       const userRef = firebase.database().ref('users/' + user.uid);
-        
-      userRef.update({
+      userRef.set({
         uid: user.uid,
         email: user.email,
         displayName: user.displayName
-      })
-      .then(() => {
-        console.log("User data updated in database");
-      })
-      .catch((error) => {
-        console.error("Error updating user data: ", error);
+      }).then(() => {
+        console.log("User data saved to database");
+      }).catch((error) => {
+        console.error("Error saving user data: ", error);
       });
+
+      localStorage.setItem("userUID", user.uid);
     }
-    
   </script>
 	
 <!--===============================================================================================-->

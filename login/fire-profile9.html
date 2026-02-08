@@ -180,29 +180,32 @@ h1 {
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-  import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
 import {
   initializeAppCheck,
   ReCaptchaV3Provider,
   onTokenChanged
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
 
+/* Firebase config */
+const firebaseConfig = {
+  apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+  authDomain: "login-b6382.firebaseapp.com",
+  databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+  projectId: "login-b6382",
+  storageBucket: "login-b6382.appspot.com",
+  messagingSenderId: "482805184778",
+  appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+};
 
-  /* Firebase config */
-  const firebaseConfig = {
-    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-    authDomain: "login-b6382.firebaseapp.com",
-    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-    projectId: "login-b6382",
-    storageBucket: "login-b6382.appspot.com",
-    messagingSenderId: "482805184778",
-    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
-  };
+console.log("[INIT] Initializing Firebase...");
+const app = initializeApp(firebaseConfig);
 
-  const app = initializeApp(firebaseConfig);
+console.log("[INIT] Initializing App Check");
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"),
   isTokenAutoRefreshEnabled: true
@@ -210,92 +213,143 @@ const appCheck = initializeAppCheck(app, {
 
 onTokenChanged(appCheck, (token) => {
   if (token) {
-    console.log(
-      `[AppCheck] Token generated successfully — length: ${token.token.length}`
-    );
+    console.log("[AppCheck] Token OK");
   } else {
-    console.warn("[AppCheck] Token missing or invalid");
+    console.warn("[AppCheck] No token");
   }
 });
 
-  const auth = getAuth(app);
-  const db = getDatabase(app);
-  const storage = getStorage(app);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const storage = getStorage(app);
 
-  /* DOM refs */
-  const profilePicEl = document.getElementById("profile-pic");
-  const nameEl = document.getElementById("name");
-  const emailEl = document.getElementById("email");
-  const uploadInput = document.getElementById("upload-image");
-  const changePicBtn = document.getElementById("change-pic-btn");
+/* DOM */
+const profilePicEl = document.getElementById("profile-pic");
+const nameEl = document.getElementById("name");
+const emailEl = document.getElementById("email");
+const uploadInput = document.getElementById("upload-image");
+const changePicBtn = document.getElementById("change-pic-btn");
 
-  /* Open file picker only on button click */
-  changePicBtn.onclick = () => uploadInput.click();
+profilePicEl.onerror = () => {
+  console.warn("[IMG] Failed to load profile image, using default");
+  profilePicEl.src = "default-avatar.png";
+};
 
-  /* Load profile */
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      location.href = "fire-login.html";
-      return;
-    }
 
-    emailEl.textContent = user.email || "No Email";
+changePicBtn.onclick = () => uploadInput.click();
 
+/* AUTH FLOW */
+onAuthStateChanged(auth, async (user) => {
+  console.log("[AUTH] State changed:", user?.uid);
+
+  if (!user) {
+    console.warn("[AUTH] No user, redirecting");
+    location.href = "fire-login.html";
+    return;
+  }
+
+  /* =========================
+     BASIC AUTH DATA
+  ========================= */
+  emailEl.textContent = user.email || "";
+
+  /* =========================
+     NAME (Auth → DB fallback)
+  ========================= */
+  let displayName = user.displayName;
+
+  try {
+    console.log("[DB] Fetching user profile...");
     const snap = await get(ref(db, `users/${user.uid}`));
+
     if (snap.exists()) {
       const data = snap.val();
-      nameEl.textContent = data.displayName || "No Name";
-      if (data.profilePic) {
-        profilePicEl.src = data.profilePic + "&t=" + Date.now();
+      console.log("[DB] Profile data:", data);
+
+      // Fallback only if Auth has no name
+      if (!displayName && data.displayName) {
+        displayName = data.displayName;
       }
+
+      /* =========================
+         PROFILE IMAGE
+      ========================= */
+      if (data.profilePic) {
+        console.log("[IMG] Stored path:", data.profilePic);
+
+        const imageRef = sRef(storage, data.profilePic);
+        console.log("[IMG] Fetching download URL...");
+
+        const url = await getDownloadURL(imageRef);
+        console.log("[IMG] Download URL OK");
+
+        // Cache-busting for relogin/update
+        profilePicEl.src = url + "&t=" + Date.now();
+      } else {
+        console.warn("[IMG] No profilePic path stored");
+      }
+    } else {
+      console.warn("[DB] No profile data found");
     }
-  });
+  } catch (err) {
+    console.error("[ERROR] Loading profile failed:", err);
+  }
 
-  /* 🔥 INSTANT PREVIEW + BACKGROUND UPLOAD */
-  uploadInput.addEventListener("change", async () => {
-    const file = uploadInput.files[0];
-    const user = auth.currentUser;
-    if (!file || !user) return;
+  /* =========================
+     FINAL UI UPDATE
+  ========================= */
+  nameEl.textContent = displayName || "No Name";
+});
 
-    /* 1️⃣ Instant local preview */
-    const localURL = URL.createObjectURL(file);
-    profilePicEl.src = localURL;
+/* UPLOAD */
+uploadInput.addEventListener("change", async () => {
+  const file = uploadInput.files[0];
+  const user = auth.currentUser;
 
-    try {
-      /* 2️⃣ Background upload */
-      const ext = file.name.split(".").pop();
-      const fileName = `thumb_upload_${Date.now()}.${ext}`;
+  console.log("[UPLOAD] File selected:", file?.name);
 
-      const imageRef = sRef(
-        storage,
-        `profile_pictures/${user.uid}/${fileName}`
-      );
+  if (!file || !user) {
+    console.warn("[UPLOAD] Missing file or user");
+    return;
+  }
 
-      await uploadBytes(imageRef, file);
-      const downloadURL = await getDownloadURL(imageRef);
+  const localURL = URL.createObjectURL(file);
+  profilePicEl.src = localURL;
 
-      /* 3️⃣ Save final URL to RTDB */
-      await set(
-        ref(db, `users/${user.uid}/profilePic`),
-        downloadURL
-      );
+  try {
+    const ext = file.name.split(".").pop();
+    const path = `profile_pictures/${user.uid}/thumb_${Date.now()}.${ext}`;
 
-      /* 4️⃣ Replace local preview with server image */
-      profilePicEl.src = downloadURL + "&t=" + Date.now();
-      URL.revokeObjectURL(localURL);
+    console.log("[UPLOAD] Uploading to:", path);
 
-    } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Upload failed");
-    }
-  });
+    const imageRef = sRef(storage, path);
+    await uploadBytes(imageRef, file);
 
-  /* Logout */
-  document.getElementById("logout-btn").onclick = async () => {
-    await signOut(auth);
-    location.href = "fire-login.html";
-  };
+    console.log("[UPLOAD] Upload OK");
+
+    await set(ref(db, `users/${user.uid}/profilePic`), imageRef.fullPath);
+    console.log("[DB] Path saved:", imageRef.fullPath);
+
+    const url = await getDownloadURL(imageRef);
+    console.log("[IMG] New download URL OK");
+
+    profilePicEl.src = url + "&t=" + Date.now();
+    URL.revokeObjectURL(localURL);
+
+  } catch (err) {
+    console.error("[UPLOAD ERROR]", err);
+    alert("Upload failed — check console");
+  }
+});
+
+/* LOGOUT */
+document.getElementById("logout-btn").onclick = async () => {
+  console.log("[AUTH] Signing out");
+  await signOut(auth);
+  location.href = "fire-login.html";
+};
 </script>
+
 
 </body>
 </html>
