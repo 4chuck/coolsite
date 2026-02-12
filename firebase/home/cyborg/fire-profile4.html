@@ -270,13 +270,6 @@
   display: none;
 }
 
-#changePicBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed !important;
-  pointer-events: none;
-}
-
-
 </style>
 
 </head>
@@ -336,10 +329,7 @@
         <img id="profile-pic" class="profile-thumb" src="default-avatar.png" alt="Profile Picture" />
         <div style="margin-top:12px;">
         <div class="dropdown">
-            <button id="changePicBtn" class="dropdown-btn" type="button">
-              Change Pic
-            </button>
-            
+            <button id="changePicBtn" class="dropdown-btn">Change Pic</button>
             <input type="file" id="upload-image" accept="image/*" style="display:none" />
         </div>
         </div>
@@ -405,16 +395,13 @@
     import {
       getStorage,
       ref as storageRef,
-      getDownloadURL
+      uploadBytes
     } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
-
 
     import {
       initializeAppCheck,
       ReCaptchaV3Provider
     } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
-
-    import { uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
 
     /* ===========================
        Firebase configuration
@@ -456,8 +443,6 @@ console.log("[AppCheck] initialized");
     const processingSub = document.getElementById("processingSub");
 
     const changePicBtn = document.getElementById("changePicBtn");
-    let lastProfilePicUrl = null;
-    let fallbackTimer = null;
 
 /* Open file picker ONLY on button click */
 changePicBtn.addEventListener("click", () => {
@@ -518,29 +503,16 @@ changePicBtn.addEventListener("click", () => {
     }
 
     /* Safe function to set profile image with cache-buster */
-/* Optimized function to set profile image (no double requests) */
     function setProfileImage(src) {
       if (!profilePicEl) return;
-    
       if (!src) {
         profilePicEl.src = "default-avatar.png";
         return;
       }
-    
-      // Convert to absolute URL for proper comparison
-      let absoluteUrl;
-      try {
-        absoluteUrl = new URL(src, window.location.href).href;
-      } catch {
-        absoluteUrl = src;
-      }
-    
-      if (profilePicEl.src === absoluteUrl) return;
-    
-      profilePicEl.src = absoluteUrl;
+      // Append timestamp to bust cache
+      const url = src.includes("?") ? (src + "&t=" + Date.now()) : (src + "?t=" + Date.now());
+      profilePicEl.src = url;
     }
-
-
 
     /* ===========================
        Authentication: load profile + realtime thumbnail listener
@@ -571,18 +543,7 @@ changePicBtn.addEventListener("click", () => {
   document.getElementById('name').textContent = displayName;
   document.getElementById('email').textContent = emailText;
 
-    if (data.profilePic) {
-    try {
-      const imageRef = storageRef(storage, data.profilePic);
-      const downloadUrl = await getDownloadURL(imageRef);
-      setProfileImage(downloadUrl);
-    } catch {
-      setProfileImage("default-avatar.png");
-    }
-  } else {
-    setProfileImage("default-avatar.png");
-  }
-  
+  setProfileImage(data.profilePic || "default-avatar.png");
 } else {
   // Fallback to Auth
   document.getElementById('name').textContent = user.displayName || "No Name";
@@ -597,41 +558,17 @@ changePicBtn.addEventListener("click", () => {
       })();
 
       // 2) Set up realtime listener on users/{uid}/profilePic so thumbnail updates automatically
-    const profilePicRef = dbRef(database, `users/${uid}/profilePic`);
-    onValue(profilePicRef, async (snap) => {
-      const path = snap.val();
-      console.log('[RTDB] users/' + uid + '/profilePic changed ->', path);
-    
-      if (!path) return;
-    
-      if (fallbackTimer) {
-        clearTimeout(fallbackTimer);
-        fallbackTimer = null;
-      }
-    
-      try {
-        const imageRef = storageRef(storage, path);
-        const downloadUrl = await getDownloadURL(imageRef);
-      
-        if (downloadUrl !== lastProfilePicUrl) {
-          lastProfilePicUrl = downloadUrl;
-          setProfileImage(downloadUrl);
-          hideProcessing();
-        
-          uploadInput.disabled = false;
-          changePicBtn.disabled = false;
-        
+      const profilePicRef = dbRef(database, `users/${uid}/profilePic`);
+      onValue(profilePicRef, (snap) => {
+        const url = snap.val();
+        if (url) {
+          setProfileImage(url);
+          hideProcessing(); // Thumbnail ready -> hide processing
           calert("Thumbnail updated!");
         }
-      
-      } catch (err) {
-        console.error("Failed to getDownloadURL:", err);
-        setProfileImage("default-avatar.png");
-      }
-    }, (err) => {
-      console.error("RTDB onValue error:", err);
-    });
-
+      }, (err) => {
+        console.error("RTDB onValue error:", err);
+      });
 
       // 3) Fetch quiz category data (existing logic)
       (async () => {
@@ -686,8 +623,10 @@ changePicBtn.addEventListener("click", () => {
        - We show processing overlay while waiting for CF to write RTDB.
        =========================== */
     uploadInput.addEventListener("change", async (evt) => {
-      const file = evt.target.files?.[0];
-      if (!file) return;
+      const file = evt.target.files && evt.target.files[0];
+      if (!file) {
+        return;
+      }
 
       const user = auth.currentUser;
       if (!user) {
@@ -695,72 +634,42 @@ changePicBtn.addEventListener("click", () => {
         return;
       }
 
-      if (!file.type.startsWith("image/")) {
-        calert("Only image files allowed.");
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        calert("Image must be under 5MB.");
-        return;
-      }
+      // Build a filename (preserve extension)
+      const ext = file.name.split('.').pop();
+      const filename = `upload_${Date.now()}.${ext}`;
+      // Upload to profile_pictures/{uid}/{filename}
+      const storagePath = `profile_pictures/${user.uid}/${filename}`;
+      const storageReference = storageRef(storage, storagePath);
 
       try {
+        // Disable input while uploading
         uploadInput.disabled = true;
-        changePicBtn.disabled = true;
-
         showProcessing("Uploading image...", "Please wait while we upload your image.");
 
-        // Generate unique filename (DO NOT use fixed profile.jpg)
-        const ext = file.name.split('.').pop();
-        const fileName = `upload_${Date.now()}.${ext}`;
-        const imageRef = storageRef(storage, `profile_pictures/${user.uid}/${fileName}`);
+        // Upload bytes
+        await uploadBytes(storageReference, file);
+        // Upload complete: now the Cloud Function should pick it and create thumbnail
+        processingStatus.textContent = "Upload complete — creating thumbnail...";
+        processingSub.textContent = "Waiting for server to finish processing. This usually takes 1–6 seconds.";
 
-        // create resumable upload task
-        const uploadTask = uploadBytesResumable(imageRef, file);
+        calert("Upload complete. Waiting for thumbnail...");
 
-        // progress / error / completion handlers
-        uploadTask.on('state_changed',
-          (snapshot) => {
-            const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-            processingStatus.textContent = `Uploading — ${pct}%`;
-          },
-          (err) => {
-            console.error('Upload error', err);
-            calert('Upload failed');
-            hideProcessing();
-            changePicBtn.disabled = false;
-            uploadInput.disabled = false;
-          },
-() => {
-  processingStatus.textContent = 'Upload complete — creating thumbnail...';
-  processingSub.textContent = 'Waiting for server to finish processing...';
-  calert('Upload complete. Waiting for thumbnail...');
+        // We do NOT write directly to DB here. The Cloud Function (generateThumbnail) will write users/{uid}/profilePic.
+        // The onValue listener above will detect the change and update the UI.
 
-  // re-enable UI so user can retry/upload another while server processes
-  uploadInput.disabled = false;   // ← ADD
-  changePicBtn.disabled = false;  // ← ADD
-
-  // Clear previous timer if exists
-  if (fallbackTimer) {
-      clearTimeout(fallbackTimer);
-      fallbackTimer = null;
-  }
-
-  // Start fallback timer (25 seconds)
-  fallbackTimer = setTimeout(() => {
-      fallbackTimer = null;
-      hideProcessing();
-      calert("Thumbnail processing delayed. Try refreshing the page.");
-  }, 25000);
-});
+        // As a fallback, after X seconds we can show a 'still processing' message (optional)
+        setTimeout(() => {
+          if (processingOverlay && processingOverlay.classList.contains("show")) {
+            processingSub.textContent = "Still processing... If this takes too long, try re-uploading or check logs.";
+          }
+        }, 10000);
 
       } catch (err) {
         console.error("Upload failed:", err);
         calert("Failed to upload image.");
         hideProcessing();
+      } finally {
         uploadInput.disabled = false;
-        changePicBtn.disabled = false;
       }
     });
 
