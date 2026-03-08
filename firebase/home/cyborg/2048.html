@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #00d4ff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 48px;
+            margin: 20px 0;
+            text-shadow: 0 0 20px #00d4ff;
+            font-weight: 700;
+        }
+        .score {
+            font-size: 28px;
+            margin: 0 auto 30px auto;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px 30px;
+            border-radius: 10px;
+            display: block;
+            width: fit-content;
+            border: 1px solid #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+        .grid {
+            display: inline-block;
+            background: linear-gradient(145deg, #0f0f23, #1a1a2e);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid #00d4ff;
+        }
+        .row {
+            display: flex;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            margin: 8px;
+            border-radius: 8px;
+            background: rgba(26, 26, 46, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .cell:hover::before {
+            opacity: 1;
+        }
+        .cell[data-value="2"] { background: linear-gradient(145deg, #3498db, #2980b9); color: #fff; box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3); }
+        .cell[data-value="4"] { background: linear-gradient(145deg, #e74c3c, #c0392b); color: #fff; box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3); }
+        .cell[data-value="8"] { background: linear-gradient(145deg, #f39c12, #e67e22); color: #fff; box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3); }
+        .cell[data-value="16"] { background: linear-gradient(145deg, #9b59b6, #8e44ad); color: #fff; box-shadow: 0 4px 8px rgba(155, 89, 182, 0.3); }
+        .cell[data-value="32"] { background: linear-gradient(145deg, #1abc9c, #16a085); color: #fff; box-shadow: 0 4px 8px rgba(26, 188, 156, 0.3); }
+        .cell[data-value="64"] { background: linear-gradient(145deg, #34495e, #2c3e50); color: #fff; box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3); }
+        .cell[data-value="128"] { background: linear-gradient(145deg, #e67e22, #d35400); color: #fff; box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3); font-size: 28px; }
+        .cell[data-value="256"] { background: linear-gradient(145deg, #8e44ad, #9b59b6); color: #fff; box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3); font-size: 28px; }
+        .cell[data-value="512"] { background: linear-gradient(145deg, #16a085, #1abc9c); color: #fff; box-shadow: 0 4px 8px rgba(22, 160, 133, 0.3); font-size: 28px; }
+        .cell[data-value="1024"] { background: linear-gradient(145deg, #2c3e50, #34495e); color: #fff; box-shadow: 0 4px 8px rgba(44, 62, 80, 0.3); font-size: 24px; }
+        .cell[data-value="2048"] { background: linear-gradient(145deg, #f1c40f, #f39c12); color: #fff; box-shadow: 0 4px 8px rgba(241, 196, 15, 0.3); font-size: 24px; animation: glow 1s infinite alternate; }
+        @keyframes glow {
+            from { box-shadow: 0 4px 8px rgba(241, 196, 15, 0.3), 0 0 20px rgba(241, 196, 15, 0.5); }
+            to { box-shadow: 0 4px 8px rgba(241, 196, 15, 0.3), 0 0 30px rgba(241, 196, 15, 0.8); }
+        }
+        .instructions {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button {
+            margin: 20px 10px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            background: linear-gradient(145deg, #00d4ff, #0099cc);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 212, 255, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 212, 255, 0.5);
+        }
+        @media (max-width: 600px) {
+            .cell {
+                width: 70px;
+                height: 70px;
+                font-size: 24px;
+            }
+            .cell[data-value="128"], .cell[data-value="256"], .cell[data-value="512"] { font-size: 20px; }
+            .cell[data-value="1024"], .cell[data-value="2048"] { font-size: 18px; }
+            h1 { font-size: 36px; }
+            .score { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <h1>2048</h1>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="grid" id="grid"></div>
+    <div class="instructions">
+        Use arrow keys to move tiles. Combine tiles with the same number to reach 2048!
+    </div>
+    <button onclick="resetGame()">New Game</button>
+
+    <script>
+        const gridSize = 4;
+        let grid = [];
+        let score = 0;
+
+        function initGrid() {
+            grid = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+            addRandomTile();
+            addRandomTile();
+            renderGrid();
+        }
+
+        function addRandomTile() {
+            let emptyCells = [];
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    if (grid[i][j] === 0) {
+                        emptyCells.push({i, j});
+                    }
+                }
+            }
+            if (emptyCells.length > 0) {
+                let {i, j} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        function renderGrid() {
+            const gridElement = document.getElementById('grid');
+            gridElement.innerHTML = '';
+            for (let i = 0; i < gridSize; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.setAttribute('data-value', grid[i][j]);
+                    cell.textContent = grid[i][j] !== 0 ? grid[i][j] : '';
+                    row.appendChild(cell);
+                }
+                gridElement.appendChild(row);
+            }
+            document.getElementById('score').textContent = score;
+        }
+
+        function move(direction) {
+            let moved = false;
+            if (direction === 'left') {
+                for (let i = 0; i < gridSize; i++) {
+                    let row = grid[i].filter(val => val !== 0);
+                    for (let j = 0; j < row.length - 1; j++) {
+                        if (row[j] === row[j + 1]) {
+                            row[j] *= 2;
+                            score += row[j];
+                            row[j + 1] = 0;
+                            moved = true;
+                        }
+                    }
+                    row = row.filter(val => val !== 0);
+                    while (row.length < gridSize) row.push(0);
+                    if (JSON.stringify(grid[i]) !== JSON.stringify(row)) moved = true;
+                    grid[i] = row;
+                }
+            }
+            // Similar logic for right, up, down
+            if (direction === 'right') {
+                for (let i = 0; i < gridSize; i++) {
+                    let row = grid[i].filter(val => val !== 0).reverse();
+                    for (let j = 0; j < row.length - 1; j++) {
+                        if (row[j] === row[j + 1]) {
+                            row[j] *= 2;
+                            score += row[j];
+                            row[j + 1] = 0;
+                            moved = true;
+                        }
+                    }
+                    row = row.filter(val => val !== 0);
+                    while (row.length < gridSize) row.unshift(0);
+                    if (JSON.stringify(grid[i]) !== JSON.stringify(row)) moved = true;
+                    grid[i] = row;
+                }
+            }
+            if (direction === 'up') {
+                for (let j = 0; j < gridSize; j++) {
+                    let col = [];
+                    for (let i = 0; i < gridSize; i++) {
+                        if (grid[i][j] !== 0) col.push(grid[i][j]);
+                    }
+                    for (let i = 0; i < col.length - 1; i++) {
+                        if (col[i] === col[i + 1]) {
+                            col[i] *= 2;
+                            score += col[i];
+                            col[i + 1] = 0;
+                            moved = true;
+                        }
+                    }
+                    col = col.filter(val => val !== 0);
+                    for (let i = 0; i < gridSize; i++) {
+                        grid[i][j] = col[i] || 0;
+                    }
+                    if (col.length < gridSize) moved = true;
+                }
+            }
+            if (direction === 'down') {
+                for (let j = 0; j < gridSize; j++) {
+                    let col = [];
+                    for (let i = gridSize - 1; i >= 0; i--) {
+                        if (grid[i][j] !== 0) col.push(grid[i][j]);
+                    }
+                    for (let i = 0; i < col.length - 1; i++) {
+                        if (col[i] === col[i + 1]) {
+                            col[i] *= 2;
+                            score += col[i];
+                            col[i + 1] = 0;
+                            moved = true;
+                        }
+                    }
+                    col = col.filter(val => val !== 0);
+                    for (let i = gridSize - 1; i >= 0; i--) {
+                        grid[i][j] = col[gridSize - 1 - i] || 0;
+                    }
+                    if (col.length < gridSize) moved = true;
+                }
+            }
+            if (moved) {
+                addRandomTile();
+                renderGrid();
+                if (isGameOver()) {
+                    alert('Game Over! Score: ' + score);
+                }
+            }
+        }
+
+        function isGameOver() {
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    if (grid[i][j] === 0) return false;
+                    if (i < gridSize - 1 && grid[i][j] === grid[i + 1][j]) return false;
+                    if (j < gridSize - 1 && grid[i][j] === grid[i][j + 1]) return false;
+                }
+            }
+            return true;
+        }
+
+        function resetGame() {
+            score = 0;
+            initGrid();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowLeft': move('left'); break;
+                case 'ArrowRight': move('right'); break;
+                case 'ArrowUp': move('up'); break;
+                case 'ArrowDown': move('down'); break;
+            }
+        });
+
+        initGrid();
+    </script>
+</body>
+</html>
