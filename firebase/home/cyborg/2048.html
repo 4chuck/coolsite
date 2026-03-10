@@ -39,6 +39,9 @@
             position: relative;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             border: 2px solid #00d4ff;
+            touch-action: none;
+            max-width: calc(100vw - 40px);
+            width: min(100%, 460px);
         }
         .row {
             display: flex;
@@ -120,7 +123,7 @@
         }
         @media (max-width: 600px) {
             .cell {
-                width: 70px;
+                width: 70px;        
                 height: 70px;
                 font-size: 24px;
             }
@@ -133,10 +136,19 @@
 </head>
 <body>
     <h1>2048</h1>
-    <div class="score">Score: <span id="score">0</span></div>
+    <div class="scores" style="display:flex; justify-content:center; gap:18px; flex-wrap:wrap; margin-bottom:20px;">
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="best-score">Best: <span id="bestScore">0</span></div>
+    </div>
     <div class="grid" id="grid"></div>
     <div class="instructions">
-        Use arrow keys to move tiles. Combine tiles with the same number to reach 2048!
+        Use arrow keys or swipe on mobile to move tiles. Combine tiles with the same number to reach 2048!
+    </div>
+    <div class="controls" style="margin: 10px auto; max-width: 360px; display:flex; flex-wrap:wrap; justify-content:center; gap:10px;">
+        <button onclick="move('up')">Up</button>
+        <button onclick="move('left')">Left</button>
+        <button onclick="move('down')">Down</button>
+        <button onclick="move('right')">Right</button>
     </div>
     <button onclick="resetGame()">New Game</button>
 
@@ -267,8 +279,9 @@
             if (moved) {
                 addRandomTile();
                 renderGrid();
+                updateBestScore();
                 if (isGameOver()) {
-                    alert('Game Over! Score: ' + score);
+                    setTimeout(() => alert('Game Over! Score: ' + score), 100);
                 }
             }
         }
@@ -284,10 +297,55 @@
             return true;
         }
 
+        function updateBestScore() {
+            const best = Math.max(score, Number(localStorage.getItem('best2048') || '0'));
+            localStorage.setItem('best2048', best);
+            document.getElementById('bestScore').textContent = best;
+        }
+
         function resetGame() {
             score = 0;
+            document.getElementById('score').textContent = score;
             initGrid();
         }
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const swipeThreshold = 30;
+
+        function handleSwipe(dx, dy) {
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (Math.abs(dx) > swipeThreshold) {
+                    move(dx > 0 ? 'right' : 'left');
+                }
+            } else {
+                if (Math.abs(dy) > swipeThreshold) {
+                    move(dy > 0 ? 'down' : 'up');
+                }
+            }
+        }
+
+        const gridElement = document.getElementById('grid');
+        gridElement.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        gridElement.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        gridElement.addEventListener('touchend', (e) => {
+            if (e.changedTouches.length === 1) {
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                const dy = e.changedTouches[0].clientY - touchStartY;
+                handleSwipe(dx, dy);
+            }
+        });
 
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
@@ -298,7 +356,10 @@
             }
         });
 
+        const storedBest = Number(localStorage.getItem('best2048') || '0');
+        document.getElementById('bestScore').textContent = storedBest;
         initGrid();
+        updateBestScore();
     </script>
 </body>
 </html>
