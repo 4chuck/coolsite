@@ -294,6 +294,7 @@ img {
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
   import { getDatabase, ref, set, update, onValue, onDisconnect, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
   import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+  import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
 
   import { runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
@@ -331,6 +332,7 @@ img {
   const auth = getAuth(app);
   const db = getDatabase(app);
   const firestore = getFirestore(app);
+  const storage = getStorage(app);
   
   const joinBtn = document.getElementById("join-btn");
   const waitingRoom = document.getElementById("waiting-room");
@@ -396,13 +398,26 @@ img {
   });
 
   // ---------- minimal helper: cache-aware avatar loader ----------
+  async function resolveProfilePic(path) {
+    if (!path) return "assets/images/default-avatar.png";
+
+    try {
+      const imageRef = storageRef(storage, path);
+      return await getDownloadURL(imageRef);
+    } catch (err) {
+      console.error("resolveProfilePic error:", err);
+      return "assets/images/default-avatar.png";
+    }
+  }
+
   async function getAvatar(uid) {
     if (!uid) return "assets/images/default-avatar.png";
     if (avatarCache.has(uid)) return avatarCache.get(uid);
 
     try {
       const snap = await get(ref(db, `users/${uid}/profilePic`));
-      const url = snap.exists() ? snap.val() : "assets/images/default-avatar.png";
+      const path = snap.exists() ? snap.val() : null;
+      const url = await resolveProfilePic(path);
       avatarCache.set(uid, url);
       return url;
     } catch (err) {

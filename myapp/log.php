@@ -65,7 +65,7 @@ if ($fetch_ok) {
         $_SESSION['email'] = $email_db;
 
         // Redirect to protected page (change if you want)
-        header('Location: https://4chuck.github.io/coolsite/index0.html');
+        header('Location: https://4chuck.github.io/coolsite/index.html');
         exit;
     } else {
         echo "<h1>Login failed. Invalid email or password.</h1>";

@@ -58,7 +58,7 @@ if (mysqli_stmt_execute($insert)) {
     mysqli_stmt_close($insert);
     mysqli_close($con);
     // Registration successful - redirect to login page or welcome
-    header('Location: https://4chuck.github.io/coolsite/index0.html');
+    header('Location: https://4chuck.github.io/coolsite/index.html');
     exit;
 } else {
     error_log("Execute failed: " . mysqli_stmt_error($insert));

@@ -31,7 +31,7 @@ function store(){
         localStorage.setItem('name', name.value);
         localStorage.setItem('pw', pw.value);
         alert('Your account has been created');
-        window.open('login.html')
+        window.open('login/login2.html')
     }
 }
 
