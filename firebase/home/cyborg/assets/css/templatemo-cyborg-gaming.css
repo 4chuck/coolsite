@@ -1982,50 +1982,63 @@ a.chatbot-link:focus-visible,
   outline-offset: 3px;
 }
 
+/* ===== ALERT ===== */
 #customcalert {
   border: 1px solid rgba(236, 96, 144, 0.45);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
+/* ===== CONTAINERS ===== */
 #quiz-container,
 #game-container,
 #online-players,
 #leaderboard {
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 16px !important;
-  background: linear-gradient(180deg, rgba(31, 37, 46, 0.95), rgba(24, 29, 36, 0.98)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(31, 37, 46, 0.95),
+    rgba(24, 29, 36, 0.98)
+  );
 }
 
-#answers button,
+/* ===== BUTTONS (DEFAULT ONLY) ===== */
+/* IMPORTANT: exclude answer state classes */
+#answers button:not(.correct-selection):not(.incorrect-selection):not(.missed-correct),
 #join-btn,
 #ready-btn,
 #play-again-btn,
 #music-toggle-btn {
-  background: linear-gradient(90deg, var(--cy-accent), #ff4f95) !important;
-  color: #fff !important;
-  border-radius: 12px !important;
+  background: linear-gradient(90deg, var(--cy-accent), #ff4f95);
+  color: #fff;
+  border-radius: 12px;
   font-weight: 700;
-  border: 0 !important;
+  border: 0;
   box-shadow: 0 10px 22px rgba(236, 96, 144, 0.3);
 }
 
-#answers button:hover,
+/* ===== HOVER (DEFAULT ONLY) ===== */
+#answers button:not(.correct-selection):not(.incorrect-selection):not(.missed-correct):hover,
 #join-btn:hover,
 #ready-btn:hover,
 #play-again-btn:hover,
 #music-toggle-btn:hover {
-  background: linear-gradient(90deg, #ff90ba, #ff6ca8) !important;
+  background: linear-gradient(90deg, #ff90ba, #ff6ca8);
 }
 
+/* ===== CHATBOT ===== */
 .chatbot-link {
   border: 1px solid rgba(236, 96, 144, 0.45);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 12px 24px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
 .chatbot-link:hover {
   transform: translateY(-2px) scale(1.06);
 }
 
+/* ===== TABLET ===== */
 @media (max-width: 992px) {
   .header-area {
     background: transparent;
@@ -2043,8 +2056,8 @@ a.chatbot-link:focus-visible,
   }
 
   .header-area .main-nav .nav li a {
-    color: #dde7f6 !important;
-    background: transparent !important;
+    color: #dde7f6;
+    background: transparent;
   }
 
   .header-area .main-nav .nav li:last-child a {
@@ -2057,6 +2070,7 @@ a.chatbot-link:focus-visible,
   }
 }
 
+/* ===== MOBILE ===== */
 @media (max-width: 767px) {
   body .page-content {
     padding: 20px 14px;
