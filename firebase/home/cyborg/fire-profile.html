@@ -522,18 +522,6 @@ console.log("[AppCheck] initialized");
     const database = getDatabase(app);
     const storage = getStorage(app);
 
-    async function resolveProfilePic(path) {
-      if (!path) return "default-avatar.png";
-
-      try {
-        const imageRef = storageRef(storage, path);
-        return await getDownloadURL(imageRef);
-      } catch (err) {
-        console.error("resolveProfilePic error:", err);
-        return "default-avatar.png";
-      }
-    }
-
     /* ===========================
        DOM elements
        =========================== */
@@ -672,8 +660,13 @@ changePicBtn.addEventListener("click", () => {
   document.getElementById('email').textContent = emailText;
 
     if (data.profilePic) {
-      const url = await resolveProfilePic(data.profilePic);
-      setProfileImage(url + "?t=" + Date.now());
+    try {
+      const imageRef = storageRef(storage, data.profilePic);
+      const downloadUrl = await getDownloadURL(imageRef);
+      setProfileImage(downloadUrl);
+    } catch {
+      setProfileImage("default-avatar.png");
+    }
   } else {
     setProfileImage("default-avatar.png");
   }
@@ -705,11 +698,12 @@ changePicBtn.addEventListener("click", () => {
       }
     
       try {
-        const downloadUrl = await resolveProfilePic(path);
+        const imageRef = storageRef(storage, path);
+        const downloadUrl = await getDownloadURL(imageRef);
       
         if (downloadUrl !== lastProfilePicUrl) {
           lastProfilePicUrl = downloadUrl;
-          setProfileImage(downloadUrl + "?t=" + Date.now());
+          setProfileImage(downloadUrl);
           hideProcessing();
         
           uploadInput.disabled = false;
