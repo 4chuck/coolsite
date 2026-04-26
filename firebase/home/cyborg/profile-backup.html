@@ -46,18 +46,9 @@
        ═══════════════════════════════════════════════════════════════════════ */
 
     /* 1. Lock header to top — kill theme's `position:absolute` and all
-          animation/transition that causes a jump on load.
-
-       ROOT-CAUSE FIX FOR SCROLL DISAPPEAR:
-       custom.js adds class `.background-header` to <header> on any scroll
-       because `.header-text` doesn't exist on this page (box=0, 0-70=-70,
-       scrollTop >= -70 is always true after first scroll event).
-       The theme CSS sets `.background-header { display: none }` — so the
-       header vanishes. We defeat it with display:block !important here. */
+          animation/transition that causes a jump on load */
     body.profile-page .header-area,
-    body.profile-page .background-header,
-    body.profile-page .header-area.background-header {
-      display: block !important;
+    body.profile-page .background-header {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
@@ -72,27 +63,10 @@
       box-shadow: none !important;
     }
 
-    /* 1b. When JS adds .background-header (scroll state) keep the
-           dark glass look — defeat theme's white background-color !important */
-    body.profile-page .header-area.background-header .main-nav {
-      /* Theme sets .background-header .main-nav { padding:0px } — this
-         collapses the nav and scatters all elements after scroll. Lock it. */
-      padding: 15px 20px !important;
-      min-height: 80px !important;
-      border-radius: 40px !important;
-      background: rgba(12, 14, 22, 0.94) !important;
-      backdrop-filter: blur(18px) !important;
-      -webkit-backdrop-filter: blur(18px) !important;
-      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55) !important;
-      border-bottom: 1px solid rgba(236, 96, 144, 0.15) !important;
-    }
-
     /* 2. Glassmorphism nav bar — overrides theme's `background: transparent`
           and the mobile `background-color: #f7f7f7` that the theme injects */
     body.profile-page .header-area .main-nav,
     body.profile-page .background-header .main-nav {
-      padding: 15px 20px !important;
-      min-height: 80px !important;
       background: rgba(15, 17, 26, 0.82) !important;
       backdrop-filter: blur(14px) !important;
       -webkit-backdrop-filter: blur(14px) !important;
@@ -179,37 +153,28 @@
     }
 
     /* 10. ≤992px overrides — theme forces white bg, white list items, and
-           removes border-radius entirely; we restore the dark panel look.
-           Also defeats the end-of-file @media(≤992px) block in templatemo
-           (lines 2042-2071) which resets nav styles without !important. */
+           removes border-radius entirely; we restore the dark panel look */
     @media (max-width: 992px) {
-      body.profile-page .header-area,
-      body.profile-page .header-area.background-header {
-        display: block !important;   /* keep visible even after scroll class */
+      body.profile-page .header-area {
         background: transparent !important;
         padding: 0 !important;
         box-shadow: none !important;
       }
 
-      body.profile-page .header-area .main-nav,
-      body.profile-page .header-area.background-header .main-nav {
+      body.profile-page .header-area .main-nav {
         border-radius: 0 !important;   /* pill doesn't work on narrow screens */
         padding: 0 16px !important;
-        /* defeat end-of-file templatemo block: border-radius:18px,
-           background:rgba(17,21,27,.98) — keep our own dark glass */
-        background: rgba(12, 14, 22, 0.96) !important;
       }
 
       body.profile-page .header-area .main-nav .nav {
         margin-top: 70px !important;   /* correct offset for fixed header height */
-        background: rgba(12, 14, 22, 0.98) !important;
+        background: rgba(15, 17, 26, 0.97) !important;
         border-top: 1px solid rgba(236, 96, 144, 0.15) !important;
         border-radius: 0 0 16px 16px !important;
         padding-bottom: 8px !important;
       }
 
       body.profile-page .header-area .main-nav .nav li {
-        /* defeat end-of-file: background:rgba(23,28,35,.98) */
         background: transparent !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
         width: 100% !important;
@@ -220,7 +185,6 @@
       }
 
       body.profile-page .header-area .main-nav .nav li a {
-        /* defeat end-of-file: color:#dde7f6; background:transparent */
         background: transparent !important;
         color: rgba(200, 210, 230, 0.85) !important;
         height: 48px !important;
@@ -239,15 +203,12 @@
         display: inline-block !important;
       }
 
-      /* defeat end-of-file: border-radius:0; border:none */
       body.profile-page .header-area .main-nav .nav li:last-child a {
         margin: 8px 16px !important;
         border-radius: 12px !important;
-        border: 1px solid rgba(236, 96, 144, 0.3) !important;
         padding: 8px 14px 8px 18px !important;
         height: auto !important;
         line-height: normal !important;
-        background: rgba(236, 96, 144, 0.12) !important;
       }
     }
 
