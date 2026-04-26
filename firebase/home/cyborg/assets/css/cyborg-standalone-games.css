@@ -1,0 +1,125 @@
+:root {
+  --game-bg: #14191f;
+  --game-surface: #1d242d;
+  --game-surface-2: #252e39;
+  --game-border: #364251;
+  --game-text: #edf3fb;
+  --game-muted: #a2afc1;
+  --game-accent: #ec6090;
+  --game-accent-2: #ff4f95;
+  --game-radius-lg: 18px;
+  --game-radius-md: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Poppins", Arial, sans-serif !important;
+  color: var(--game-text) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(236, 96, 144, 0.14), transparent 42%),
+    radial-gradient(circle at 92% 100%, rgba(236, 96, 144, 0.09), transparent 40%),
+    var(--game-bg) !important;
+}
+
+h1, h2, h3 {
+  color: #f5f9ff !important;
+  line-height: 1.25;
+}
+
+p {
+  color: var(--game-muted) !important;
+}
+
+button {
+  font-family: inherit;
+  border: 0;
+  border-radius: 12px !important;
+  background: linear-gradient(90deg, var(--game-accent), #ff4f95) !important;
+  color: #fff !important;
+  font-weight: 700;
+  box-shadow: 0 10px 18px rgba(236, 96, 144, 0.3) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(236, 96, 144, 0.36);
+  filter: brightness(1.06);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.category-box:focus-visible {
+  outline: 3px solid var(--game-accent);
+  outline-offset: 3px;
+}
+
+.grid,
+#grid,
+#game,
+#gameCanvas,
+#leaderboard,
+#musicOverlay,
+#topBar,
+#controls,
+#info,
+.score,
+.best-score,
+.instructions,
+.top-bar,
+.controls,
+.category-box,
+.heading {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.score,
+.best-score,
+.instructions,
+.top-bar,
+#topBar,
+#controls,
+#leaderboard,
+#musicOverlay,
+#info {
+  background: linear-gradient(180deg, rgba(33, 41, 51, 0.95), rgba(25, 31, 39, 0.98)) !important;
+  border-radius: var(--game-radius-md);
+  color: var(--game-text) !important;
+}
+
+.category-box,
+.grid .card,
+.card,
+.cell {
+  border-radius: var(--game-radius-md);
+}
+
+.category-box:hover,
+.card:hover,
+.cell:hover {
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.26);
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

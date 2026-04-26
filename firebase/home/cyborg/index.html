@@ -20,6 +20,63 @@
     <link rel="stylesheet" href="assets/css/owl.css">
     <link rel="stylesheet" href="assets/css/animate.css">
     <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <style>
+      /* Index-only pink theme overrides */
+      :root {
+        --index-pink: #ec6090;
+        --index-pink-strong: #ff4f95;
+      }
+
+      .header-area .main-nav .nav li:hover a,
+      .header-area .main-nav .nav li a.active,
+      .heading-section h4,
+      .main-banner h4 em {
+        color: var(--index-pink) !important;
+      }
+
+      .main-button a {
+        background: linear-gradient(90deg, var(--index-pink), var(--index-pink-strong)) !important;
+        color: #fff !important;
+        box-shadow: 0 10px 22px rgba(236, 96, 144, 0.33) !important;
+      }
+
+      .main-button a:hover {
+        background: linear-gradient(90deg, #ff7cae, #ff5a9a) !important;
+        color: #fff !important;
+      }
+
+      .main-border-button a {
+        color: #ffd2e4 !important;
+        border-color: rgba(236, 96, 144, 0.6) !important;
+        background: rgba(236, 96, 144, 0.12) !important;
+      }
+
+      .main-border-button a:hover {
+        background: #ff79ae !important;
+        color: #231524 !important;
+      }
+
+      .most-popular .item:hover,
+      .featured-games .item:hover,
+      .clips .item:hover,
+      .start-stream .item:hover {
+        border-color: rgba(236, 96, 144, 0.5) !important;
+        box-shadow: 0 16px 26px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(236, 96, 144, 0.18) inset !important;
+      }
+
+      .top-downloaded ul li .download i,
+      .profile-info .btn,
+      .header-area .main-nav .nav li:last-child a {
+        background-color: rgba(236, 96, 144, 0.16) !important;
+      }
+
+      .header-area .main-nav .nav li a:focus-visible,
+      .main-button a:focus-visible,
+      .main-border-button a:focus-visible {
+        outline: 3px solid rgba(255, 79, 149, 0.9) !important;
+        outline-offset: 3px;
+      }
+    </style>
 <!--
 
 TemplateMo 579 Cyborg Gaming
@@ -45,14 +102,14 @@ https://templatemo.com/tm-579-cyborg-gaming
   <!-- ***** Preloader End ***** -->
 
   <!-- ***** Header Area Start ***** -->
-  <header class="header-area header-sticky"style="background-color: #27292A;">
+  <header class="header-area header-sticky">
     <div class="container">
         <div class="row">
             <div class="col-12">
                 <nav class="main-nav">
                     <!-- ***** Logo Start ***** -->
                     <a href="index.html" class="logo">
-                        <img src="assets/images/logo.png" alt="">
+                        <img src="assets/images/logo.png" alt="Cyborg Gaming home">
                     </a>
                     <!-- ***** Logo End ***** -->
                     <!-- ***** Search End ***** -->
@@ -69,7 +126,7 @@ https://templatemo.com/tm-579-cyborg-gaming
                         <li><a href="browse.html">Browse</a></li>
                         <li><a href="details.html">Details</a></li>
                         <li><a href="streams.html">Streams</a></li>
-                        <li><a href="fire-profile.html">Profile <img src="assets/images/profile-header.jpg" alt=""></a></li>
+                        <li><a href="fire-profile.html">Profile <img src="assets/images/profile-header.jpg" alt="Profile avatar"></a></li>
                     </ul>   
                     <a class='menu-trigger'>
                         <span>Menu</span>
@@ -160,7 +217,7 @@ https://templatemo.com/tm-579-cyborg-gaming
                       <div class="row">
                         <div class="col-lg-6 col-sm-6">
                           <div class="item inner-item">
-                            <img src="assets/images/popular-05.jpg" alt="">
+                      <img src="assets/images/popular-05.jpg" alt="Mini Craft game cover">
                             <h4>Mini Craft<br><span>Legendary</span></h4>
                             <ul>
                               <li><i class="fa fa-star"></i> 4.8</li>
@@ -170,7 +227,7 @@ https://templatemo.com/tm-579-cyborg-gaming
                         </div>
                         <div class="col-lg-6 col-sm-6">
                           <div class="item">
-                            <img src="assets/images/popular-06.jpg" alt="">
+                            <img src="assets/images/popular-06.jpg" alt="Eagles Fly game cover">
                             <h4>Eagles Fly<br><span>Matrix Games</span></h4>
                             <ul>
                               <li><i class="fa fa-star"></i> 4.8</li>
@@ -183,7 +240,7 @@ https://templatemo.com/tm-579-cyborg-gaming
                   </div>
                   <div class="col-lg-3 col-sm-6">
                     <div class="item">
-                      <img src="assets/images/popular-07.jpg" alt="">
+                      <img src="assets/images/popular-07.jpg" alt="Warface game cover">
                       <h4>Warface<br><span>Max 3D</span></h4>
                       <ul>
                         <li><i class="fa fa-star"></i> 4.8</li>
@@ -193,7 +250,7 @@ https://templatemo.com/tm-579-cyborg-gaming
                   </div>
                   <div class="col-lg-3 col-sm-6">
                     <div class="item">
-                      <img src="assets/images/popular-08.jpg" alt="">
+                      <img src="assets/images/popular-08.jpg" alt="Warcraft game cover">
                       <h4>Warcraft<br><span>Legend</span></h4>
                       <ul>
                         <li><i class="fa fa-star"></i> 4.8</li>
@@ -283,9 +340,10 @@ https://templatemo.com/tm-579-cyborg-gaming
   <script src="assets/js/owl-carousel.js"></script>
   <script src="assets/js/tabs.js"></script>
   <script src="assets/js/popup.js"></script>
+  <script src="assets/js/app-enhancer.js"></script>
   <script src="assets/js/custom.js"></script>
 
-<a href="../main_ai3.html" class="chatbot-link" title="Chat with us">
+<a href="../main_ai3.html" class="chatbot-link" title="Chat with us" aria-label="Open chatbot">
   <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Chatbot" class="chatbot-icon">
 </a>
 <style>
@@ -295,18 +353,23 @@ https://templatemo.com/tm-579-cyborg-gaming
   bottom: 20px;
   left: 20px;
   z-index: 9999;
-  background: #1e1e1e;
+  background: linear-gradient(160deg, #1f2630, #2a3442);
   border-radius: 50%;
   padding: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.4);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   animation: pulse-glow 2s infinite;
 }
 
 /* 🔹 Hover Animation */
 .chatbot-link:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.45);
+}
+
+.chatbot-link:focus-visible {
+  outline: 3px solid #ff4f95;
+  outline-offset: 3px;
 }
 
 /* 🔹 Icon Styling */
@@ -318,8 +381,8 @@ https://templatemo.com/tm-579-cyborg-gaming
 
 /* 🔹 Glow Effect (optional, fits Cyborg theme) */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
-  50% { box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff; }
+  0%, 100% { box-shadow: 0 0 10px #ec6090, 0 0 20px #ec6090; }
+  50% { box-shadow: 0 0 20px #ec6090, 0 0 40px #ec6090; }
 }
 </style>
   </body>

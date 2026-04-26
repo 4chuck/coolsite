@@ -21,27 +21,27 @@
 <style>
   /* ============================
      Profile page — consolidated CSS
-     Includes: stable sticky/fixed header rules,
-     high-specificity nav layout fixes, and scoped
-     profile-card / dropdown / overlays styles.
-     Apply the JS snippet (provided earlier) that
-     adds `body.profile-fixed` to make the header fixed
-     and reserve content space. If you prefer no JS,
-     you can add `.profile-fixed` to <body> manually.
+     Scoped profile-card / dropdown / overlays styles,
+     while header/nav follows the same behavior as index.html.
      ============================ */
 
   :root{
     --accent: #ec6090;
+    --accent-strong: #ff4f95;
+    --accent-soft: rgba(236, 96, 144, 0.2);
     --danger: #f44336;
     --card-bg: rgba(255,255,255,0.04);
-    --muted: #666;
+    --muted: #a9b2c4;
     --header-height: 72px; /* fallback height; JS will update this */
   }
 
   /* ---------- Page basics (dark) ---------- */
   body{
     font-family: 'Poppins', Arial, sans-serif;
-    background: #0f0f17;
+    background:
+      radial-gradient(circle at 8% 0%, rgba(236, 96, 144, 0.14), transparent 35%),
+      radial-gradient(circle at 90% 100%, rgba(255, 79, 149, 0.12), transparent 38%),
+      #12151c;
     color: #eee;
     margin: 0;
     padding: 20px 0 60px;
@@ -49,106 +49,52 @@
     transform: translateZ(0); /* GPU hint to reduce sticky flicker */
   }
 
+  /* Keep scroll state (`background-header`) visually identical on this page */
+  body.profile-page .background-header {
+    display: block !important;
+    top: 10px !important;
+    height: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body.profile-page .background-header .main-nav {
+    padding: 15px 0 0 20px !important;
+    background: rgba(20, 24, 30, 0.88) !important;
+    border-radius: 999px !important;
+  }
+
+  body.profile-page .background-header .main-nav .logo {
+    margin-top: 0 !important;
+  }
+
+  body.profile-page .background-header .main-nav .logo img {
+    width: 191px !important;
+  }
+
  
-  /* ============================================================
-     Header / Nav
-     - Use sticky by default (to respect template) but provide a
-       stronger fixed rule when body.profile-fixed is present.
-     - Very specific selectors so this wins over template CSS.
-     ============================================================ */
-
-  header.header-area {
-    position: sticky;
-    top: 0;
-    z-index: 1200;
-    padding: 10px 0;
-    background: linear-gradient(90deg, rgba(7,7,12,0.95), rgba(15,15,25,0.95));
-    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  /* Defensive: keep header visible if some script tries to hide it */
-  header.header-area { display: block !important; visibility: visible !important; opacity: 1 !important; }
-
-  /* If JS adds body.profile-fixed, make header fixed (most robust) */
-  body.profile-fixed header.header-area {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 1400 !important;
-    background: linear-gradient(90deg, rgba(7,7,12,0.95), rgba(15,15,25,0.95));
-    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-
-  /* Reserve space under the fixed header so content doesn't jump. */
-  body.profile-fixed main.container,
-  body.profile-fixed .container {
-    margin-top: var(--header-height, 72px);
-    transition: margin-top .12s ease;
-  }
-
-  /* Prevent transforms on header children which can create stacking contexts */
-  header.header-area * { transform: none !important; }
-
-
+  /* Match index page header behavior/layout */
   .main-nav .logo img { height: 46px; display: block; }
-
-  /* Desktop: force horizontal nav */
-  @media (min-width: 9999px) {
-    header.header-area .container > .main-nav .nav {
-      display: flex !important;
-      flex-direction: row !important;
-      gap: 20px !important;
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-      align-items: center;
-      white-space: nowrap; /* prevents wrapping into vertical stack */
-      box-sizing: border-box;
-    }
-    header.header-area .container > .main-nav .nav li {
-      display: inline-flex !important;
-      align-items: center;
-    }
-    header.header-area .container > .main-nav .nav li a {
-      display: inline-block !important;
-      padding: 8px 12px;
-      color: #d9d9d9;
-    }
-    header.header-area .container > .main-nav .menu-trigger { display: none !important; }
-  }
-
-  /* Mobile: allow template to control collapse via JS */
-  @media (max-width: 991px) {
-    header.header-area .container > .main-nav .nav { display: none; } /* toggled by template JS */
-    header.header-area .container > .main-nav .menu-trigger { display: inline-block; cursor: pointer; }
-  }
-
-  /* Make search input flex-friendly so it won't push nav onto new line */
-  .main-nav .search-input { flex: 1 1 320px; min-width:140px; max-width:520px; box-sizing: border-box; }
-  .main-nav .search-input input { width: 100%; box-sizing: border-box; }
+  main.container { margin-top: 110px; }
 
   /* ========== Profile area (scoped to avoid clashes) ========== */
   .profile-wrapper { display: flex; gap: 24px; flex-direction: column; align-items: center; margin-top: 28px; }
   @media (min-width: 900px) { .profile-wrapper { flex-direction: row; align-items: flex-start; } }
 
   .profile-card {
-    background: var(--card-bg);
+    background: linear-gradient(180deg, rgba(36, 34, 48, 0.92), rgba(25, 27, 37, 0.95));
     color: #eee;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 20px;
     width: 100%;
     max-width: 420px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.45);
     text-align: center;
     position: relative;
   }
 
-  .profile-thumb { width: 220px; height: 220px; border-radius: 18px; object-fit: cover; display: block; margin: 0 auto; border: 6px solid rgba(0,0,0,0.06); }
+  .profile-thumb { width: 220px; height: 220px; border-radius: 18px; object-fit: cover; display: block; margin: 0 auto; border: 4px solid rgba(236, 96, 144, 0.4); box-shadow: 0 0 0 5px rgba(236, 96, 144, 0.15); }
   .profile-meta { margin-top: 12px; }
 
   /* Scope button styles so they don't conflict with template .btn */
@@ -172,24 +118,24 @@
     left: 50%;
     transform: translateX(-50%);
     min-width: 260px;
-    background: #121217;
+    background: #1a1722;
     color: #eaeaea;
     padding: 12px;
     border-radius: 8px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     z-index: 1800; /* above header & other UI */
-    border: 1px solid rgba(255,255,255,0.04);
+    border: 1px solid rgba(236, 96, 144, 0.25);
   }
   .profile-card .dropdown .dropdown-content input { width: 100%; padding: 8px; margin: 6px 0; background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; outline: none; }
-  .profile-card .dropdown .dropdown-content input[type="file"] { background: var(--accent); color: #fff; border: 1px dashed #ddd; padding: 8px; border-radius: 6px; cursor: pointer; }
+  .profile-card .dropdown .dropdown-content input[type="file"] { background: var(--accent); color: #fff; border: 1px dashed rgba(255,255,255,0.45); padding: 8px; border-radius: 6px; cursor: pointer; }
 
   /* ========== Profile info & data ========== */
-  .profile-info { flex: 1; min-width: 320px; background: rgba(255,255,255,0.04); padding: 18px; border-radius: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); }
+  .profile-info { flex: 1; min-width: 320px; background: linear-gradient(180deg, rgba(36, 34, 48, 0.92), rgba(25, 27, 37, 0.95)); padding: 22px; border-radius: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); }
   .profile-info h2 { margin: 0 0 6px; color: #fff; }
   .profile-info p { margin: 4px 0; color: var(--muted); }
 
   #data-container { margin-top: 18px; width: 100%; }
-  #data-display .category-data { background: rgba(255,255,255,0.03); padding: 10px; margin: 8px 0; border-radius: 8px; }
+  #data-display .category-data { background: rgba(255,255,255,0.03); padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid rgba(236, 96, 144, 0.18); }
   #load { color: #bdbdbd; font-weight: 600; }
 
   /* ========== Alerts & overlays ========== */
@@ -198,7 +144,7 @@
     top: 80px;
     left: 50%;
     transform: translateX(-50%) translateY(-20px);
-    background: #3498db;
+    background: linear-gradient(90deg, #ec6090, #ff4f95);
     color: #fff;
     padding: 12px 25px;
     border-radius: 8px;
@@ -261,6 +207,65 @@
     color: #ddd;
     font-size: 0.92rem;
 }
+
+  .main-nav .nav li a.active,
+  .main-nav .nav li a:hover {
+    color: var(--accent) !important;
+  }
+
+  .profile-card .btn-upload,
+  .profile-card .dropdown .dropdown-btn,
+  #settingsBtn,
+  #helpBtn {
+    background: linear-gradient(90deg, var(--accent), var(--accent-strong)) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    box-shadow: 0 10px 20px rgba(236, 96, 144, 0.33);
+  }
+
+  .profile-card .btn-upload:hover,
+  .profile-card .dropdown .dropdown-btn:hover,
+  #settingsBtn:hover,
+  #helpBtn:hover,
+  #logout-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+
+  #logout-btn {
+    box-shadow: 0 10px 20px rgba(244, 67, 54, 0.3);
+  }
+
+  .profile-card .btn:focus-visible,
+  .profile-info .btn:focus-visible,
+  .profile-card input:focus-visible,
+  .main-nav a:focus-visible,
+  #changePicBtn:focus-visible,
+  #logout-btn:focus-visible {
+    outline: 3px solid rgba(255, 79, 149, 0.85);
+    outline-offset: 3px;
+  }
+
+  .profile-card .dropdown .dropdown-content input:focus {
+    border-color: rgba(236, 96, 144, 0.65);
+    box-shadow: 0 0 0 3px rgba(236, 96, 144, 0.22);
+  }
+
+  hr {
+    border-color: rgba(236, 96, 144, 0.18) !important;
+  }
+
+  footer {
+    color: #b8bfd0;
+  }
+
+  footer a {
+    color: #f199bd;
+  }
+
+  footer a:hover {
+    color: #ff7fb3;
+  }
  /* footer */
   footer { margin-top: 30px; padding: 18px 0; text-align: center; color: #9aa0b4; }
 
@@ -276,12 +281,83 @@
   pointer-events: none;
 }
 
+@media (max-width: 991px) {
+  body {
+    padding-top: 8px;
+  }
+
+  main.container {
+    margin-top: 88px;
+  }
+
+  body.profile-page .background-header {
+    top: 0 !important;
+  }
+
+  main.container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .profile-wrapper {
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .profile-card,
+  .profile-info {
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 20px;
+  }
+
+  .profile-info {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .profile-thumb {
+    width: min(200px, 62vw);
+    height: min(200px, 62vw);
+  }
+
+  #name {
+    font-size: 1.5rem !important;
+  }
+
+  #email {
+    font-size: 1.05rem !important;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  #settingsBtn,
+  #helpBtn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-thumb {
+    width: min(180px, 66vw);
+    height: min(180px, 66vw);
+  }
+
+  .profile-card .btn,
+  .profile-info .btn,
+  .profile-card .dropdown .dropdown-btn {
+    min-height: 44px;
+    font-size: 1rem;
+    padding: 10px 16px;
+  }
+}
+
 
 </style>
 
 </head>
 
-<body>
+<body class="profile-page">
   <!-- Preloader -->
   <div id="js-preloader" class="js-preloader" style="display:none;">
     <div class="preloader-inner">
@@ -293,10 +369,12 @@
   <!-- Header -->
   <header class="header-area header-sticky">
     <div class="container">
+      <div class="row">
+        <div class="col-12">
       <nav class="main-nav">
                     <!-- ***** Logo Start ***** -->
                     <a href="index.html" class="logo">
-                        <img src="assets/images/logo.png" alt="">
+                        <img src="assets/images/logo.png" alt="Cyborg Gaming home">
                     </a>
                     <!-- ***** Logo End ***** -->
                     <!-- ***** Search End ***** -->
@@ -313,16 +391,17 @@
                         <li><a href="browse.html">Browse</a></li>
                         <li><a href="details.html">Details</a></li>
                         <li><a href="streams.html">Streams</a></li>
-                        <li><a href="fire-profile.html" class="active">Profile <img src="assets/images/profile-header.jpg" alt=""></a></li>
+                        <li><a href="fire-profile.html" class="active">Profile <img src="assets/images/profile-header.jpg" alt="Profile avatar"></a></li>
                     </ul>   
                     <a class='menu-trigger'>
                         <span>Menu</span>
                     </a>
                     <!-- ***** Menu End ***** -->
                 </nav>
+        </div>
+      </div>
     </div>
   </header>
-<br><br><br><br>
   <main class="container">
     <div class="profile-wrapper">
       <!-- LEFT: profile card -->
@@ -547,12 +626,21 @@ changePicBtn.addEventListener("click", () => {
        =========================== */
     onAuthStateChanged(auth, (user) => {
       if (!user) {
+        if (window.AppEnhancer) window.AppEnhancer.clearSession();
         // Not authenticated -> redirect to login
         calert("Not logged in — redirecting...");
         setTimeout(() => {
           window.location.href = "../../../login/fire-login.html";
         }, 900);
         return;
+      }
+
+      if (window.AppEnhancer) {
+        window.AppEnhancer.captureUser({
+          uid: user.uid,
+          email: user.email || "",
+          displayName: user.displayName || ""
+        });
       }
 
       calert("Loading your profile...");
@@ -669,6 +757,7 @@ changePicBtn.addEventListener("click", () => {
     logoutBtn.addEventListener("click", async () => {
       try {
         await signOut(auth);
+        if (window.AppEnhancer) window.AppEnhancer.clearSession();
         localStorage.removeItem("name");
         localStorage.removeItem("userUID");
         calert("Logged out.");
@@ -797,6 +886,7 @@ changePicBtn.addEventListener("click", () => {
   <script src="assets/js/owl-carousel.js"></script>
   <script src="assets/js/tabs.js"></script>
   <script src="assets/js/popup.js"></script>
+  <script src="assets/js/app-enhancer.js"></script>
   <script src="assets/js/custom.js"></script>
 </body>
 

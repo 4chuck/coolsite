@@ -404,6 +404,13 @@ html[data-theme="bright"] #user-input::placeholder { color: rgba(0,0,0,0.34); }
 #send-btn:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.06); }
 #send-btn:disabled { opacity:0.6; cursor:not-allowed; }
 
+.rate-limit-hint {
+  margin: 0 14px 10px;
+  font-size: 0.82rem;
+  color: var(--subtext);
+  min-height: 18px;
+}
+
 /* ===========================================================
    Responsive adjustments
 =========================================================== */
@@ -576,6 +583,143 @@ window.__chatTheme = {
   const sendBtn = document.getElementById('send-btn');
   const authStatus = document.getElementById('auth-status');
   const LOADER_ID = 'gemini-typing-indicator';
+  const inputArea = document.querySelector('.input-area');
+  const rateLimitHint = document.createElement('div');
+  rateLimitHint.className = 'rate-limit-hint';
+  rateLimitHint.textContent = '';
+  inputArea.insertAdjacentElement('beforebegin', rateLimitHint);
+  let currentUid = null;
+  let rateUiTimer = null;
+
+  /*************************************************************************
+   * Frontend request limiter (additive, no backend changes)
+   * - cooldown between requests
+   * - rolling window cap
+   * - daily cap
+   *************************************************************************/
+  const RATE_LIMIT = {
+    KEY_PREFIX: 'chat_rate_limit_v1_',
+    COOLDOWN_MS: 6000,                 // minimum gap between sends
+    WINDOW_MS: 10 * 60 * 1000,         // rolling 10-minute window
+    MAX_PER_WINDOW: 20,                // max requests in window
+    MAX_PER_DAY: 180                   // max requests per day per user
+  };
+
+  function rateKey(uid) {
+    return RATE_LIMIT.KEY_PREFIX + uid;
+  }
+
+  function dayKey(ts = Date.now()) {
+    return new Date(ts).toISOString().slice(0, 10);
+  }
+
+  function loadRateState(uid) {
+    const blank = { timestamps: [], day: dayKey(), dailyCount: 0 };
+    try {
+      const raw = localStorage.getItem(rateKey(uid));
+      if (!raw) return blank;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return blank;
+      return {
+        timestamps: Array.isArray(parsed.timestamps) ? parsed.timestamps.filter(n => Number.isFinite(n)) : [],
+        day: typeof parsed.day === 'string' ? parsed.day : dayKey(),
+        dailyCount: Number.isFinite(parsed.dailyCount) ? parsed.dailyCount : 0
+      };
+    } catch {
+      return blank;
+    }
+  }
+
+  function saveRateState(uid, state) {
+    localStorage.setItem(rateKey(uid), JSON.stringify(state));
+  }
+
+  function formatWait(seconds) {
+    if (seconds < 60) return `${seconds}s`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}m ${s}s`;
+  }
+
+  function getRateStatus(uid) {
+    const now = Date.now();
+    const state = loadRateState(uid);
+    const today = dayKey(now);
+
+    if (state.day !== today) {
+      state.day = today;
+      state.dailyCount = 0;
+      state.timestamps = [];
+      saveRateState(uid, state);
+    }
+
+    state.timestamps = state.timestamps.filter(ts => now - ts <= RATE_LIMIT.WINDOW_MS);
+    saveRateState(uid, state);
+
+    const last = state.timestamps[state.timestamps.length - 1] || 0;
+    const cooldownLeftMs = Math.max(0, RATE_LIMIT.COOLDOWN_MS - (now - last));
+    if (cooldownLeftMs > 0) {
+      return {
+        allowed: false,
+        reason: `Please wait ${formatWait(Math.ceil(cooldownLeftMs / 1000))} before sending another message.`,
+        retryMs: cooldownLeftMs
+      };
+    }
+
+    if (state.timestamps.length >= RATE_LIMIT.MAX_PER_WINDOW) {
+      const oldest = state.timestamps[0];
+      const retryMs = Math.max(0, RATE_LIMIT.WINDOW_MS - (now - oldest));
+      return {
+        allowed: false,
+        reason: `Too many messages. Try again in ${formatWait(Math.ceil(retryMs / 1000))}.`,
+        retryMs
+      };
+    }
+
+    if (state.dailyCount >= RATE_LIMIT.MAX_PER_DAY) {
+      return {
+        allowed: false,
+        reason: 'Daily chat limit reached. Please try again tomorrow.',
+        retryMs: 60 * 1000
+      };
+    }
+
+    return { allowed: true, reason: '', retryMs: 0 };
+  }
+
+  function consumeRateToken(uid) {
+    const now = Date.now();
+    const state = loadRateState(uid);
+    const today = dayKey(now);
+    if (state.day !== today) {
+      state.day = today;
+      state.dailyCount = 0;
+      state.timestamps = [];
+    }
+    state.timestamps = state.timestamps.filter(ts => now - ts <= RATE_LIMIT.WINDOW_MS);
+    state.timestamps.push(now);
+    state.dailyCount += 1;
+    saveRateState(uid, state);
+  }
+
+  function updateRateUi() {
+    if (!currentUid) return;
+    const status = getRateStatus(currentUid);
+    if (!status.allowed) {
+      rateLimitHint.textContent = status.reason;
+      if (!userInput.disabled) sendBtn.disabled = true;
+      return;
+    }
+    if (!userInput.disabled) {
+      sendBtn.disabled = !userInput.value.trim();
+    }
+    rateLimitHint.textContent = '';
+  }
+
+  function startRateUiPolling() {
+    if (rateUiTimer) clearInterval(rateUiTimer);
+    rateUiTimer = setInterval(updateRateUi, 1000);
+  }
 
   function escapeHtml(unsafe) {
     return unsafe
@@ -605,6 +749,7 @@ window.__chatTheme = {
     userInput.focus();
     const el = document.getElementById(LOADER_ID);
     if (el) el.remove();
+    updateRateUi();
   }
 
   // Render messages - user messages are escaped, bot messages are parsed via marked
@@ -646,20 +791,26 @@ window.__chatTheme = {
    *************************************************************************/
   auth.onAuthStateChanged((user) => {
     if (!user) {
+      currentUid = null;
+      if (rateUiTimer) clearInterval(rateUiTimer);
       authStatus.textContent = 'Please sign in to use the chatbot.';
       userInput.disabled = true;
       sendBtn.disabled = true;
+      rateLimitHint.textContent = '';
       chatWindow.innerHTML = '<div class="status-text">Not logged in.</div>';
       window.location.href = '../../login/fire-login.html';
       return;
     }
 
     const uid = user.uid;
+    currentUid = uid;
     const COLLECTION = `chats/${uid}/messages`; // match your extension path
 
     authStatus.textContent = `Authenticated • Chat ID: ${uid.slice(0,8)}…`;
     userInput.disabled = false;
-    sendBtn.disabled = false;
+    sendBtn.disabled = !userInput.value.trim();
+    updateRateUi();
+    startRateUiPolling();
     chatWindow.innerHTML = '<div class="status-text">Loading chat history…</div>';
 
     // Query - order by createdAt (ensure extension writes createdAt or change field to match)
@@ -701,12 +852,21 @@ window.__chatTheme = {
     const sendMessage = async () => {
       const text = userInput.value.trim();
       if (!text) return;
+      const rate = getRateStatus(uid);
+      if (!rate.allowed) {
+        rateLimitHint.textContent = rate.reason;
+        sendBtn.disabled = true;
+        return;
+      }
       try {
+        consumeRateToken(uid);
+        updateRateUi();
         await db.collection(COLLECTION).add({
           prompt: text,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         userInput.value = '';
+        updateRateUi();
       } catch (e) {
         console.error('Send message error', e);
         alert('Failed to send message — check console.');
@@ -715,6 +875,7 @@ window.__chatTheme = {
     };
 
     sendBtn.onclick = sendMessage;
+    userInput.addEventListener('input', updateRateUi);
     userInput.onkeydown = (ev) => {
       if (ev.key === 'Enter' && !ev.shiftKey) {
         ev.preventDefault();

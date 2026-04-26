@@ -367,7 +367,7 @@ Header Style
   min-height: 80px;
   background: transparent;
   display: flex;
-  padding: 15px 0px;
+  padding: 15px 20px;
   border-radius: 50px;
 }
 
@@ -1731,5 +1731,364 @@ body {
   }
   .gaming-library .item ul li {
     width: 16%;
+  }
+}
+
+/* ---------------------------------------------
+Modern UI/UX Upgrade Overrides
+--------------------------------------------- */
+:root {
+  --cy-bg: #161a1f;
+  --cy-surface: #1d2229;
+  --cy-surface-2: #252b34;
+  --cy-border: #333b46;
+  --cy-text: #eef2f7;
+  --cy-muted: #9da8b8;
+  --cy-accent: #ec6090;
+  --cy-accent-2: #ff4f95;
+  --cy-radius-lg: 20px;
+  --cy-radius-md: 14px;
+  --cy-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
+}
+
+html, body {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(236, 96, 144, 0.12), transparent 40%),
+    radial-gradient(circle at 88% 100%, rgba(236, 96, 144, 0.08), transparent 42%),
+    var(--cy-bg);
+  color: var(--cy-text);
+}
+
+body {
+  line-height: 1.6;
+}
+
+a,
+a:focus,
+a:active {
+  color: var(--cy-text);
+}
+
+a:hover {
+  color: var(--cy-accent);
+}
+
+p {
+  color: var(--cy-muted);
+  line-height: 1.72;
+}
+
+body .page-content {
+  background: linear-gradient(180deg, rgba(37, 43, 52, 0.95), rgba(27, 32, 40, 0.95));
+  border: 1px solid var(--cy-border);
+  box-shadow: var(--cy-shadow);
+  border-radius: var(--cy-radius-lg);
+  padding: clamp(24px, 4vw, 58px);
+}
+
+.heading-section h4 {
+  color: var(--cy-accent);
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.25;
+  margin-bottom: 24px;
+}
+
+.heading-section h4 em {
+  color: #fff;
+}
+
+.header-area {
+  top: 10px;
+}
+
+.header-area .main-nav {
+  background: rgba(20, 24, 30, 0.88);
+  border: 1px solid var(--cy-border);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+.background-header {
+  background-color: rgba(16, 20, 26, 0.96) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28) !important;
+}
+
+.header-area .main-nav .logo {
+  border-right: 1px solid var(--cy-border);
+}
+
+.header-area .main-nav .nav li a {
+  color: #c7d2df;
+  font-weight: 500;
+}
+
+.header-area .main-nav .nav li:hover a,
+.header-area .main-nav .nav li a.active {
+  color: var(--cy-accent) !important;
+}
+
+.header-area .main-nav .nav li:last-child a {
+  background: rgba(236, 96, 144, 0.18);
+  border: 1px solid rgba(236, 96, 144, 0.4);
+}
+
+.header-area .main-nav .nav li:last-child:hover a,
+.header-area .main-nav .nav li:last-child a.active {
+  background-color: var(--cy-accent-2) !important;
+}
+
+.header-area .main-nav #search input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cy-border);
+  color: #e6edf7;
+}
+
+.header-area .main-nav #search input::placeholder {
+  color: #9ba8bb;
+}
+
+.main-banner {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  min-height: clamp(280px, 44vw, 390px);
+  padding: clamp(34px, 6vw, 80px) clamp(20px, 5vw, 60px);
+}
+
+.main-banner h6 {
+  font-size: clamp(15px, 2vw, 20px);
+  color: #d8e5f6;
+}
+
+.main-banner h4 {
+  font-size: clamp(30px, 5vw, 50px);
+  line-height: 1.16;
+}
+
+.main-button a,
+.main-border-button a {
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.main-button a {
+  background: linear-gradient(90deg, var(--cy-accent) 0%, #ff4f95 100%);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(236, 96, 144, 0.33);
+}
+
+.main-button a:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(90deg, #ff90ba 0%, #ff6ca8 100%);
+  color: #fff;
+}
+
+.main-border-button a {
+  color: #ffd0e3;
+  border: 1px solid rgba(236, 96, 144, 0.55);
+  background: rgba(236, 96, 144, 0.12);
+}
+
+.main-border-button a:hover {
+  color: #2a1520;
+  border-color: transparent;
+  background: #ff79ae;
+}
+
+.most-popular,
+.gaming-library,
+.featured-games,
+.top-downloaded,
+.live-stream,
+.game-details,
+.other-games,
+.main-profile,
+.clips,
+.start-stream {
+  background: linear-gradient(180deg, var(--cy-surface), var(--cy-surface-2));
+  border: 1px solid var(--cy-border);
+  border-radius: var(--cy-radius-lg);
+  box-shadow: var(--cy-shadow);
+}
+
+.most-popular .item,
+.featured-games .item,
+.top-downloaded ul li,
+.clips .item,
+.start-stream .item,
+.gaming-library .item {
+  background: linear-gradient(180deg, rgba(42, 50, 60, 0.92), rgba(32, 38, 46, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--cy-radius-md);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.most-popular .item:hover,
+.featured-games .item:hover,
+.clips .item:hover,
+.start-stream .item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(236, 96, 144, 0.5);
+  box-shadow: 0 16px 26px rgba(0, 0, 0, 0.32);
+}
+
+.most-popular .item h4,
+.featured-games .item h4,
+.top-downloaded ul li h4,
+.game-details h2,
+.clips .item h4,
+.gaming-library .item ul li h4 {
+  color: #f7fbff;
+}
+
+.most-popular .item span,
+.featured-games .item span,
+.gaming-library .item ul li span,
+.top-downloaded ul li span,
+.clips .item span {
+  color: #a6b3c4;
+}
+
+.top-downloaded ul li .download i {
+  background-color: rgba(236, 96, 144, 0.22);
+  color: var(--cy-accent);
+}
+
+.gaming-library .item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gaming-library .item ul li img,
+.most-popular .item img,
+.featured-games .item img,
+.clips .item .thumb img,
+.other-games .item img,
+.templatemo-item {
+  border-radius: 12px;
+}
+
+.header-area .main-nav .nav li a:focus-visible,
+.main-button a:focus-visible,
+.main-border-button a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a.chatbot-link:focus-visible,
+.category-box:focus-visible {
+  outline: 3px solid var(--cy-accent) !important;
+  outline-offset: 3px;
+}
+
+#customcalert {
+  border: 1px solid rgba(236, 96, 144, 0.45);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+#quiz-container,
+#game-container,
+#online-players,
+#leaderboard {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  background: linear-gradient(180deg, rgba(31, 37, 46, 0.95), rgba(24, 29, 36, 0.98)) !important;
+}
+
+#answers button,
+#join-btn,
+#ready-btn,
+#play-again-btn,
+#music-toggle-btn {
+  background: linear-gradient(90deg, var(--cy-accent), #ff4f95) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  font-weight: 700;
+  border: 0 !important;
+  box-shadow: 0 10px 22px rgba(236, 96, 144, 0.3);
+}
+
+#answers button:hover,
+#join-btn:hover,
+#ready-btn:hover,
+#play-again-btn:hover,
+#music-toggle-btn:hover {
+  background: linear-gradient(90deg, #ff90ba, #ff6ca8) !important;
+}
+
+.chatbot-link {
+  border: 1px solid rgba(236, 96, 144, 0.45);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.chatbot-link:hover {
+  transform: translateY(-2px) scale(1.06);
+}
+
+@media (max-width: 992px) {
+  .header-area {
+    background: transparent;
+    padding: 8px 14px;
+  }
+
+  .header-area .main-nav {
+    border-radius: 18px;
+    background: rgba(17, 21, 27, 0.98);
+  }
+
+  .header-area .main-nav .nav li {
+    background: rgba(23, 28, 35, 0.98);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .header-area .main-nav .nav li a {
+    color: #dde7f6 !important;
+    background: transparent !important;
+  }
+
+  .header-area .main-nav .nav li:last-child a {
+    border-radius: 0;
+    border: none;
+  }
+
+  body .page-content {
+    margin-top: 96px;
+  }
+}
+
+@media (max-width: 767px) {
+  body .page-content {
+    padding: 20px 14px;
+    border-radius: 14px;
+    margin-top: 88px;
+  }
+
+  .main-banner {
+    border-radius: 14px;
+  }
+
+  .most-popular,
+  .gaming-library,
+  .featured-games,
+  .top-downloaded,
+  .live-stream,
+  .game-details,
+  .other-games,
+  .main-profile,
+  .clips,
+  .start-stream {
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .chatbot-link {
+    bottom: 14px;
+    left: 14px;
+  }
+
+  .chatbot-icon {
+    width: 42px;
+    height: 42px;
   }
 }
