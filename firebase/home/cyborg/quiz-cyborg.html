@@ -112,7 +112,7 @@
                   <section class="inner-page" style="margin-top: 20px;">
 
                     <div class="container">
-                      <div class="container" style="border:8px outset #5533ff">
+                      <div class="container">
                         <audio id="bg-music" loop preload="none">
                           <source src="assets/spring_in_my_step.mp3" type="audio/mpeg">
                           Your browser does not support the audio element.
@@ -197,224 +197,227 @@
       </div>
     </div>
   </div>
- <style>
-/* ===== BASE ===== */
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  font-size: 22px;
-}
+  <style>
+    /* ===== BASE ===== */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      font-size: 22px;
+    }
 
-#game-container {
-  padding: 20px;
-}
+    #game-container {
+      padding: 20px;
+    }
 
-/* ===== INPUTS ===== */
-select,
-input {
-  padding: 10px;
-  margin: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 23px;
-  width: 100%;
-  max-width: 90%;
-}
+    /* ===== INPUTS ===== */
+    select,
+    input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 23px;
+      width: 100%;
+      max-width: 90%;
+    }
 
-/* ===== BUTTONS ===== */
-button {
-  padding: 10px 20px;
-  margin: 5px;
-  background-color: #ec6090;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 23px;
-  transition: all 0.3s ease;
-}
+    /* ===== BUTTONS ===== */
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #ec6090;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 23px;
+      transition: all 0.3s ease;
+    }
 
-button:hover {
-  background-color: #ff367b;
-}
+    button:hover {
+      background-color: #ff367b;
+    }
 
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
 
-/* ===== ANSWERS ===== */
-#answers button {
-  width: 100%;
-  max-width: 300px;
-  margin: 5px;
-  border: 2px solid transparent;
-}
+    /* ===== ANSWERS ===== */
+    #answers button {
+      width: 100%;
+      max-width: 300px;
+      margin: 5px;
+      border: 2px solid transparent;
+    }
 
-/* Default gradient */
-.answer-btn {
-  background: linear-gradient(45deg, #ff6a9f, #ff3d7f);
-}
+    /* Default gradient */
+    .answer-btn {
+      background: linear-gradient(45deg, #ff6a9f, #ff3d7f);
+    }
 
-/* ===== STATES ===== */
-.correct-selection,
-.missed-correct {
-  background: #28a745;
-  color: #fff;
-  box-shadow: 0 0 10px #28a745;
-  transform: scale(1.05);
-}
+    /* ===== STATES ===== */
+    .correct-selection,
+    .missed-correct {
+      background: #28a745;
+      color: #fff;
+      box-shadow: 0 0 10px #28a745;
+      transform: scale(1.05);
+    }
 
-.incorrect-selection {
-  background: #dc3545;
-  color: #fff;
-  box-shadow: 0 0 10px #dc3545;
-  opacity: 0.85;
-}
+    .incorrect-selection {
+      background: #dc3545;
+      color: #fff;
+      box-shadow: 0 0 10px #dc3545;
+      opacity: 0.85;
+    }
 
-/* Ensure gradient never overrides state */
-.correct-selection,
-.incorrect-selection,
-.missed-correct {
-  background-image: none;
-}
+    /* Ensure gradient never overrides state */
+    .correct-selection,
+    .incorrect-selection,
+    .missed-correct {
+      background-image: none;
+    }
 
-/* ===== FEEDBACK ===== */
-#feedback-text {
-  font-size: 28px;
-  font-weight: 800;
-  margin-top: 15px;
-  height: 40px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
+    /* ===== FEEDBACK ===== */
+    #feedback-text {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 15px;
+      height: 40px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
 
-.text-correct {
-  color: #28a745;
-  text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
-}
+    .text-correct {
+      color: #28a745;
+      text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+    }
 
-.text-incorrect {
-  color: #dc3545;
-  text-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
-}
+    .text-incorrect {
+      color: #dc3545;
+      text-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+    }
 
-/* ===== TIMER ===== */
-#timer {
-  font-size: 20px;
-  margin-top: 20px;
-  color: #999;
-}
+    /* ===== TIMER ===== */
+    #timer {
+      font-size: 20px;
+      margin-top: 20px;
+      color: #999;
+    }
 
-#timer span {
-  font-weight: 700;
-  color: #fff;
-}
+    #timer span {
+      font-weight: 700;
+      color: #fff;
+    }
 
-#timer.low-time {
-  color: #ff367b;
-  font-weight: bold;
-  animation: blink 0.5s infinite;
-}
+    #timer.low-time {
+      color: #ff367b;
+      font-weight: bold;
+      animation: blink 0.5s infinite;
+    }
 
-@keyframes blink {
-  50% { opacity: 0.5; }
-}
+    @keyframes blink {
+      50% {
+        opacity: 0.5;
+      }
+    }
 
-/* ===== QUIZ CONTAINER ===== */
-#quiz-container {
-  padding: 30px;
-  background: #1f2122;
-  border-radius: 25px;
-  color: #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  border: 1px solid rgba(236, 96, 144, 0.2);
-}
+    /* ===== QUIZ CONTAINER ===== */
+    #quiz-container {
+      padding: 30px;
+      background: #1f2122;
+      border-radius: 25px;
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(236, 96, 144, 0.2);
+    }
 
-#question-container {
-  margin-bottom: 25px;
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
+    #question-container {
+      margin-bottom: 25px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-#question {
-  margin-bottom: 20px;
-  line-height: 1.4;
-}
+    #question {
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
 
-/* ===== LEADERBOARD ===== */
-#leaderboard ul {
-  list-style: none;
-  padding: 0;
-}
+    /* ===== LEADERBOARD ===== */
+    #leaderboard ul {
+      list-style: none;
+      padding: 0;
+    }
 
-#leaderboard li {
-  background: #1f2122;
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 5px;
-}
+    #leaderboard li {
+      background: #1f2122;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
 
-.highlighted-item {
-  background-color: #B2EBF2;
-}
+    .highlighted-item {
+      background-color: #B2EBF2;
+    }
 
-/* ===== ONLINE PLAYERS ===== */
-#online-players {
-  max-height: 500px;
-}
+    /* ===== ONLINE PLAYERS ===== */
+    #online-players {
+      max-height: 500px;
+    }
 
-#online-players-list li {
-  font-size: 20px;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 8px;
-  background: #ec6090;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  word-wrap: break-word;
-}
+    #online-players-list li {
+      font-size: 20px;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 8px;
+      background: #ec6090;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+    }
 
-/* ===== IMAGE ===== */
-img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-}
+    /* ===== IMAGE ===== */
+    img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+    }
 
-/* ===== ANIMATION ===== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    /* ===== ANIMATION ===== */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
 
-/* ===== MOBILE ===== */
-@media (max-width: 600px) {
-  #answers button {
-    max-width: 90%;
-    font-size: 18px;
-  }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-  #online-players {
-    max-height: 200px;
-    padding: 15px;
-  }
+    /* ===== MOBILE ===== */
+    @media (max-width: 600px) {
+      #answers button {
+        max-width: 90%;
+        font-size: 18px;
+      }
 
-  #online-players-list li {
-    font-size: 18px;
-    padding: 8px;
-  }
-}
-</style>
+      #online-players {
+        max-height: 200px;
+        padding: 15px;
+      }
+
+      #online-players-list li {
+        font-size: 18px;
+        padding: 8px;
+      }
+    }
+  </style>
 
 
 
@@ -430,9 +433,7 @@ img {
     import { remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
     import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-
-    // App Check Import
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+    import { initializeAppCheck, ReCaptchaV3Provider, getToken as getAppCheckToken } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
@@ -449,14 +450,21 @@ img {
     /********************************************
      * Firebase App Check (reCAPTCHA v3)
      ********************************************/
-    const appCheck = initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(
-        '6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'   // your site key
-      ),
-      isTokenAutoRefreshEnabled: true
-    });
+    let appCheck = null;
+    let appCheckReady = Promise.resolve();
 
-    console.log("App Check enabled");
+    try {
+      appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'),
+        isTokenAutoRefreshEnabled: true
+      });
+      appCheckReady = getAppCheckToken(appCheck, false)
+        .then(() => { console.log("App Check token pre-warmed"); })
+        .catch(err => { console.warn("App Check pre-warm failed:", err); });
+      console.log("App Check enabled");
+    } catch (err) {
+      console.warn("App Check init failed:", err);
+    }
 
     const auth = getAuth(app);
     const db = getDatabase(app);
@@ -527,22 +535,68 @@ img {
       }
     });
 
+    // Helper to decode HTML entities (e.g., &#039; to ')
+    function decodeHtml(html) {
+      const txt = document.createElement("textarea");
+      txt.innerHTML = html;
+      return txt.value;
+    }
+
+    /**
+     * getDownloadURL with exponential-backoff retry.
+     * Fixes potential App Check token race conditions.
+     */
+    async function getDownloadURLWithRetry(ref, maxAttempts = 4) {
+      await appCheckReady;
+      let delay = 800;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          return await getDownloadURL(ref);
+        } catch (err) {
+          const retryable = [
+            'appCheck/token-error',
+            'storage/unauthorized',
+            'storage/retry-limit-exceeded'
+          ].some(code => err?.code === code);
+          if (!retryable || attempt === maxAttempts) throw err;
+          console.warn(`[Storage] getDownloadURL attempt ${attempt} failed (${err.code}), retrying in ${delay}ms…`);
+          if (appCheck) {
+            await getAppCheckToken(appCheck, true).catch(() => { });
+          }
+          await new Promise(r => setTimeout(r, delay));
+          delay = Math.min(delay * 2, 8000);
+        }
+      }
+    }
+
     // ---------- minimal helper: cache-aware avatar loader ----------
     async function resolveProfilePic(path) {
       if (!path) return "assets/images/default-avatar.png";
+      if (/^https?:\/\//i.test(path)) return path;
 
       try {
         const imageRef = storageRef(storage, path);
-        return await getDownloadURL(imageRef);
+        return await getDownloadURLWithRetry(imageRef);
       } catch (err) {
         console.error("resolveProfilePic error:", err);
         return "assets/images/default-avatar.png";
       }
     }
 
-    async function getAvatar(uid) {
+    async function getAvatar(uid, player = null) {
       if (!uid) return "assets/images/default-avatar.png";
       if (avatarCache.has(uid)) return avatarCache.get(uid);
+
+      // Try using the profilePic path stored in the player object first (fixes permission issues)
+      if (player && player.profilePic) {
+        try {
+          const url = await resolveProfilePic(player.profilePic);
+          avatarCache.set(uid, url);
+          return url;
+        } catch (err) {
+          console.warn("Failed to resolve profilePic from player object", err);
+        }
+      }
 
       try {
         const snap = await get(ref(db, `users/${uid}/profilePic`));
@@ -572,7 +626,7 @@ img {
         playerId = storedUid;
         const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
 
-        await set(playerRef, {
+        await update(playerRef, {
           name: playerName,
           ready: false,
           online: true,
@@ -586,7 +640,6 @@ img {
         waitingRoom.style.display = "block";
         joinBtn.style.display = "none"; // Hide the join button
         document.getElementById("online-players").style.display = "block"; // Show the online players div
-        listenToOnlinePlayers(); // Start listening to online players
       } else {
         console.log("You are not logged in. Redirecting to login page...");
         window.location.href = "../../../login/fire-login.html";
@@ -596,109 +649,20 @@ img {
     const playersRef = ref(db, `quiz/category_${selectedCategory}/players`);
     const usersRef = ref(db, `users`);
 
-    // Keep the original top-level onValue but use getAvatar to avoid refetch storms.
-    // This runs for everyone (not only after join) — we keep it to preserve original UX.
-    onValue(playersRef, async (snapshot) => {
-      const players = snapshot.val();
-      const onlineList = document.getElementById("online-players-list");
-      const playersCount = document.getElementById("players-count");
-
-      onlineList.innerHTML = "";
-
-      if (!players) {
-        onlineList.innerHTML = "<li>No players online yet.</li>";
-        playersCount.textContent = "Players Online: 0";
-        return;
-      }
-
-      let onlineCount = 0;
-
-      // NOTE: use Promise.all for avatar loads but keep DOM insertion order stable
-      const rows = [];
-
-      for (const [uid, player] of Object.entries(players)) {
-        if (!player.online) continue;
-        onlineCount++;
-
-        const li = document.createElement("li");
-        li.style.display = "flex";
-        li.style.alignItems = "center";
-        li.style.gap = "10px";
-
-        const img = document.createElement("img");
-        img.src = "assets/images/default-avatar.png"; // default avatar first
-        img.style.width = "40px";
-        img.style.height = "40px";
-        img.style.borderRadius = "50%";
-        img.style.objectFit = "cover";
-
-        // use cache-aware loader
-        // do not block rendering; update image when url resolves
-        getAvatar(uid).then(url => { img.src = url; }).catch(() => { /* ignore */ });
-
-        const nameSpan = document.createElement("span");
-        nameSpan.textContent = player.name || "Unknown Player";
-        if (player.ready) {
-          nameSpan.textContent += " ✔ Ready";
-        }
-
-        if (uid === playerId) {
-          li.style.background = "#ec6090";
-          nameSpan.style.color = "white";
-          nameSpan.style.fontWeight = "bold";
-        }
-
-        li.appendChild(img); // Add avatar
-        li.appendChild(nameSpan); // Add name
-        rows.push(li);
-      }
-
-      // append rows after building to reduce reflows
-      rows.forEach(r => onlineList.appendChild(r));
-      playersCount.textContent = `Players Online: ${onlineCount}`;
-    });
+    // Initialize online players list listener
+    listenToOnlinePlayers();
 
 
     //   Mark player as ready
     readyBtn.addEventListener("click", async () => {
       console.log("Marking player as ready...");
-      calert("Loading questions.");
-      const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`);
+      calert("Setting ready status...");
+      const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${playerId}`);
+      await update(playerRef, { ready: true });
 
-      await set(ref(db, `quiz/category_${selectedCategory}/players/${playerId}`), {
-        name: playerName, online: true, ready: false, joinedAt: serverTimestamp()
-      });
-      // 2) on “I’m Ready”: transaction only flips ready
-      await runTransaction(
-        ref(db, `quiz/category_${selectedCategory}/players/${playerId}/ready`),
-        (r) => true
-      );
-
-      document.getElementById("online-players").style.display = "none";
       readyBtn.style.display = "none"; // Hide the ready button
-
-      // Instead of adding another listener every time, use a one-off check here:
-      try {
-        const snap = await get(playersRef);
-        const players = snap.val();
-        if (!players) {
-          calert("No players found. Waiting for others...");
-          return;
-        }
-
-        const onlinePlayers = Object.values(players).filter((player) => player.online);
-        const allReady = onlinePlayers.length > 0 && onlinePlayers.every((player) => player.ready);
-
-        if (allReady) {
-          console.log("All players are ready! Starting countdown...");
-          startCountdown();
-        } else {
-          calert("Waiting for all players to mark ready...");
-        }
-      } catch (err) {
-        console.error("Error checking ready state:", err);
-        calert("Error while checking players. Try again.");
-      }
+      document.getElementById("online-players").style.display = "none"; // Hide the list as requested
+      calert("Waiting for other players...");
     });
 
     //   Start countdown and quiz
@@ -712,6 +676,7 @@ img {
       waitingRoom.style.display = "none";
       joinBtn.style.display = "none";
       readyBtn.style.display = "none";
+      document.getElementById("online-players").style.display = "none";
 
       let countdown = 3;
       countdownDiv.style.display = "block";
@@ -795,12 +760,12 @@ img {
         const shuffledDocs = shuffle(docs).slice(0, 10); // Random 10
 
         questions = shuffledDocs.map(q => ({
-          question: q.question,
-          answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
-          correct: q.correct_answer
+          question: decodeHtml(q.question),
+          answers: shuffle([q.correct_answer, ...q.incorrect_answers]).map(a => decodeHtml(a)),
+          correct: decodeHtml(q.correct_answer)
         }));
 
-        console.log("Loaded Firestore Questions:", questions);
+        console.log("Loaded Firestore Questions");
         displayQuestion();
       } catch (error) {
         console.error("Error loading Firestore questions:", error.message, error.stack);
@@ -857,9 +822,9 @@ img {
       });
 
       Array.from(answersEl.children).forEach((btn) => {
-      btn.style.backgroundColor = btn.textContent === correct ? "green" : "red";
-      btn.disabled = true;
-    });
+        btn.style.backgroundColor = btn.textContent === correct ? "green" : "red";
+        btn.disabled = true;
+      });
 
       if (isCorrect) {
         currentScore += 10;
@@ -944,7 +909,14 @@ img {
             li.style.display = "flex";
             li.style.alignItems = "center";
             li.style.gap = "10px";
-            li.style.backgroundColor = name === playerName ? "#ec6090" : "";
+            li.style.padding = "10px";
+            li.style.borderRadius = "10px";
+            li.style.transition = "all 0.3s ease";
+
+            if (uid === playerId) {
+              li.style.backgroundColor = "rgba(236, 96, 144, 0.2)";
+              li.style.border = "2px solid #ec6090";
+            }
 
             const img = document.createElement("img");
             img.src = "assets/images/default-avatar.png";
@@ -963,8 +935,9 @@ img {
 
             const nameSpan = document.createElement("span");
             nameSpan.textContent = `${name}: ${score}`;
-            if (name === playerName) {
-              nameSpan.style.color = "white";
+            if (uid === playerId) {
+              nameSpan.textContent += " (YOU)";
+              nameSpan.style.color = "#ec6090";
               nameSpan.style.fontWeight = "bold";
             }
 
@@ -1014,7 +987,6 @@ img {
         let onlineCount = 0;
 
         if (players) {
-          // build rows first to reduce reflows
           const rows = [];
           Object.entries(players).forEach(([uid, player]) => {
             if (!player.online) return;
@@ -1024,24 +996,26 @@ img {
             li.style.display = "flex";
             li.style.alignItems = "center";
             li.style.gap = "10px";
-            li.style.background = "#ec6090";
-            li.style.padding = "8px";
-            li.style.borderRadius = "8px";
 
-            // avatar img (default -> replaced by cache-aware loader)
             const img = document.createElement("img");
             img.src = "assets/images/default-avatar.png";
-            img.width = 40; img.height = 40;
+            img.style.width = "40px";
+            img.style.height = "40px";
             img.style.borderRadius = "50%";
+            img.style.objectFit = "cover";
 
-            getAvatar(uid).then(url => { img.src = url; }).catch(() => { /* noop */ });
+            getAvatar(uid, player).then(url => { img.src = url; }).catch(() => { /* noop */ });
 
-            // name + ready
             const nameSpan = document.createElement("span");
-            nameSpan.textContent = player.name + (player.ready ? " ✔ Ready" : "");
+            nameSpan.textContent = (player.name || "Unknown Player") + (player.ready ? " ✔ Ready" : "");
+
             if (uid === playerId) {
-              li.style.background = "#ec6090";
-              nameSpan.style.color = "white";
+              li.style.backgroundColor = "rgba(236, 96, 144, 0.2)";
+              li.style.border = "2px solid #ec6090";
+              li.style.padding = "8px";
+              li.style.borderRadius = "8px";
+              nameSpan.textContent += " (YOU)";
+              nameSpan.style.color = "#ec6090";
               nameSpan.style.fontWeight = "bold";
             }
 
@@ -1052,6 +1026,18 @@ img {
         }
 
         playersCount.textContent = `Players Online: ${onlineCount}`;
+
+        // Check if all online players are ready to start the game
+        if (players) {
+          const onlinePlayers = Object.values(players).filter(p => p.online);
+          const allReady = onlinePlayers.length > 0 && onlinePlayers.every(p => p.ready);
+
+          // Trigger countdown for everyone once the all-ready condition is met
+          if (allReady && waitingRoom.style.display === "block") {
+            console.log("All players are ready! Starting countdown for everyone...");
+            startCountdown();
+          }
+        }
       });
     }
   </script>
