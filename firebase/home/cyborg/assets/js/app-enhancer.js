@@ -72,10 +72,12 @@
         this.applyLoggedOutUi();
         return;
       }
+      /* Expiration check disabled per user request(auto logout after 24 hours is disabled) 
       if (this.isExpired(session)) {
         this.clearSession();
         return;
       }
+      */
       this.applyLoggedInUi(session);
     },
 
@@ -92,7 +94,8 @@
 
     restoreUiStateFromSession: function () {
       var session = this.readSession();
-      if (!session || this.isExpired(session)) return;
+      // Expiration check disabled per user request: if (!session || this.isExpired(session)) return;
+      if (!session) return;
 
       // Best-effort UI restoration only (does not fake backend auth).
       var nameEl = document.getElementById("name");

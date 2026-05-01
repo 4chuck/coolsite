@@ -280,7 +280,8 @@ function signup() {
             firebase.auth().createUserWithEmailAndPassword(email, password)
               .then((userCredential) => {
                 return userCredential.user.updateProfile({ displayName: name }).then(() => {
-                  saveUserData(userCredential.user);
+                  return saveUserData(userCredential.user);
+                }).then(() => {
                   window.location.href = "../firebase/home/cyborg/index.html";
                 });
               })
@@ -312,16 +313,19 @@ function signup() {
     function saveUserData(user) {
       const userRef = firebase.database().ref('users/' + user.uid);
         
-      userRef.update({
+      return userRef.update({
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName
+        displayName: user.displayName,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        role: "user"
       })
       .then(() => {
         console.log("User data updated in database");
       })
       .catch((error) => {
         console.error("Error updating user data: ", error);
+        throw error;
       });
     }
     
