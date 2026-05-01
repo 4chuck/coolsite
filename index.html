@@ -8,8 +8,8 @@
 
   <title>Tetron</title>
      <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-  <meta name="description">
-  <meta name="keywords">
+  <meta name="description" content="Tetron — explore the limitless possibilities of Information Technology on our digital frontier.">
+  <meta name="keywords" content="Tetron, Infotech, web development, technology">
 
   
 
@@ -114,23 +114,15 @@ outline:none;"><img src="images/search9.png"width="34"height="34"></button>
 </div>
 </div>
 <script>
-
-// Get the modal
-
-var modal = document.getElementById('id03');
-
-// When the user clicks anywhere outside of the modal, close it
-
-window.onclick = function(event) {
-
-    if (event.target == modal) {
-
-        modal.style.display = "none";
-
-    }
-
-}
-
+// Close any modal when clicking outside of it
+window.addEventListener('click', function(event) {
+    var modals = [document.getElementById('id01'), document.getElementById('id02'), document.getElementById('id03')];
+    modals.forEach(function(m) {
+        if (m && event.target == m) {
+            m.style.display = "none";
+        }
+    });
+});
 </script>
 
  <button id="v" onclick="document.getElementById('id02').style.display='block'"style="width:auto;
@@ -161,7 +153,7 @@ if(localStorage.getItem('name') === null) {
     <div class="container">
  <center> 
 
-        <a href="login/signup2.html"><p style="background-color: #2094d8;
+        <a href="login/fire-signup.html"><p style="background-color: #2094d8;
 
   outline: none;
 
@@ -178,7 +170,7 @@ if(localStorage.getItem('name') === null) {
 
   width: 100%;">Register</p></a>
   already registered than login
- <a href="login/login2.html" ><p style="background-color: #2094d8;
+ <a href="login/fire-login.html" ><p style="background-color: #2094d8;
 
   outline: none;
 
@@ -213,25 +205,7 @@ if(localStorage.getItem('name') === null) {
 
 </div>
 
-<script>
 
-// Get the modal
-
-var modal = document.getElementById('id02');
-
-// When the user clicks anywhere outside of the modal, close it
-
-window.onclick = function(event) {
-
-    if (event.target == modal) {
-
-        modal.style.display = "none";
-
-    }
-
-}
-
-</script>
 
 
       <nav id="navbar" class="navbar">
@@ -240,7 +214,7 @@ window.onclick = function(event) {
     <li><a  href="firebase/index.html">Firebase</a></li>
     <li><a  href="firebase/earth.html">Earth</a></li>
 <li><a  href="camera.html">camera</a></li>
-<li><a  href="firebase\home\codepen\index.html">codepen</a></li>
+<li><a  href="firebase/home/codepen/index.html">codepen</a></li>
 <li><a  href="AES.html">Encryption</a></li>
           
   <li class="dropdown"><a href="#"><span>more</span> <i class="bi bi-chevron-down"></i></a>
@@ -301,6 +275,9 @@ window.onclick = function(event) {
 
       
     
+  </main>
+  <!-- End #main -->
+
   <!-- End Footer -->
 <!-- use/delete[<div id="preloader"></div>] to/not to view loading effect in the beginning -->
   
@@ -429,14 +406,7 @@ build your own website.
     
    
           <!--=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =   end-end-end-end=  =  =   =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =-->
-          
-          <script src="assets/aos.js"></script>
-  <script src="assets/bootstrap.bundle.min.js"></script>
-  <script src="assets/glightbox.min.js"></script>
-  <script src="assets/isotope.pkgd.min.js"></script>
-  <script src="assets/swiper-bundle.min.js"></script>
-  <script src="assets/noframework.waypoints.js"></script>
-  <script src="assets/validate.js"></script>
+
 
   <!-- Template Main JS File -->
   <script src="assets/main.js"></script>
@@ -482,44 +452,7 @@ build your own website.
 
 </div>
 
-<script>
 
-// Get the modal
-
-var modal = document.getElementById('id01');
-
-// When the user clicks anywhere outside of the modal, close it
-
-window.onclick = function(event) {
-
-    if (event.target == modal) {
-
-        modal.style.display = "none";
-
-    }
-
-}
-
-</script>
-  <script>
-
-// Get the modal
-
-var modal = document.getElementById('id02');
-
-// When the user clicks anywhere outside of the modal, close it
-
-window.onclick = function(event) {
-
-    if (event.target == modal) {
-
-        modal.style.display = "none";
-
-    }
-
-}
-
-</script>
   
   
 </body>

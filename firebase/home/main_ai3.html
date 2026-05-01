@@ -798,12 +798,18 @@ window.__chatTheme = {
       sendBtn.disabled = true;
       rateLimitHint.textContent = '';
       chatWindow.innerHTML = '<div class="status-text">Not logged in.</div>';
-      window.location.href = '../../login/fire-login.html';
+      window.location.href = '/login/fire-login.html';
       return;
     }
 
     const uid = user.uid;
     currentUid = uid;
+
+    // Sync with application session keys for cross-tab persistence
+    localStorage.setItem('name', user.displayName || localStorage.getItem('name') || 'Player');
+    localStorage.setItem('userUID', uid);
+    if (user.email) localStorage.setItem('email', user.email);
+
     const COLLECTION = `chats/${uid}/messages`; // match your extension path
 
     authStatus.textContent = `Authenticated • Chat ID: ${uid.slice(0,8)}…`;

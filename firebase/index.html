@@ -50,50 +50,41 @@
     <link rel="preload" href="home/Scaffold/assets/js/main.js" as="script">
 
     <script type="module">
-        // *** CORRECT IMPORT URLs for Modular Firebase SDKs (v9+) ***
-        // Import the base Firebase app initialization
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
+        import { firebaseConfig } from 'home/config.js';
+        import { ROUTES, redirectTo } from 'home/routes.js';
 
-        // Import specific Firebase services and functions you need
-        // For Authentication:
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
-        // Example for other services you might need:
-        // import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-        // import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-        // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
-
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-            authDomain: "login-b6382.firebaseapp.com",
-            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-            projectId: "login-b6382",
-            storageBucket: "login-b6382.appspot.com",
-            messagingSenderId: "482805184778",
-            appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
-            measurementId: "G-ZHXBBZHN3W",
-        };
-
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app); // Get the Auth service instance from the app
+        const auth = getAuth(app);
+        setPersistence(auth, browserLocalPersistence);
 
         function redirectToPage() {
-            setTimeout(function() {
-                // Use onAuthStateChanged with the auth instance
-                onAuthStateChanged(auth, user => {
-                    if (user) {
-                        window.location.href = "home/cyborg/index.html";
-                    } else {
-                        window.location.href = "home/Scaffold/index3.html";
-                    }
-                });
-            }, 500); // Redirect after 0.5 seconds
+            // Fast check: if we have a local session hint, redirect IMMEDIATELY
+            if (localStorage.getItem('userUID')) {
+                redirectTo('cyborgHome');
+                return;
+            }
+
+            // Fallback to Firebase listener
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    localStorage.setItem('name', user.displayName || 'Player');
+                    localStorage.setItem('userUID', user.uid);
+                    redirectTo('cyborgHome');
+                } else {
+                    redirectTo('scaffoldHome');
+                }
+            });
+            
+            // Safety timeout
+            setTimeout(() => {
+                if (!localStorage.getItem('userUID')) {
+                    redirectTo('scaffoldHome');
+                }
+            }, 2000);
         }
 
-        // Call the redirect function directly, as imports are resolved before execution
         redirectToPage();
     </script>
 </head>

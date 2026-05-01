@@ -5,10 +5,11 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=0.6" name="viewport">
 
-<title>Welcome to INFOTECH
-</title>
+  <title>Welcome to INFOTECH
+  </title>
   <meta content="" name="description">
-  <meta name="description" content="Play fast, fun, and free online quizzes with friends. Join real-time multiplayer trivia battles with Scaffold!">
+  <meta name="description"
+    content="Play fast, fun, and free online quizzes with friends. Join real-time multiplayer trivia battles with Scaffold!">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
@@ -16,7 +17,9 @@
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
@@ -51,36 +54,36 @@
       </div>
 
       <nav id="navbar" class="navbar order-last order-lg-0">
-          <b>
-        <ul class="animate">
-          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
-          <li class="dropdown"><a href="#"><span>About</span> <i class="bi bi-chevron-down"></i></a>
-            <ul>
-              <li><a class="nav-link scrollto" href="#about">About Us</a></li>
-              <li><a class="nav-link scrollto" href="#team">Team</a></li>
-              <li><a class="nav-link scrollto" href="#testimonials">Testimonials</a></li>
-              <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-right"></i></a>
-                <ul>
-                  <li><a href="#">Deep Drop Down 1</a></li>
-                  <li><a href="#">Deep Drop Down 2</a></li>
-                  <li><a href="#">Deep Drop Down 3</a></li>
-                  <li><a href="#">Deep Drop Down 4</a></li>
-                  <li><a href="#">Deep Drop Down 5</a></li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li><a class="nav-link scrollto" href="#services">Services</a></li>
-          <li><a class="nav-link scrollto " href="#portfolio">Portfolio</a></li>
-          <li><a class="nav-link scrollto" href="#pricing">Pricing</a></li>
-          <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
-        </ul> </b>
+        <b>
+          <ul class="animate">
+            <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+            <li class="dropdown"><a href="#"><span>About</span> <i class="bi bi-chevron-down"></i></a>
+              <ul>
+                <li><a class="nav-link scrollto" href="#about">About Us</a></li>
+                <li><a class="nav-link scrollto" href="#team">Team</a></li>
+                <li><a class="nav-link scrollto" href="#testimonials">Testimonials</a></li>
+                <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-right"></i></a>
+                  <ul>
+                    <li><a href="#">Deep Drop Down 1</a></li>
+                    <li><a href="#">Deep Drop Down 2</a></li>
+                    <li><a href="#">Deep Drop Down 3</a></li>
+                    <li><a href="#">Deep Drop Down 4</a></li>
+                    <li><a href="#">Deep Drop Down 5</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><a class="nav-link scrollto" href="#services">Services</a></li>
+            <li><a class="nav-link scrollto " href="#portfolio">Portfolio</a></li>
+            <li><a class="nav-link scrollto" href="#pricing">Pricing</a></li>
+            <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
+          </ul>
+        </b>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
 
-            
-<button onclick="login();"
-style="font-family:sans-serif;
+
+      <button style="font-family:sans-serif;
   font-weight: 600;
   font-size: 18px;
   text-transform: uppercase;
@@ -93,61 +96,54 @@ style="font-family:sans-serif;
   transition: 0.5s;
   color: #fff;
   background: #3ecf8e;" id="login-btn">Login</button>
-  
-<script>
-  // Script to handle the login button click
-  function login() {
-    const name = localStorage.getItem('name');
-    if (!name) {
-      // Redirect to UIname page if name is not stored
-      window.location.href = '../../../login/fire-signup.html';
-    } else {
-      //Redirect to profile page if name exists
-      window.location.href = '../../../login/fire-profile9.html';
-    }
-  }
-</script>
-<script>
-    // Get the value from local storage
-    const userName = localStorage.getItem('name');
+      <script>
+        // Get the value from local storage
+        const userName = localStorage.getItem('name');
 
-    // Check if the value exists and is not null
-    if (userName) {
-        // Set the button text to the name
-        document.getElementById('login-btn').textContent = userName;
-    } 
-    // Else, the default text "login" will be shown
-</script>
-            
+        // Check if the value exists and is not null
+        if (userName) {
+          // Set the button text to the name
+          document.getElementById('login-btn').textContent = userName;
+        }
+        // Else, the default text "login" will be shown
+      </script>
+
     </div>
   </header><!-- End Header -->
-<style>
+  <style>
     /* Hero Section */
-.hero-img img {
-  max-width: 100%;
-  animation: float 4s ease-in-out infinite;
-}
+    .hero-img img {
+      max-width: 100%;
+      animation: float 4s ease-in-out infinite;
+    }
 
-/* Floating animation */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
+    /* Floating animation */
+    @keyframes float {
 
-</style>
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+  </style>
   <!-- ======= Hero Section ======= -->
-                <div class="overlay">
-  <section id="hero"></div>
-    
-<br><br><br><br><br><br><br>
-    <div class="container">
-      <div class="row"style="width:90%;"> 
-        <div class="col-lg-6 pt-5 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="fade-up">
-          <div>
-            <h1 style="color:#fff;">We design digital products that helps to grow your businesses</h1>
-            <h2 style="color:#fff;">We are team of talented designers making websites with Bootstrap</h2>
-            <a onclick="redirectToPage()"class="btn btn-primary btn-lg" 
-style="font-family:sans-serif;
+  <div class="overlay">
+    <section id="hero">
+  </div>
+
+  <br><br><br><br><br><br><br>
+  <div class="container">
+    <div class="row" style="width:90%;">
+      <div class="col-lg-6 pt-5 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center"
+        data-aos="fade-up">
+        <div>
+          <h1 style="color:#fff;">We design digital products that helps to grow your businesses</h1>
+          <h2 style="color:#fff;">We are team of talented designers making websites with Bootstrap</h2>
+          <a onclick="redirectToPage()" class="btn btn-primary btn-lg" style="font-family:sans-serif;
   font-weight: 600;
   font-size: 18px;
   text-transform: uppercase;
@@ -159,10 +155,9 @@ style="font-family:sans-serif;
   transition: 0.5s;
   color: #fff;
   background: #3ecf8e;">Play Now</a>
-  &nbsp;&nbsp;
- 
- <a href="examples.html"
-style="font-family:sans-serif;
+          &nbsp;&nbsp;
+
+          <a href="examples.html" style="font-family:sans-serif;
   font-weight: 600;
   font-size: 18px;
   text-transform: uppercase;
@@ -174,29 +169,86 @@ style="font-family:sans-serif;
   transition: 0.5s;
   color: #fff;
   background: #3ecf8e;">Examples</a>
-          </div>
-        </div>
-            <script>
-        // Redirects to the specified URL after 1 seconds
-        function redirectToPage() {
-         const nm= localStorage.getItem('name');
-    
-              if(nm==null)
-                window.location.href = "../../../login/fire-signup.html"; // Change this URL to the desired page
-              else
-               window.location.href = "../cyborg/index.html";
-        }
-    </script>
-        <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left">
-          <img src="assets/img/hero-img.png" class="img-fluid" alt="">
         </div>
       </div>
-     </div>
-    
-    
+      <script type="module">
+        import { ROUTES, redirectTo } from "../routes.js";
+        import { firebaseConfig, appCheckSiteKey } from "../config.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+
+        const app = initializeApp(firebaseConfig);
+
+        try {
+          initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider(appCheckSiteKey),
+            isTokenAutoRefreshEnabled: true
+          });
+        } catch (err) {
+          console.warn("App Check failed:", err);
+        }
+
+        const auth = getAuth(app);
+        setPersistence(auth, browserLocalPersistence).catch(e => console.error("Persistence error:", e));
+
+        // 1. Initial UI hint from localStorage (Avoid flickering)
+        const loginBtn = document.getElementById('login-btn');
+        const localName = localStorage.getItem('name');
+        if (localName && loginBtn) {
+          loginBtn.textContent = localName;
+          loginBtn.onclick = () => redirectTo('profile');
+        }
+
+        // 2. Real Source of Truth
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            const name = user.displayName || 'Player';
+            if (loginBtn) {
+              loginBtn.textContent = name;
+              loginBtn.onclick = () => redirectTo('profile');
+            }
+            localStorage.setItem('name', name);
+            localStorage.setItem('userUID', user.uid);
+          } else {
+            // If auth resolves to null, clear the optimistic hint if it was there
+            if (loginBtn) {
+              loginBtn.textContent = 'Login';
+              loginBtn.onclick = () => redirectTo('signup');
+            }
+            localStorage.removeItem('name');
+            localStorage.removeItem('userUID');
+          }
+        });
+
+        window.redirectToPage = function () {
+          const localUID = localStorage.getItem('userUID');
+          if (localUID || auth.currentUser) {
+            redirectTo('cyborgHome');
+          } else {
+            redirectTo('signup');
+          }
+        };
+
+        window.login = function () {
+          const localUID = localStorage.getItem('userUID');
+          if (localUID || auth.currentUser) {
+            redirectTo('profile');
+          } else {
+            redirectTo('signup');
+          }
+        };
+      </script>
+      <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left">
+        <img src="assets/img/hero-img.png" class="img-fluid" alt="">
+      </div>
+    </div>
+  </div>
+
+
 
   </section><!-- End Hero -->
-</div>
+  </div>
   <main id="main">
 
     <!-- ======= About Section ======= -->
@@ -211,16 +263,19 @@ style="font-family:sans-serif;
             <div class="content pt-4 pt-lg-0">
               <h3>Learn more about us</h3>
               <p class="fst-italic">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore
                 magna aliqua.
               </p>
               <ul>
                 <li><i class="bi bi-check-circle"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
                 <li><i class="bi bi-check-circle"></i> Duis aute irure dolor in reprehenderit in voluptate velit.</li>
-                <li><i class="bi bi-check-circle"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate trideta storacalaperd</li>
+                <li><i class="bi bi-check-circle"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+                  aute irure dolor in reprehenderit in voluptate trideta storacalaperd</li>
               </ul>
               <p>
-                Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate tera noden carma palorp mades tera.
+                Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+                voluptate tera noden carma palorp mades tera.
               </p>
             </div>
           </div>
@@ -297,7 +352,9 @@ style="font-family:sans-serif;
 
         <div class="section-title" data-aos="fade-up">
           <h2>Services</h2>
-          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint
+            consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit
+            in iste officiis commodi quidem hic quas.</p>
         </div>
 
         <div class="row">
@@ -305,31 +362,38 @@ style="font-family:sans-serif;
             <div class="icon-box icon-box-pink">
               <div class="icon"><i class="bx bxl-dribbble"></i></div>
               <h4 class="title"><a href="">Lorem Ipsum</a></h4>
-              <p class="description">Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate</p>
+              <p class="description">Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint
+                occaecati cupiditate</p>
             </div>
           </div>
 
-          <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="zoom-in" data-aos-delay="100">
+          <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="zoom-in"
+            data-aos-delay="100">
             <div class="icon-box icon-box-cyan">
               <div class="icon"><i class="bx bx-file"></i></div>
               <h4 class="title"><a href="">Sed ut perspiciatis</a></h4>
-              <p class="description">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla</p>
+              <p class="description">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+                fugiat nulla</p>
             </div>
           </div>
 
-          <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="zoom-in" data-aos-delay="200">
+          <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="zoom-in"
+            data-aos-delay="200">
             <div class="icon-box icon-box-green">
               <div class="icon"><i class="bx bx-tachometer"></i></div>
               <h4 class="title"><a href="">Magni Dolores</a></h4>
-              <p class="description">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim</p>
+              <p class="description">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                mollit anim</p>
             </div>
           </div>
 
-          <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="zoom-in" data-aos-delay="300">
+          <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="zoom-in"
+            data-aos-delay="300">
             <div class="icon-box icon-box-blue">
               <div class="icon"><i class="bx bx-world"></i></div>
               <h4 class="title"><a href="">Nemo Enim</a></h4>
-              <p class="description">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum</p>
+              <p class="description">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis
+                praesentium voluptatum</p>
             </div>
           </div>
 
@@ -343,8 +407,10 @@ style="font-family:sans-serif;
       <div class="container">
 
         <div class="section-title" data-aos="fade-up">
-  <h2 style="color:#fff;">Portfolio</h2>
-    <p style="color:#fff;">Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+          <h2 style="color:#fff;">Portfolio</h2>
+          <p style="color:#fff;">Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum
+            quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias
+            ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
         </div>
 
         <div class="row">
@@ -368,7 +434,8 @@ style="font-family:sans-serif;
                 <p>App</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-1.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="App 1"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-1.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="App 1"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -382,7 +449,8 @@ style="font-family:sans-serif;
                 <p>Web</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-2.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="Web 3"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-2.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="Web 3"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -396,7 +464,8 @@ style="font-family:sans-serif;
                 <p>App</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-3.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="App 2"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-3.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="App 2"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -410,7 +479,8 @@ style="font-family:sans-serif;
                 <p>Card</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-4.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="Card 2"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-4.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="Card 2"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -424,7 +494,8 @@ style="font-family:sans-serif;
                 <p>Web</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-5.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="Web 2"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-5.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="Web 2"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -438,7 +509,8 @@ style="font-family:sans-serif;
                 <p>App</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-6.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="App 3"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-6.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="App 3"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -452,7 +524,8 @@ style="font-family:sans-serif;
                 <p>Card</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-7.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="Card 1"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-7.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="Card 1"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -466,7 +539,8 @@ style="font-family:sans-serif;
                 <p>Card</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-8.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="Card 3"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-8.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="Card 3"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -480,7 +554,8 @@ style="font-family:sans-serif;
                 <p>Web</p>
               </div>
               <div class="portfolio-links">
-                <a href="assets/img/portfolio/portfolio-9.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox" title="Web 3"><i class="bx bx-plus"></i></a>
+                <a href="assets/img/portfolio/portfolio-9.jpg" data-gallery="portfolioGallery"
+                  class="portfolio-lightbox" title="Web 3"><i class="bx bx-plus"></i></a>
                 <a href="portfolio-details.html" title="More Details"><i class="bx bx-link"></i></a>
               </div>
             </div>
@@ -498,7 +573,9 @@ style="font-family:sans-serif;
         <div class="row" data-aos="zoom-in">
           <div class="col-lg-9 text-center text-lg-start">
             <h3>Call To Action</h3>
-            <p> Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p> Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+              laborum.</p>
           </div>
           <div class="col-lg-3 cta-btn-container text-center">
             <a class="cta-btn align-middle" href="#">Call To Action</a>
@@ -514,7 +591,9 @@ style="font-family:sans-serif;
 
         <div class="section-title" data-aos="fade-up">
           <h2>Testimonials</h2>
-          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint
+            consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit
+            in iste officiis commodi quidem hic quas.</p>
         </div>
 
         <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
@@ -524,7 +603,8 @@ style="font-family:sans-serif;
               <div class="testimonial-item">
                 <p>
                   <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.
+                  Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium
+                  quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.
                   <i class="bx bxs-quote-alt-right quote-icon-right"></i>
                 </p>
                 <img src="assets/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
@@ -537,7 +617,8 @@ style="font-family:sans-serif;
               <div class="testimonial-item">
                 <p>
                   <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.
+                  Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis
+                  quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.
                   <i class="bx bxs-quote-alt-right quote-icon-right"></i>
                 </p>
                 <img src="assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
@@ -550,7 +631,8 @@ style="font-family:sans-serif;
               <div class="testimonial-item">
                 <p>
                   <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram fore quis sint minim.
+                  Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim
+                  tempor labore quem eram duis noster aute amet eram fore quis sint minim.
                   <i class="bx bxs-quote-alt-right quote-icon-right"></i>
                 </p>
                 <img src="assets/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
@@ -563,7 +645,8 @@ style="font-family:sans-serif;
               <div class="testimonial-item">
                 <p>
                   <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.
+                  Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit
+                  minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.
                   <i class="bx bxs-quote-alt-right quote-icon-right"></i>
                 </p>
                 <img src="assets/img/testimonials/testimonials-4.jpg" class="testimonial-img" alt="">
@@ -576,7 +659,8 @@ style="font-family:sans-serif;
               <div class="testimonial-item">
                 <p>
                   <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum fugiat legam esse veniam culpa fore nisi cillum quid.
+                  Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa
+                  labore duis sunt culpa nulla illum cillum fugiat legam esse veniam culpa fore nisi cillum quid.
                   <i class="bx bxs-quote-alt-right quote-icon-right"></i>
                 </p>
                 <img src="assets/img/testimonials/testimonials-5.jpg" class="testimonial-img" alt="">
@@ -598,7 +682,9 @@ style="font-family:sans-serif;
 
         <div class="section-title" data-aos="fade-up">
           <h2>Team</h2>
-          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint
+            consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit
+            in iste officiis commodi quidem hic quas.</p>
         </div>
 
         <div class="row">
@@ -662,7 +748,9 @@ style="font-family:sans-serif;
 
         <div class="section-title" data-aos="fade-up">
           <h2>Clients</h2>
-          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint
+            consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit
+            in iste officiis commodi quidem hic quas.</p>
         </div>
 
         <div class="row no-gutters clients-wrap clearfix wow fadeInUp">
@@ -726,7 +814,9 @@ style="font-family:sans-serif;
 
         <div class="section-title" data-aos="fade-up">
           <h2>Pricing</h2>
-          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint
+            consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit
+            in iste officiis commodi quidem hic quas.</p>
         </div>
 
         <div class="row">
@@ -816,55 +906,78 @@ style="font-family:sans-serif;
         <ul class="faq-list">
 
           <li>
-            <div data-bs-toggle="collapse" class="collapsed question" href="#faq1">Non consectetur a erat nam at lectus urna duis? <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i></div>
+            <div data-bs-toggle="collapse" class="collapsed question" href="#faq1">Non consectetur a erat nam at lectus
+              urna duis? <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i></div>
             <div id="faq1" class="collapse" data-bs-parent=".faq-list">
               <p>
-                Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
+                Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur
+                gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
               </p>
             </div>
           </li>
 
           <li>
-            <div data-bs-toggle="collapse" href="#faq2" class="collapsed question">Feugiat scelerisque varius morbi enim nunc faucibus a pellentesque? <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i></div>
+            <div data-bs-toggle="collapse" href="#faq2" class="collapsed question">Feugiat scelerisque varius morbi enim
+              nunc faucibus a pellentesque? <i class="bi bi-chevron-down icon-show"></i><i
+                class="bi bi-chevron-up icon-close"></i></div>
             <div id="faq2" class="collapse" data-bs-parent=".faq-list">
               <p>
-                Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
+                Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id
+                donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit
+                ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
               </p>
             </div>
           </li>
 
           <li>
-            <div data-bs-toggle="collapse" href="#faq3" class="collapsed question">Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi? <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i></div>
+            <div data-bs-toggle="collapse" href="#faq3" class="collapsed question">Dolor sit amet consectetur adipiscing
+              elit pellentesque habitant morbi? <i class="bi bi-chevron-down icon-show"></i><i
+                class="bi bi-chevron-up icon-close"></i></div>
             <div id="faq3" class="collapse" data-bs-parent=".faq-list">
               <p>
-                Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis
+                Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum
+                integer enim. Sem nulla pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt.
+                Lectus urna duis convallis convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis
               </p>
             </div>
           </li>
 
           <li>
-            <div data-bs-toggle="collapse" href="#faq4" class="collapsed question">Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla? <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i></div>
+            <div data-bs-toggle="collapse" href="#faq4" class="collapsed question">Ac odio tempor orci dapibus. Aliquam
+              eleifend mi in nulla? <i class="bi bi-chevron-down icon-show"></i><i
+                class="bi bi-chevron-up icon-close"></i></div>
             <div id="faq4" class="collapse" data-bs-parent=".faq-list">
               <p>
-                Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
+                Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id
+                donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit
+                ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
               </p>
             </div>
           </li>
 
           <li>
-            <div data-bs-toggle="collapse" href="#faq5" class="collapsed question">Tempus quam pellentesque nec nam aliquam sem et tortor consequat? <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i></div>
+            <div data-bs-toggle="collapse" href="#faq5" class="collapsed question">Tempus quam pellentesque nec nam
+              aliquam sem et tortor consequat? <i class="bi bi-chevron-down icon-show"></i><i
+                class="bi bi-chevron-up icon-close"></i></div>
             <div id="faq5" class="collapse" data-bs-parent=".faq-list">
               <p>
-                Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in
+                Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc
+                vel risus commodo viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus
+                gravida quis blandit turpis cursus in
               </p>
             </div>
           </li>
 
           <li>
-            <div data-bs-toggle="collapse" href="#faq6" class="collapsed question">Tortor vitae purus faucibus ornare. Varius vel pharetra vel turpis nunc eget lorem dolor? <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i></div>
+            <div data-bs-toggle="collapse" href="#faq6" class="collapsed question">Tortor vitae purus faucibus ornare.
+              Varius vel pharetra vel turpis nunc eget lorem dolor? <i class="bi bi-chevron-down icon-show"></i><i
+                class="bi bi-chevron-up icon-close"></i></div>
             <div id="faq6" class="collapse" data-bs-parent=".faq-list">
               <p>
-                Laoreet sit amet cursus sit amet dictum sit amet justo. Mauris vitae ultricies leo integer malesuada nunc vel. Tincidunt eget nullam non nisi est sit amet. Turpis nunc eget lorem dolor sed. Ut venenatis tellus in metus vulputate eu scelerisque. Pellentesque diam volutpat commodo sed egestas egestas fringilla phasellus faucibus. Nibh tellus molestie nunc non blandit massa enim nec.
+                Laoreet sit amet cursus sit amet dictum sit amet justo. Mauris vitae ultricies leo integer malesuada
+                nunc vel. Tincidunt eget nullam non nisi est sit amet. Turpis nunc eget lorem dolor sed. Ut venenatis
+                tellus in metus vulputate eu scelerisque. Pellentesque diam volutpat commodo sed egestas egestas
+                fringilla phasellus faucibus. Nibh tellus molestie nunc non blandit massa enim nec.
               </p>
             </div>
           </li>
@@ -904,7 +1017,9 @@ style="font-family:sans-serif;
                 <p>+1 5589 55488 55s</p>
               </div>
 
-              <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621" frameborder="0" style="border:0; width: 100%; height: 290px;" allowfullscreen></iframe>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621"
+                frameborder="0" style="border:0; width: 100%; height: 290px;" allowfullscreen></iframe>
             </div>
 
           </div>
@@ -1019,7 +1134,8 @@ style="font-family:sans-serif;
     </div>
   </footer><!-- End Footer -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/aos/aos.js"></script>
@@ -1031,44 +1147,51 @@ style="font-family:sans-serif;
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-<!-- Chatbot Shortcut -->
-<a href="../main_ai3.html" class="chatbot-link" title="Chat with us">
-  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Chatbot" class="chatbot-icon">
-</a>
-<style>
-/* 🔹 Chatbot Floating Shortcut Button */
-.chatbot-link {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 9999;
-  background: #1e1e1e;
-  border-radius: 50%;
-  padding: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  animation: pulse-glow 2s infinite;
-}
+  <!-- Chatbot Shortcut -->
+  <a href="../main_ai3.html" class="chatbot-link" title="Chat with us">
+    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Chatbot" class="chatbot-icon">
+  </a>
+  <style>
+    /* 🔹 Chatbot Floating Shortcut Button */
+    .chatbot-link {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 9999;
+      background: #1e1e1e;
+      border-radius: 50%;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: pulse-glow 2s infinite;
+    }
 
-/* 🔹 Hover Animation */
-.chatbot-link:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-}
+    /* 🔹 Hover Animation */
+    .chatbot-link:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
 
-/* 🔹 Icon Styling */
-.chatbot-icon {
-  width: 50px;
-  height: 50px;
-  display: block;
-}
+    /* 🔹 Icon Styling */
+    .chatbot-icon {
+      width: 50px;
+      height: 50px;
+      display: block;
+    }
 
-/* 🔹 Glow Effect (optional, fits Cyborg theme) */
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
-  50% { box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff; }
-}
-</style>
+    /* 🔹 Glow Effect (optional, fits Cyborg theme) */
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+      }
+
+      50% {
+        box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+      }
+    }
+  </style>
 
 </body>
 

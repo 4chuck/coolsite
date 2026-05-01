@@ -5,7 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Cyborg Gaming — Profile</title>
-  <meta name="description" content="Manage your Cyborg Gaming profile, upload a profile picture, and view your quiz scores." />
+  <meta name="description"
+    content="Manage your Cyborg Gaming profile, upload a profile picture, and view your quiz scores." />
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
@@ -112,7 +113,7 @@
 
     /* 4. Active & hover link — theme's .header-area.header-sticky rule
           sets color:#fff and fights the accent override */
-    body.profile-page .header-area .main-nav .nav li:hover > a,
+    body.profile-page .header-area .main-nav .nav li:hover>a,
     body.profile-page .header-area .main-nav .nav li a.active,
     body.profile-page .header-area.header-sticky .nav li a.active,
     body.profile-page .header-area.header-sticky .nav li a:hover {
@@ -143,7 +144,8 @@
       border-radius: 50% !important;
       margin-left: 6px !important;
       border: 2px solid rgba(236, 96, 144, 0.5) !important;
-      display: inline-block !important;  /* theme hides it at ≤992px */
+      display: inline-block !important;
+      /* theme hides it at ≤992px */
     }
 
     /* 7. Logo */
@@ -183,9 +185,11 @@
            Also defeats the end-of-file @media(≤992px) block in templatemo
            (lines 2042-2071) which resets nav styles without !important. */
     @media (max-width: 992px) {
+
       body.profile-page .header-area,
       body.profile-page .header-area.background-header {
-        display: block !important;   /* keep visible even after scroll class */
+        display: block !important;
+        /* keep visible even after scroll class */
         background: transparent !important;
         padding: 0 !important;
         box-shadow: none !important;
@@ -193,7 +197,8 @@
 
       body.profile-page .header-area .main-nav,
       body.profile-page .header-area.background-header .main-nav {
-        border-radius: 0 !important;   /* pill doesn't work on narrow screens */
+        border-radius: 0 !important;
+        /* pill doesn't work on narrow screens */
         padding: 0 16px !important;
         /* defeat end-of-file templatemo block: border-radius:18px,
            background:rgba(17,21,27,.98) — keep our own dark glass */
@@ -201,7 +206,8 @@
       }
 
       body.profile-page .header-area .main-nav .nav {
-        margin-top: 70px !important;   /* correct offset for fixed header height */
+        margin-top: 70px !important;
+        /* correct offset for fixed header height */
         background: rgba(12, 14, 22, 0.98) !important;
         border-top: 1px solid rgba(236, 96, 144, 0.15) !important;
         border-radius: 0 0 16px 16px !important;
@@ -725,11 +731,15 @@
   </footer>
 
   <script type="module">
+    import { ROUTES, redirectTo, redirectWithAlert } from "../routes.js";
+    import { firebaseConfig, appCheckSiteKey } from "../config.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import {
       getAuth,
       onAuthStateChanged,
-      signOut
+      signOut,
+      setPersistence,
+      browserLocalPersistence
     } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
     import {
@@ -752,17 +762,6 @@
       getToken as getAppCheckToken
     } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-      authDomain: "login-b6382.firebaseapp.com",
-      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-      projectId: "login-b6382",
-      storageBucket: "login-b6382.appspot.com",
-      messagingSenderId: "482805184778",
-      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
-      measurementId: "G-ZHXBBZHN3W",
-    };
-
     const app = initializeApp(firebaseConfig);
 
     // ── App Check ─────────────────────────────────────────────────────────────
@@ -772,7 +771,7 @@
 
     try {
       appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'),
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
         isTokenAutoRefreshEnabled: true
       });
       // Pre-fetch the token so it is cached before any Storage call.
@@ -787,6 +786,7 @@
     }
 
     const auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence);
     const database = getDatabase(app);
     const storage = getStorage(app);
 
@@ -848,6 +848,7 @@
         _calertTimer = null;
       }, ms);
     }
+    window.calert = calert;
 
     function showProcessing(mainText = 'Processing image...', subText = 'Uploading and creating thumbnail...') {
       processingStatus.textContent = mainText;
@@ -996,11 +997,22 @@
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        if (window.AppEnhancer) window.AppEnhancer.clearSession();
-        calert('Not logged in — redirecting...');
-        setTimeout(() => {
-          window.location.href = '../../../login/fire-login.html';
-        }, 900);
+        const localName = localStorage.getItem('name');
+        if (!localName) {
+          if (window.AppEnhancer) window.AppEnhancer.clearSession();
+          calert('Not logged in — redirecting...');
+          setTimeout(() => {
+            redirectTo('login');
+          }, 900);
+        } else {
+          console.log("Firebase Auth null, but found local session for:", localName);
+          // Update UI with local data while waiting or if logged out of Firebase
+          document.getElementById('name').textContent = localName;
+          const localUID = localStorage.getItem('userUID');
+          if (localUID) {
+            document.getElementById('email').textContent = 'Session active (Firebase reconnecting...)';
+          }
+        }
         return;
       }
 
@@ -1113,8 +1125,7 @@
         if (window.AppEnhancer) window.AppEnhancer.clearSession();
         localStorage.removeItem('name');
         localStorage.removeItem('userUID');
-        calert('Logged out.');
-        setTimeout(() => location.href = '../../../login/fire-login.html', 700);
+        redirectWithAlert('Logged out.', 'login', 700);
       } catch (err) {
         console.error('Logout error:', err);
         calert('Error during logout: ' + (err.message || err));
@@ -1208,6 +1219,7 @@
   <script src="assets/js/popup.js"></script>
   <script src="assets/js/app-enhancer.js"></script>
   <script src="assets/js/custom.js"></script>
+  <script type="module" src="../routes.js"></script>
 </body>
 
 </html>

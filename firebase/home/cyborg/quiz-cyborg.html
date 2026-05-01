@@ -103,6 +103,7 @@
                       // Hide after 3 seconds
                       setTimeout(() => { calertBox.style.display = "none"; }, 3000);
                     }
+                    window.calert = calert;
 
                     // Show calert without blocking execution
                     //calert("This is a non-blocking calert!");
@@ -422,8 +423,10 @@
 
 
   <script type="module">
+    import { ROUTES, redirectTo, redirectWithAlert } from "../routes.js";
+    import { firebaseConfig, appCheckSiteKey } from "../config.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getDatabase, ref, set, update, onValue, onDisconnect, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
     import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
     import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
@@ -435,17 +438,6 @@
     import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
     import { initializeAppCheck, ReCaptchaV3Provider, getToken as getAppCheckToken } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-      authDomain: "login-b6382.firebaseapp.com",
-      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-      projectId: "login-b6382",
-      storageBucket: "login-b6382.appspot.com",
-      messagingSenderId: "482805184778",
-      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
-      measurementId: "G-ZHXBBZHN3W",
-    };
-
     const app = initializeApp(firebaseConfig);
     /********************************************
      * Firebase App Check (reCAPTCHA v3)
@@ -455,7 +447,7 @@
 
     try {
       appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'),
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
         isTokenAutoRefreshEnabled: true
       });
       appCheckReady = getAppCheckToken(appCheck, false)
@@ -467,6 +459,7 @@
     }
 
     const auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence);
     const db = getDatabase(app);
     const firestore = getFirestore(app);
     const storage = getStorage(app);
@@ -489,8 +482,8 @@
     const avatarCache = new Map();              // cache for profilePic URLs
     let playersListenerAttached = false;        // guard to avoid duplicate listeners
 
-    let playerId;
-    //let playerName = localStorage.getItem("name") || "Player";
+    let playerId = localStorage.getItem("userUID");
+    let playerName = localStorage.getItem("name") || "Player";
     let currentScore = 0;
     let questionIndex = 0;
     let questions = [];
@@ -502,38 +495,38 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        playerName = user.displayName || "Player"; // Use displayName if available
+        playerName = user.displayName || "Player";
+        playerId = user.uid;
         localStorage.setItem("name", playerName);
-        console.log("User authenticated: ", playerName);
+        localStorage.setItem("userUID", playerId);
+        console.log("User authenticated: ", playerName, playerId);
+
+        // Update player status in the database
+        if (selectedCategory && !isNaN(selectedCategory)) {
+          const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${user.uid}`);
+          update(playerRef, { online: false, ready: false });
+        }
       } else {
-        console.log("You are not logged in. Redirecting to login page...");
-        window.location.href = "../../../login/fire-login.html";
+        // Only redirect if there is no local session name (Scaffold-style inheritance)
+        const localName = localStorage.getItem("name");
+        if (!localName) {
+          console.log("No local session found. Redirecting to login page...");
+          redirectTo('login');
+        } else {
+          console.log("Firebase Auth null, but found local session for:", localName);
+          // Keep the page open, but the user might need to log in again for Firebase actions
+        }
       }
     });
-    let playerName = localStorage.getItem("name") || "Player";//global variable for player name
+
     // Validate selectedCategory
     if (!selectedCategory || isNaN(parseInt(selectedCategory, 10))) {
-      calert("No category selected. Redirecting to category selection page...");
-      window.location.href = "category.html";  // Redirects if no valid category is found
+      redirectWithAlert("No category selected. Redirecting to category selection page...", 'category');
     } else {
       selectedCategory = parseInt(selectedCategory, 10); // Convert to number
     }
 
     console.log("Selected Category ID:", selectedCategory);
-    //confirm("Do you want to continue?")
-    //   Check user authentication
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        playerId = user.uid;
-        localStorage.setItem("userUID", playerId);
-        console.log("User authenticated: ", playerId);
-        const playerRef = ref(db, `quiz/category_${selectedCategory}/players/${user.uid}`);
-        update(playerRef, { online: false, ready: false });
-      } else {
-        console.log("You are not logged in. Redirecting to login page...");
-        window.location.href = "../../../login/fire-login.html";
-      }
-    });
 
     // Helper to decode HTML entities (e.g., &#039; to ')
     function decodeHtml(html) {
@@ -615,8 +608,7 @@
     //   Join game logic
     joinBtn.addEventListener("click", async () => {
       if (!selectedCategory || isNaN(selectedCategory)) {
-        calert("Invalid category. Please select again.");
-        window.location.href = "category.html";
+        redirectWithAlert("Invalid category. Please select again.", 'category');
         return;
       }
       calert("Loading quiz.");
@@ -642,7 +634,7 @@
         document.getElementById("online-players").style.display = "block"; // Show the online players div
       } else {
         console.log("You are not logged in. Redirecting to login page...");
-        window.location.href = "../../../login/fire-login.html";
+        redirectTo('login');
       }
     });
 
@@ -751,8 +743,7 @@
         ));
 
         if (qSnap.empty) {
-          calert("No questions found. Please choose another category.");
-          setTimeout(() => window.location.href = "category.html", 1500);
+          redirectWithAlert("No questions found. Please choose another category.", 'category');
           return;
         }
 

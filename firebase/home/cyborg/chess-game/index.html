@@ -217,28 +217,51 @@
     </div>
   </div>
 
-  <!-- Firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
-
-  <!-- Stockfish path -->
-  <script>
-    window.STOCKFISH_PATH = "stockfish/stockfish-17.1-lite-single-03e3232.js";
-  </script>
-
-  <!-- Load chess.js before app -->
+  <!-- Firebase Modular SDK -->
   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
     import { Chess } from "https://esm.run/chess.js";
-    window.Chess = Chess;
 
-    const appScript = document.createElement("script");
-    appScript.src = "script22.js";
-    appScript.defer = true;
-    appScript.onload = () => console.log("[page] script21.js loaded.");
-    appScript.onerror = () => console.error("Failed to load script21.js");
-    document.body.appendChild(appScript);
+    window.Chess = Chess;
+    window.STOCKFISH_PATH = "stockfish/stockfish-17.1-lite-single-03e3232.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+      authDomain: "login-b6382.firebaseapp.com",
+      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+      projectId: "login-b6382",
+      storageBucket: "login-b6382.appspot.com",
+      messagingSenderId: "482805184778",
+      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+      measurementId: "G-ZHXBBZHN3W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    
+    // Set modular persistence (matches index3.html/index4.html)
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+    // Initialize App Check
+    try {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider("6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"),
+        isTokenAutoRefreshEnabled: true
+      });
+    } catch (e) { console.warn("App Check init failed:", e); }
+
+    // Export to window for script22.js
+    window.firebaseApp = app;
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+    window.firebaseModular = { onAuthStateChanged };
+
+    // Load app logic as a module
+    import("./script22.js").catch(err => console.error("Failed to load script22.js", err));
   </script>
 
 </body>

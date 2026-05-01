@@ -96,21 +96,12 @@ style="font-family:sans-serif;
   
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { ROUTES, redirectTo } from "../routes.js";
+  import { firebaseConfig, appCheckSiteKey } from "../config.js";
   import { getDatabase, ref, set, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
   import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
   import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js"; //app check
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-    authDomain: "login-b6382.firebaseapp.com",
-    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-    projectId: "login-b6382",
-    storageBucket: "login-b6382.appspot.com",
-    messagingSenderId: "482805184778",
-    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
-    measurementId: "G-ZHXBBZHN3W",
-  };
 
   const app = initializeApp(firebaseConfig);
   /* ===============================
@@ -118,63 +109,82 @@ style="font-family:sans-serif;
   =============================== */
   const appCheck = initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider(
-      "6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"   // your site key
+      appCheckSiteKey   // your site key
     ),
     isTokenAutoRefreshEnabled: true
   });
   console.log("[AppCheck] initialized");
   
-  const auth = getAuth(app);
-  const db = getDatabase(app);
-  const firestore = getFirestore(app);
+    const auth = getAuth(app);
+    // Set persistence once
+    setPersistence(auth, browserLocalPersistence).catch(err => console.error("Persistence error:", err));
 
-  // Wait for the DOM to be fully loaded to ensure elements are available
-  document.addEventListener('DOMContentLoaded', () => {
+    const db = getDatabase(app);
+    const firestore = getFirestore(app);
 
-    const loginBtn = document.getElementById('login-btn');
-    // Select the "Play Now" button. It's the one that originally called redirectToPage().
-    const playNowBtn = document.querySelector('a.btn-primary.btn-lg[onclick^="redirectToPage"]');
+    // Wait for the DOM to be fully loaded to ensure elements are available
+    document.addEventListener('DOMContentLoaded', () => {
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in 
-        let displayName = user.displayName; // Standard Firebase Auth display name
+      const loginBtn = document.getElementById('login-btn');
+      const playNowBtn = document.querySelector('a.btn-primary.btn-lg[onclick^="redirectToPage"]');
 
-        // Update login button
-        if (displayName) {
-          loginBtn.textContent = displayName;
-        } else {
-          loginBtn.textContent = 'Profile'; // Fallback if displayName is not set
-        }
-        loginBtn.onclick = () => {
-          window.location.href = '../../../login/fire-profile9.html'; // Redirect to profile page
-        };
-
-        // Update "Play Now" button's behavior
-        if (playNowBtn) {
-          playNowBtn.onclick = (event) => {
-            event.preventDefault(); // Prevent default <a> tag behavior if any
-            window.location.href = "../cyborg/index.html"; // Redirect to game page
-          };
-        }
-
-      } else {
-        // No user is signed in 
-        loginBtn.textContent = 'Login';
-        loginBtn.onclick = () => {
-          window.location.href = '../../../login/fire-signup.html'; // Redirect to login/signup page
-        };
-
-        // Update "Play Now" button's behavior
-        if (playNowBtn) {
-          playNowBtn.onclick = (event) => {
-            event.preventDefault(); // Prevent default <a> tag behavior if any
-            window.location.href = "../../../login/fire-signup.html"; // Redirect to login/signup page
-          };
-        }
+      // Immediate UI update from localStorage (Optimistic)
+      const localName = localStorage.getItem('name');
+      if (localName && localName !== 'Login') {
+          loginBtn.textContent = localName;
       }
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in 
+          let displayName = user.displayName || localStorage.getItem('name'); 
+
+          // Update localStorage to keep it fresh
+          localStorage.setItem('name', displayName || 'Player');
+          localStorage.setItem('userUID', user.uid);
+
+          // Update login button
+          loginBtn.textContent = displayName || 'Profile';
+          loginBtn.onclick = () => {
+            redirectTo('profile'); // Redirect to profile page
+          };
+
+          // Update "Play Now" button's behavior
+          if (playNowBtn) {
+            playNowBtn.onclick = (event) => {
+              event.preventDefault(); 
+              redirectTo('cyborgHome'); 
+            };
+          }
+
+        } else {
+          // No user is signed in - BUT check if we have a local session
+          const persistentName = localStorage.getItem('name');
+          if (persistentName) {
+              loginBtn.textContent = persistentName;
+              loginBtn.onclick = () => redirectTo('profile');
+          } else {
+              loginBtn.textContent = 'Login';
+              loginBtn.onclick = () => {
+                redirectTo('signup'); 
+              };
+          }
+
+          // Update "Play Now" button's behavior
+          if (playNowBtn) {
+            playNowBtn.onclick = (event) => {
+              event.preventDefault(); 
+              // If we have a local hint, allow them to TRY to play (auth will handle it)
+              if (localStorage.getItem('userUID')) {
+                  redirectTo('cyborgHome');
+              } else {
+                  redirectTo('signup'); 
+              }
+            };
+          }
+        }
+      });
     });
-  });
 </script>
             
     </div>

@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="assets/css/templatemo-cyborg-gaming.css">
     <link rel="stylesheet" href="assets/css/owl.css">
     <link rel="stylesheet" href="assets/css/animate.css">
-    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
     <style>
       /* Index-only pink theme overrides */
       :root {
@@ -385,6 +385,48 @@ https://templatemo.com/tm-579-cyborg-gaming
   50% { box-shadow: 0 0 20px #ec6090, 0 0 40px #ec6090; }
 }
 </style>
+  <script type="module" src="../routes.js"></script>
+  <script type="module">
+    import { redirectTo } from "../routes.js";
+    import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+    import { firebaseConfig, appCheckSiteKey } from "../config.js";
+
+    const app = initializeApp(firebaseConfig);
+
+    try {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        isTokenAutoRefreshEnabled: true
+      });
+    } catch (err) {
+      console.warn("App Check failed:", err);
+    }
+
+    const auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence).catch(e => console.error("Persistence error:", e));
+
+    // Immediate UI update
+    const profileLink = document.querySelector('a[href="fire-profile.html"]');
+    const localName = localStorage.getItem('name');
+    if (localName && profileLink) {
+      profileLink.innerHTML = `${localName} <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const name = user.displayName || 'Player';
+        localStorage.setItem('name', name);
+        if (profileLink) profileLink.innerHTML = `${name} <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+      } else {
+        // If logged out, remove local hints
+        localStorage.removeItem('name');
+        localStorage.removeItem('userUID');
+        if (profileLink) profileLink.innerHTML = `Profile <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+      }
+    });
+  </script>
   </body>
 
 </html>

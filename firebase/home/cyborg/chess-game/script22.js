@@ -1,64 +1,48 @@
-// script19.js - production-clean (Elo removed)
-(function () {
-  const TAG = "[script19]";
-  const log = (...a) => console.log(TAG, ...a);
-  const warn = (...a) => console.warn(TAG, ...a);
-  const err = (...a) => console.error(TAG, ...a);
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, set, update, onValue, onChildAdded, off, runTransaction, serverTimestamp, push, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+import { firebaseConfig, appCheckSiteKey } from "../../config.js";
+import { ROUTES, redirectTo } from "../../routes.js";
 
-  const STOCKFISH_WORKER_PATH = window.STOCKFISH_PATH || "stockfish/stockfish-17.1-lite-single-03e3232.js";
-  const ENGINE_INIT_TIMEOUT_MS = 12000;
-  const DEFAULT_AI_DEPTHS = { easy: 3, medium: 8, hard: 15 };
-  const DEFAULT_AI_LEVEL = "medium";
-  const MOVE_TIME_MS = 30 * 1000;
+const TAG = "[script19]";
+const log = (...a) => console.log(TAG, ...a);
+const warn = (...a) => console.warn(TAG, ...a);
+const err = (...a) => console.error(TAG, ...a);
 
-  let activeColor = "w";
-  let moveTimerMs = MOVE_TIME_MS;
-  let moveTimerHandle = null;
-  let moveTimerLastTs = 0;
+const STOCKFISH_WORKER_PATH = window.STOCKFISH_PATH || "stockfish/stockfish-17.1-lite-single-03e3232.js";
+const ENGINE_INIT_TIMEOUT_MS = 12000;
+const DEFAULT_AI_DEPTHS = { easy: 3, medium: 8, hard: 15 };
+const DEFAULT_AI_LEVEL = "medium";
+const MOVE_TIME_MS = 30 * 1000;
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
-    authDomain: "login-b6382.firebaseapp.com",
-    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
-    projectId: "login-b6382",
-    storageBucket: "login-b6382.appspot.com",
-    messagingSenderId: "482805184778",
-    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
-    measurementId: "G-ZHXBBZHN3W"
-  };
+let activeColor = "w";
+let moveTimerMs = MOVE_TIME_MS;
+let moveTimerHandle = null;
+let moveTimerLastTs = 0;
 
-  try {
-    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  } catch (e) {
-    err("Firebase init failed", e);
-  }
+// Initialize or use existing app
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-  // --- App Check (compat) ---
+// --- App Check (Modular) ---
 try {
-  if (firebase && typeof firebase.appCheck === 'function') {
-    // replace with your public site key (you already used this earlier)
-    firebase.appCheck().activate(
-      '6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd', // reCAPTCHA v3 site key (public)
-      true // enable auto-refresh
-    );
-
-    // optional, useful for debugging
-    try {
-      firebase.appCheck().onTokenChanged(tokenResult => {
-        log('[AppCheck] token changed — length:', tokenResult?.token?.length ?? 'none');
-      });
-    } catch (e) {
-      log('[AppCheck] onTokenChanged not available on this build:', e?.message ?? e);
-    }
-  } else {
-    warn('[AppCheck] firebase.appCheck() not available — did you include firebase-app-check-compat.js?');
-  }
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(appCheckSiteKey),
+    isTokenAutoRefreshEnabled: true
+  });
 } catch (e) {
   warn('[AppCheck] initialization failed:', e);
 }
 
-  const auth = firebase.auth();
-  const db = firebase.database();
+const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch(e => err("Persistence error:", e));
+const db = getDatabase(app);
+
+let serverTimeOffset = 0;
+onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
+  serverTimeOffset = snap.val() || 0;
+  log("Server time offset updated:", serverTimeOffset);
+});
 
   if (!window.Chess) {
     err("chess.js missing");
@@ -111,6 +95,7 @@ try {
       }, 220);
     }, duration);
   }
+  window.calert = calert;
 
   function showStockfishLoader() {
     if (!stockfishOverlay) return;
@@ -177,11 +162,11 @@ try {
     setActiveTimerDisplay(color);
   }
 
-  function startMoveTimer(color = "w") {
-    log("startMoveTimer called for color:", color);
+  function startMoveTimer(color = "w", initialMs) {
+    log("startMoveTimer called for color:", color, "initialMs:", initialMs);
     stopMoveTimer();
     activeColor = color;
-    moveTimerMs = MOVE_TIME_MS; // Reset to full time for the new turn
+    moveTimerMs = (initialMs !== undefined) ? initialMs : MOVE_TIME_MS; 
     moveTimerLastTs = Date.now();
     updateMoveTimerDisplay(moveTimerMs, color);
     moveTimerHandle = setInterval(() => {
@@ -215,10 +200,10 @@ try {
     // Only update Firebase if in multiplayer game
     if (currentGameId) {
       log("onMoveApplied: In multiplayer game, updating Firebase turnInfo.");
-      const turnRef = db.ref(`chess/${currentGameId}/turnInfo`);
-      turnRef.set({
+      const turnRef = ref(db, `chess/${currentGameId}/turnInfo`);
+      set(turnRef, {
         activeColor: nextColor,
-        turnStart: firebase.database.ServerValue.TIMESTAMP
+        turnStart: serverTimestamp()
       }).then(() => {
         log("onMoveApplied: Firebase turnInfo updated successfully.");
       }).catch(e => warn("onMoveApplied: turnInfo update failed", e));
@@ -355,10 +340,10 @@ try {
         if (currentGameId) {
           log("onSquareClick: In multiplayer game, updating Firebase board/turn/updatedAt.");
           // Use update to set multiple properties atomically
-          db.ref(`chess/${currentGameId}`).update({
+          update(ref(db, `chess/${currentGameId}`), {
             board: chess.fen(),
             turn: chess.turn(),
-            updatedAt: firebase.database.ServerValue.TIMESTAMP
+            updatedAt: serverTimestamp()
           }).then(() => {
             log("onSquareClick: Firebase board/turn/updatedAt updated successfully.");
           }).catch(e => warn("onSquareClick: Firebase board/turn/updatedAt update failed", e));
@@ -473,15 +458,15 @@ try {
 
     if (currentGameId && unsubGameValue) {
       log("handleGameEnd: Unsubscribing from Firebase game value listener.");
-      try { db.ref(`chess/${currentGameId}`).off("value", unsubGameValue); unsubGameValue = null; } catch {}
+      try { off(ref(db, `chess/${currentGameId}`), "value", unsubGameValue); unsubGameValue = null; } catch {}
     }
 
     if (currentGameId) {
       const winnerColor = chess.isCheckmate() ? (chess.turn() === "w" ? "black" : "white") : (endReason.startsWith("Time out") ? (endReason.includes("White") ? "black" : "white") : null);
-      const updates = { status: "completed", completedAt: firebase.database.ServerValue.TIMESTAMP };
+      const updates = { status: "completed", completedAt: serverTimestamp() };
       if (winnerColor) updates.winner = winnerColor;
       log("handleGameEnd: Updating Firebase game status to completed. Winner:", winnerColor);
-      db.ref(`chess/${currentGameId}`).update(updates).catch(e => warn("status update failed", e));
+      update(ref(db, `chess/${currentGameId}`), updates).catch(e => warn("status update failed", e));
     }
 
     showGameOverModal(msg, !!currentGameId);
@@ -497,9 +482,9 @@ try {
   function listenForGames() {
     log("listenForGames called.");
     try {
-      const ref = db.ref("chess");
-      ref.off();
-      ref.on("value", snap => {
+      const chessRef = ref(db, "chess");
+      off(chessRef);
+      onValue(chessRef, snap => {
         log("listenForGames: Firebase games data received.");
         if (!gameList) { log("gameList element not found."); return; }
         gameList.innerHTML = "";
@@ -532,8 +517,8 @@ try {
     log("createGame called.");
     if (!currentUser) { calert("Sign in first"); log("createGame: Not signed in."); return; }
     try {
-      const ref = db.ref("chess").push();
-      const gid = ref.key;
+      const newGameRef = push(ref(db, "chess"));
+      const gid = newGameRef.key;
       const payload = {
         playerWhite: currentUser.uid,
         playerBlack: null,
@@ -541,11 +526,15 @@ try {
         turn: chess.turn(),
         status: "waiting",
         chat: null,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        turnInfo: {
+          activeColor: "w",
+          turnStart: serverTimestamp()
+        }
       };
       log("createGame: Creating new game with ID:", gid, "and payload:", payload);
-      await ref.set(payload);
+      await set(newGameRef, payload);
       await joinGame(gid);
       log("createGame: Game created and joined successfully.");
     } catch (e) { err("createGame failed", e); calert("Could not create game."); }
@@ -557,10 +546,10 @@ try {
     if (!currentUser) { calert("Sign in first"); log("joinGame: Not signed in."); return; }
     if (!gid) { calert("No Game ID"); log("joinGame: No Game ID provided."); return; }
     try {
-      const ref = db.ref(`chess/${gid}`);
+      const gameRef = ref(db, `chess/${gid}`);
       let assigned = null;
       log("joinGame: Attempting transaction to join game.");
-      const tx = await ref.transaction(current => {
+      const tx = await runTransaction(gameRef, current => {
         if (!current) { log("joinGame transaction: Current game data is null."); return current; }
         if (current.playerWhite === currentUser.uid) { assigned = "white"; log("joinGame transaction: Already playerWhite."); return current; }
         if (current.playerBlack === currentUser.uid) { assigned = "black"; log("joinGame transaction: Already playerBlack."); return current; }
@@ -578,7 +567,7 @@ try {
       if (gameLobby) gameLobby.style.display = "none";
       if (chessGameDiv) chessGameDiv.style.display = "block";
       if (whiteTimerBox || blackTimerBox) { if (whiteTimerBox) whiteTimerBox.style.display = "block"; if (blackTimerBox) blackTimerBox.style.display = "block"; }
-      const snap = await ref.get();
+      const snap = await get(gameRef);
       const data = snap.val();
       if (data?.board) {
         try { chess.load(data.board); log("joinGame: Loaded board from Firebase."); } catch { chess.reset(); warn("joinGame: Invalid FEN from Firebase, resetting board."); }
@@ -593,8 +582,8 @@ try {
   function subscribeToGame(gid) {
     log("subscribeToGame called for ID:", gid);
     try {
-      const gref = db.ref(`chess/${gid}`);
-      gref.off();
+      const gref = ref(db, `chess/${gid}`);
+      off(gref);
 
       const handler = snap => {
         log("subscribeToGame: Firebase game data snapshot received.");
@@ -620,27 +609,31 @@ try {
         // ======= Sync timers using turnInfo =======
         if (data.turnInfo) {
           log("subscribeToGame: turnInfo received. Syncing timers.");
-          const ts = data.turnInfo.turnStart; // Use the raw timestamp
+          const ts = data.turnInfo.turnStart; 
           log("subscribeToGame: Raw turnStart timestamp from Firebase:", ts);
           const color = data.turnInfo.activeColor || "w";
-          const elapsed = Date.now() - ts;
-          moveTimerMs = MOVE_TIME_MS - elapsed;
-          if (moveTimerMs < 0) moveTimerMs = 0;
+          const serverNow = Date.now() + serverTimeOffset;
+          const elapsed = serverNow - ts;
+          const remaining = MOVE_TIME_MS - elapsed;
+          
           activeColor = color;
-          log(`subscribeToGame: Timer sync - activeColor: ${activeColor}, moveTimerMs: ${moveTimerMs}ms (elapsed: ${elapsed}ms)`);
-          startMoveTimer(color); // This will restart the timer with the synchronized time
+          log(`subscribeToGame: Timer sync - activeColor: ${activeColor}, remaining: ${remaining}ms (elapsed: ${elapsed}ms, offset: ${serverTimeOffset}ms)`);
+          
+          // Only restart timer if it's not already running correctly for this color/time
+          // Or just always restart to be safe with the new sync
+          startMoveTimer(color, remaining); 
         } else {
           log("subscribeToGame: No turnInfo received.");
         }
 
       };
-      gref.on("value", handler);
+      onValue(gref, handler);
       unsubGameValue = handler;
       log("subscribeToGame: Subscribed to game value changes.");
 
       // Chat listener
-      const cref = db.ref(`chess/${gid}/chat`);
-      cref.off();
+      const cref = ref(db, `chess/${gid}/chat`);
+      off(cref);
       const chatHandler = snap => {
         log("subscribeToGame: Chat message received.");
         const m = snap.val();
@@ -651,7 +644,7 @@ try {
         messagesDiv.appendChild(p);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
       };
-      cref.on("child_added", chatHandler);
+      onChildAdded(cref, chatHandler);
       unsubChatChildAdded = chatHandler;
       log("subscribeToGame: Subscribed to chat messages.");
 
@@ -662,9 +655,9 @@ try {
     log("leaveGame called.");
     if (currentGameId && currentUser) {
       try {
-        const ref = db.ref(`chess/${currentGameId}`);
+        const gameRef = ref(db, `chess/${currentGameId}`);
         log("leaveGame: Attempting transaction to leave game.");
-        ref.transaction(g => {
+        runTransaction(gameRef, g => {
           if (!g) return g;
           if (g.playerWhite === currentUser.uid) { g.playerWhite = null; log("leaveGame transaction: Removed as playerWhite."); }
           if (g.playerBlack === currentUser.uid) { g.playerBlack = null; log("leaveGame transaction: Removed as playerBlack."); }
@@ -673,8 +666,8 @@ try {
           return g;
         }).then(() => {
           log("leaveGame: Transaction completed. Unsubscribing from Firebase listeners.");
-          try { db.ref(`chess/${currentGameId}`).off("value", unsubGameValue || undefined); } catch {}
-          try { db.ref(`chess/${currentGameId}/chat`).off("child_added", unsubChatChildAdded || undefined); } catch {}
+          try { off(ref(db, `chess/${currentGameId}`), "value", unsubGameValue || undefined); } catch {}
+          try { off(ref(db, `chess/${currentGameId}/chat`), "child_added", unsubChatChildAdded || undefined); } catch {}
           unsubGameValue = null; unsubChatChildAdded = null;
           resetLocalState();
           log("leaveGame: Local state reset.");
@@ -718,15 +711,15 @@ try {
     if (!txt) { log("sendChat: Chat input is empty."); return; }
     if (!currentGameId) { calert("Chat is multiplayer only"); log("sendChat: Not in multiplayer game."); return; }
     const safeTxt = txt.replace(/[<>]/g, "");
-    const cref = db.ref(`chess/${currentGameId}/chat`);
+    const cref = ref(db, `chess/${currentGameId}/chat`);
     const payload = {
       text: safeTxt,
       user: currentUser?.isAnonymous ? "Guest" : (currentUser?.email || "Player"),
       userId: currentUser?.uid || null,
-      ts: firebase.database.ServerValue.TIMESTAMP
+      ts: serverTimestamp()
     };
     log("sendChat: Sending chat message:", payload);
-    try { cref.push(payload).catch(e => err("chat push fail", e)); } catch (e) { err("chat push outer fail", e); }
+    try { push(cref, payload).catch(e => err("chat push fail", e)); } catch (e) { err("chat push outer fail", e); }
     if (chatInput) chatInput.value = "";
   }
 
@@ -970,13 +963,13 @@ try {
   async function createRematch() {
     log("createRematch called.");
     if (!currentGameId) { log("createRematch: Not in a game."); return; }
-    const oldSnap = await db.ref(`chess/${currentGameId}`).get();
+    const oldSnap = await get(ref(db, `chess/${currentGameId}`));
     const g = oldSnap.val();
     if (!g) { log("createRematch: Old game data not found."); return; }
     if (!g.playerWhite || !g.playerBlack) { log("createRematch: Old game did not have both players."); return; }
     chess.reset();
-    const ref = db.ref("chess").push();
-    const gid = ref.key;
+    const newRef = push(ref(db, "chess"));
+    const gid = newRef.key;
     const payload = {
       playerWhite: g.playerBlack, // Swap colors for rematch
       playerBlack: g.playerWhite, // Swap colors for rematch
@@ -984,11 +977,11 @@ try {
       turn: chess.turn(),
       status: "waiting",
       chat: null,
-      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      createdAt: serverTimestamp(),
       rematchOf: currentGameId
     };
     log("createRematch: Creating new rematch game with ID:", gid, "and payload:", payload);
-    await ref.set(payload);
+    await set(newRef, payload);
     await joinGame(gid);
     log("createRematch: Rematch created and joined successfully.");
   }
@@ -1012,11 +1005,15 @@ try {
         authStatus.style.color = "#2ecc71";
         if (gameLobby) gameLobby.style.display = "block";
 
+        // Persistence for Cyborg/Scaffold style
+        localStorage.setItem("name", name);
+        localStorage.setItem("userUID", user.uid);
+
         try {
-          const userRef = db.ref(`users/${user.uid}`);
-          const snap = await userRef.get();
+          const userRef = ref(db, `users/${user.uid}`);
+          const snap = await get(userRef);
           if (!snap.exists()) {
-            await userRef.set({ createdAt: firebase.database.ServerValue.TIMESTAMP });
+            await set(userRef, { createdAt: serverTimestamp() });
             log("Auth: Created minimal profile for new user:", user.uid);
           } else {
             log("Auth: User profile exists for:", user.uid);
@@ -1027,13 +1024,22 @@ try {
 
         listenForGames();
       } else {
-        authStatus.textContent = "Not signed in";
-        authStatus.style.color = "#e74c3c";
-        if (gameLobby) gameLobby.style.display = "none";
-        resetLocalState();
-        log("Auth: Not signed in. Redirecting to login page.");
-        // 🚀 Redirect to login page
-        window.location.href = "../../../../login/fire-login.html";
+        // Only redirect if there is no local session name (Scaffold-style inheritance)
+        const localName = localStorage.getItem("name");
+        if (!localName) {
+          authStatus.textContent = "Not signed in";
+          authStatus.style.color = "#e74c3c";
+          if (gameLobby) gameLobby.style.display = "none";
+          resetLocalState();
+          log("Auth: Not signed in. Redirecting to login page.");
+          redirectTo('login');
+        } else {
+          log("Firebase Auth null, but found local session for:", localName);
+          authStatus.textContent = `Reconnecting: ${localName}`;
+          authStatus.style.color = "#f1c40f"; // Yellow for reconnecting
+          if (gameLobby) gameLobby.style.display = "block";
+          listenForGames();
+        }
       }
     }
   });
@@ -1042,4 +1048,3 @@ try {
 
   window.__script19 = { chess, renderBoard, initStockfish, makeAIMove, startAIGameRandomFirst, resetLocalState, listenForGames, joinGame, createGame, createRematch };
   log("script19 ready.");
-})();
