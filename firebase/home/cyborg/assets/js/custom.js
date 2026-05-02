@@ -206,26 +206,29 @@
     var scrollPos = $(document).scrollTop();
     $('.nav a').each(function () {
         var currLink = $(this);
-        var refElement = $(currLink.attr("href"));
+        var href = currLink.attr("href");
+        
+        // Only proceed if href is a valid hash link
+        if (!href || !href.startsWith('#') || href === '#') return;
+        
+        try {
+            var refElement = $(href);
 
-        // Check if refElement exists (has length > 0) and its position() method returns an object.
-        // .length checks if the jQuery object contains any elements.
-        // typeof refElement.position() !== 'undefined' ensures position() returned a valid object.
-        if (refElement.length && typeof refElement.position() !== 'undefined') {
-            var refElementPosition = refElement.position(); // Store the position object to avoid multiple calls
+            // Check if refElement exists (has length > 0) and its position() method returns an object.
+            if (refElement.length && typeof refElement.position() !== 'undefined') {
+                var refElementPosition = refElement.position(); // Store the position object to avoid multiple calls
 
-            if (refElementPosition.top <= scrollPos && (refElementPosition.top + refElement.height()) > scrollPos) {
-                $('.nav ul li a').removeClass("active");
-                currLink.addClass("active");
+                if (refElementPosition.top <= scrollPos && (refElementPosition.top + refElement.height()) > scrollPos) {
+                    $('.nav ul li a').removeClass("active");
+                    currLink.addClass("active");
+                }
+                else{
+                    currLink.removeClass("active");
+                }
             }
-            else{
-                currLink.removeClass("active");
-            }
+        } catch (e) {
+            // Ignore invalid selector errors
         }
-        // Optional: You can add an else block here to log or handle cases where an element is not found
-        // else {
-        //     console.warn("Could not find or position element for href: ", currLink.attr("href"));
-        // }
     });
 }
 

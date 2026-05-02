@@ -1,12 +1,14 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chess Master - Cyborg</title>
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
 
   <!-- Bootstrap core CSS -->
   <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -21,16 +23,19 @@
 
   <style>
     /* Global loader overlay */
-    .loader-overlay { 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      background:rgba(0,0,0,0.75); 
-      position:fixed; 
-      inset:0; 
-      z-index:99999; 
+    .loader-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.75);
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
     }
-    .hidden { display:none; }
+
+    .hidden {
+      display: none;
+    }
 
     /* Spinner */
     .loader {
@@ -41,33 +46,61 @@
       height: 60px;
       animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     /* Difficulty modal */
     .modal-overlay {
-      display: flex; align-items: center; justify-content: center;
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
       z-index: 10000;
     }
-    .modal-overlay.hidden { display: none; }
-    .modal-content {
-      background: #1f2122; padding: 20px; border-radius: 10px;
-      border: 2px solid #ec6090; color: white; text-align: center;
+
+    .modal-overlay.hidden {
+      display: none;
     }
+
+    .modal-content {
+      background: #1f2122;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #ec6090;
+      color: white;
+      text-align: center;
+    }
+
     .difficulty-btn {
-      background: #ec6090; border: none; padding: 10px 20px;
-      margin: 5px; border-radius: 5px; cursor: pointer;
+      background: #ec6090;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
       font-weight: bold;
     }
+
     .difficulty-btn:hover {
       background: #ff77a9;
     }
 
     /* Timer styles */
-    #timers { margin-top: 0; margin-left: 12px; }
+    #timers {
+      margin-top: 0;
+      margin-left: 12px;
+    }
+
     #timers .btn-timer {
       font-size: 15px;
       font-weight: bold;
@@ -81,34 +114,51 @@
       min-width: 70px;
       text-align: center;
     }
+
     #timers .active {
       background: #ec6090;
       color: #fff;
     }
+
     @media (max-width: 600px) {
-      #timers .btn-timer { min-width: 50px; font-size: 13px; }
+      #timers .btn-timer {
+        min-width: 50px;
+        font-size: 13px;
+      }
     }
   </style>
 </head>
 
 <body>
   <!-- Header -->
-  <header class="header-area header-sticky" style="background-color: #27292A;">
+  <header class="header-area header-sticky">
     <div class="container">
       <div class="row">
         <div class="col-12">
           <nav class="main-nav">
-            <a href="index.html" class="logo">
+            <a href="../index.html" class="logo">
               <img src="../assets/images/logo.png" alt="">
             </a>
+            <!-- ***** Search End ***** -->
+            <div class="search-input">
+              <form id="search" action="#">
+                <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword"
+                  onkeypress="handle" />
+                <i class="fa fa-search"></i>
+              </form>
+            </div>
+            <!-- ***** Search End ***** -->
             <ul class="nav">
-              <li><a href="index.html" class="active">Home</a></li>
-              <li><a href="browse.html">Browse</a></li>
-              <li><a href="details.html">Details</a></li>
-              <li><a href="streams.html">Streams</a></li>
-              <li><a href="../fire-profile.html">Profile <img src="../assets/images/profile-header.jpg" alt=""></a></li>
+              <li><a href="../index.html" class="active">Home</a></li>
+              <li><a href="../browse.html">Browse</a></li>
+              <li><a href="../details.html">Details</a></li>
+              <li><a href="../streams.html">Streams</a></li>
+              <li><a href="../fire-profile.html">Profile <img src="../assets/images/profile-header.jpg"
+                    alt="Profile avatar"></a></li>
             </ul>
-            <a class="menu-trigger"><span>Menu</span></a>
+            <a class='menu-trigger'>
+              <span>Menu</span>
+            </a>
           </nav>
         </div>
       </div>
@@ -152,9 +202,11 @@
             <div id="custom-alert" class="hidden"></div>
             <div id="chessboard"></div>
             <br>
-            <div class="game-controls" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+            <div class="game-controls"
+              style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
               <button id="undo-btn">Undo</button>
-              <div id="timers" style="display: flex; gap: 8px; margin-top: 6px; margin-left: 0; justify-content: center; width: 100%;">
+              <div id="timers"
+                style="display: flex; gap: 8px; margin-top: 6px; margin-left: 0; justify-content: center; width: 100%;">
                 <div id="white-timer" class="btn-timer" style="display:none;">White: <span>30s</span></div>
                 <div id="black-timer" class="btn-timer" style="display:none;">Black: <span>30s</span></div>
               </div>
@@ -202,7 +254,7 @@
     </div>
   </div>
 
-  <!-- ✅ Global Stockfish Loader 
+  <!--  Global Stockfish Loader 
   <div id="stockfish-loader" class="loader-overlay hidden">
     <div style="display:flex;flex-direction:column;align-items:center;gap:15px;">
       <div class="loader"></div>
@@ -211,11 +263,25 @@
   </div>
   -->
   <div id="stockfish-loader" class="loader-overlay hidden" style="display:none;">
-    <div style="background:#1f2122;border:2px solid #ec6090;padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
-      <div style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:#ec6090;animation:sfspin 1s linear infinite;margin-bottom:12px"></div>
+    <div
+      style="background:#1f2122;border:2px solid #ec6090;padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
+      <div
+        style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:#ec6090;animation:sfspin 1s linear infinite;margin-bottom:12px">
+      </div>
       <div>Loading Stockfish AI...</div>
     </div>
   </div>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="../vendor/jquery/jquery.min.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+  <script src="../assets/js/isotope.min.js"></script>
+  <script src="../assets/js/owl-carousel.js"></script>
+  <script src="../assets/js/tabs.js"></script>
+  <script src="../assets/js/popup.js"></script>
+  <script src="../assets/js/custom.js"></script>
 
   <!-- Firebase Modular SDK -->
   <script type="module">
@@ -242,7 +308,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-    
+
     // Set modular persistence (matches index3.html/index4.html)
     setPersistence(auth, browserLocalPersistence).catch(console.error);
 
@@ -265,4 +331,5 @@
   </script>
 
 </body>
+
 </html>

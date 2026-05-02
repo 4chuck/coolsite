@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.49">
@@ -21,8 +22,13 @@
 
         /* Keyframes for spinning animation */
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Style for the message */
@@ -52,8 +58,8 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
         import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
-        import { firebaseConfig } from 'home/config.js';
-        import { ROUTES, redirectTo } from 'home/routes.js';
+        import { firebaseConfig } from './home/config.js';
+        import { ROUTES, redirectTo } from './home/routes.js';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -76,7 +82,7 @@
                     redirectTo('scaffoldHome');
                 }
             });
-            
+
             // Safety timeout
             setTimeout(() => {
                 if (!localStorage.getItem('userUID')) {
@@ -88,8 +94,10 @@
         redirectToPage();
     </script>
 </head>
+
 <body>
-   <div class="loader"></div>
+    <div class="loader"></div>
     <h1>Redirecting, please wait...</h1>
 </body>
+
 </html>
