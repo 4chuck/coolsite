@@ -24,8 +24,12 @@
     });
 
 	$(window).scroll(function() {
+	  var $headerText = $('.header-text');
+	  if ($headerText.length === 0) {
+	    return;
+	  }
 	  var scroll = $(window).scrollTop();
-	  var box = $('.header-text').height();
+	  var box = $headerText.height();
 	  var header = $('header').height();
 
 	  if (scroll >= box - header) {
