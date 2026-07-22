@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Search Bar - Easy Tutorials</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body background="images/robo.jpg"style="background-repeat:no-repeat;
+
+background-attachment:fixed;
+
+background-size:100% 100%;">
+
+<div class="container">
+
+<form class="search-bar"> 
+  <input type="search"placeholder="search anything..." id="name" name="person" />
+<style>
+input{
+    width :100%;
+    padding:4px 4px 4px 4px;
+    border-radius:4px;
+    border-color:#209dd8;
+    outline :none;
+    font-size:16px;
+}
+</style>
+    
+<script>
+function opener() {
+    var text = document.getElementById('name').value;
+    var targetNames = {
+        dog : "DOG.html",
+        cat : "cat.html",
+        ironman :"iron%20man.html",
+        nature :"sea.html",
+        login :"login/login2.html",
+       blackboard :"black%20board.html",
+        search :"search.html",
+        calci :"calci.html",
+        edit : "img_edit.html",
+        cam : "camera.html",
+        home :"https://4chuck.github.io/coolsite"
+        
+    };
+    if (text in targetNames) {
+        window.open(targetNames[text]);  
+    }
+}
+
+document.getElementById('name').addEventListener('keyup', opener, false);
+</script>
+
+</form>
+
+
+<font color="#000">
+try:<br>
+<li>cam</li>
+<li>edit</li>
+<li>login
+<li>dog
+<li>search
+<li>black board  
+<li>calci
+<li>cat
+<li>ironman
+<li>nature
+</div>
+</body>
+
+</html>

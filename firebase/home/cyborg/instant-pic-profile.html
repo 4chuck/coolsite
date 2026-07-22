@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Cyborg Gaming — Profile</title>
+  <meta name="description"
+    content="Manage your Cyborg Gaming profile, upload a profile picture, and view your quiz scores." />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/fontawesome.css">
+  <link rel="stylesheet" href="assets/css/templatemo-cyborg-gaming.css">
+  <link rel="stylesheet" href="assets/css/owl.css">
+  <link rel="stylesheet" href="assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+
+  <style>
+    :root {
+      --accent: #ec6090;
+      --accent-strong: #ff4f95;
+      --accent-soft: rgba(236, 96, 144, 0.2);
+      --danger: #f44336;
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --muted: #a9b2c4;
+    }
+
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(236, 96, 144, 0.14), transparent 35%),
+        radial-gradient(circle at 90% 100%, rgba(255, 79, 149, 0.12), transparent 38%),
+        #12151c;
+      color: #eee;
+      margin: 0;
+      padding: 20px 0 60px;
+      -webkit-font-smoothing: antialiased;
+      transform: translateZ(0);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       NAVBAR — comprehensive conflict-proof override for fire-profile.html
+       Neutralises all competing rules from templatemo-cyborg-gaming.css
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    /* 1. Lock header to top — kill theme's `position:absolute` and all
+          animation/transition that causes a jump on load.
+
+       ROOT-CAUSE FIX FOR SCROLL DISAPPEAR:
+       custom.js adds class `.background-header` to <header> on any scroll
+       because `.header-text` doesn't exist on this page (box=0, 0-70=-70,
+       scrollTop >= -70 is always true after first scroll event).
+       The theme CSS sets `.background-header { display: none }` — so the
+       header vanishes. We defeat it with display:block !important here. */
+    body.profile-page .header-area,
+    body.profile-page .background-header,
+    body.profile-page .header-area.background-header {
+      display: block !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      z-index: 9999 !important;
+      transform: none !important;
+      animation: none !important;
+      transition: none !important;
+      height: auto !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    /* 1b. When JS adds .background-header (scroll state) keep the
+           dark glass look — defeat theme's white background-color !important */
+    body.profile-page .header-area.background-header .main-nav {
+      /* Theme sets .background-header .main-nav { padding:0px } — this
+         collapses the nav and scatters all elements after scroll. Lock it. */
+      padding: 15px 20px !important;
+      min-height: 80px !important;
+      border-radius: 40px !important;
+      background: rgba(12, 14, 22, 0.94) !important;
+      backdrop-filter: blur(18px) !important;
+      -webkit-backdrop-filter: blur(18px) !important;
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55) !important;
+      border-bottom: 1px solid rgba(236, 96, 144, 0.15) !important;
+    }
+
+    /* 2. Glassmorphism nav bar — overrides theme's `background: transparent`
+          and the mobile `background-color: #f7f7f7` that the theme injects */
+    body.profile-page .header-area .main-nav,
+    body.profile-page .background-header .main-nav {
+      padding: 15px 20px !important;
+      min-height: 80px !important;
+      background: rgba(15, 17, 26, 0.82) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+      border-radius: 40px !important;
+      border-bottom: 1px solid rgba(236, 96, 144, 0.12) !important;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    /* 3. Nav links — theme sets color:#666 (invisible on dark bg) */
+    body.profile-page .header-area .main-nav .nav li a {
+      color: rgba(200, 210, 230, 0.85) !important;
+      background: transparent !important;
+      border: none !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.2px !important;
+    }
+
+    /* 4. Active & hover link — theme's .header-area.header-sticky rule
+          sets color:#fff and fights the accent override */
+    body.profile-page .header-area .main-nav .nav li:hover>a,
+    body.profile-page .header-area .main-nav .nav li a.active,
+    body.profile-page .header-area.header-sticky .nav li a.active,
+    body.profile-page .header-area.header-sticky .nav li a:hover {
+      color: var(--accent) !important;
+      background: transparent !important;
+      opacity: 1 !important;
+    }
+
+    /* 5. Last nav item (Profile pill) — theme sets dark #27292a bg */
+    body.profile-page .header-area .main-nav .nav li:last-child a {
+      background: rgba(236, 96, 144, 0.12) !important;
+      border: 1px solid rgba(236, 96, 144, 0.3) !important;
+      color: #fff !important;
+      padding: 8px 14px 8px 18px !important;
+      border-radius: 23px !important;
+    }
+
+    body.profile-page .header-area .main-nav .nav li:last-child:hover a,
+    body.profile-page .header-area .main-nav .nav li:last-child a.active {
+      background: rgba(236, 96, 144, 0.28) !important;
+      color: #fff !important;
+      border-color: var(--accent) !important;
+    }
+
+    /* 6. Profile avatar img in last nav link */
+    body.profile-page .header-area .main-nav .nav li:last-child a img {
+      max-width: 28px !important;
+      border-radius: 50% !important;
+      margin-left: 6px !important;
+      border: 2px solid rgba(236, 96, 144, 0.5) !important;
+      display: inline-block !important;
+      /* theme hides it at ≤992px */
+    }
+
+    /* 7. Logo */
+    body.profile-page .header-area .main-nav .logo {
+      border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+
+    .main-nav .logo img {
+      height: 46px;
+      display: block;
+    }
+
+    /* 8. Search input — dark bg to match panel */
+    body.profile-page .header-area .main-nav #search input {
+      background-color: rgba(255, 255, 255, 0.06) !important;
+      color: #ccc !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    body.profile-page .header-area .main-nav #search input::placeholder {
+      color: rgba(200, 210, 230, 0.5);
+    }
+
+    body.profile-page .header-area .main-nav #search i {
+      color: rgba(200, 210, 230, 0.5) !important;
+    }
+
+    /* 9. Mobile menu hamburger bars */
+    body.profile-page .header-area .main-nav .menu-trigger span,
+    body.profile-page .header-area .main-nav .menu-trigger span:before,
+    body.profile-page .header-area .main-nav .menu-trigger span:after {
+      background-color: var(--accent) !important;
+    }
+
+    /* 10. ≤992px overrides — theme forces white bg, white list items, and
+           removes border-radius entirely; we restore the dark panel look.
+           Also defeats the end-of-file @media(≤992px) block in templatemo
+           (lines 2042-2071) which resets nav styles without !important. */
+    @media (max-width: 992px) {
+
+      body.profile-page .header-area,
+      body.profile-page .header-area.background-header {
+        display: block !important;
+        /* keep visible even after scroll class */
+        background: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+
+      body.profile-page .header-area .main-nav,
+      body.profile-page .header-area.background-header .main-nav {
+        border-radius: 0 !important;
+        /* pill doesn't work on narrow screens */
+        padding: 0 16px !important;
+        /* defeat end-of-file templatemo block: border-radius:18px,
+           background:rgba(17,21,27,.98) — keep our own dark glass */
+        background: rgba(12, 14, 22, 0.96) !important;
+      }
+
+      body.profile-page .header-area .main-nav .nav {
+        margin-top: 70px !important;
+        /* correct offset for fixed header height */
+        background: rgba(12, 14, 22, 0.98) !important;
+        border-top: 1px solid rgba(236, 96, 144, 0.15) !important;
+        border-radius: 0 0 16px 16px !important;
+        padding-bottom: 8px !important;
+      }
+
+      body.profile-page .header-area .main-nav .nav li {
+        /* defeat end-of-file: background:rgba(23,28,35,.98) */
+        background: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        width: 100% !important;
+      }
+
+      body.profile-page .header-area .main-nav .nav li:first-child {
+        border-top: none !important;
+      }
+
+      body.profile-page .header-area .main-nav .nav li a {
+        /* defeat end-of-file: color:#dde7f6; background:transparent */
+        background: transparent !important;
+        color: rgba(200, 210, 230, 0.85) !important;
+        height: 48px !important;
+        line-height: 48px !important;
+        padding: 0 20px !important;
+      }
+
+      body.profile-page .header-area .main-nav .nav li a:hover,
+      body.profile-page .header-area .main-nav .nav li a.active {
+        color: var(--accent) !important;
+        background: rgba(236, 96, 144, 0.08) !important;
+      }
+
+      /* Re-show the avatar in mobile nav */
+      body.profile-page .header-area .main-nav .nav li:last-child a img {
+        display: inline-block !important;
+      }
+
+      /* defeat end-of-file: border-radius:0; border:none */
+      body.profile-page .header-area .main-nav .nav li:last-child a {
+        margin: 8px 16px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(236, 96, 144, 0.3) !important;
+        padding: 8px 14px 8px 18px !important;
+        height: auto !important;
+        line-height: normal !important;
+        background: rgba(236, 96, 144, 0.12) !important;
+      }
+    }
+
+    main.container {
+      margin-top: 110px;
+    }
+
+    .profile-wrapper {
+      display: flex;
+      gap: 24px;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 28px;
+    }
+
+    @media (min-width: 900px) {
+      .profile-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+    }
+
+    .profile-card {
+      background: linear-gradient(180deg, rgba(36, 34, 48, 0.92), rgba(25, 27, 37, 0.95));
+      color: #eee;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      position: relative;
+    }
+
+    .profile-thumb {
+      width: 220px;
+      height: 220px;
+      border-radius: 18px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto;
+      border: 4px solid rgba(236, 96, 144, 0.4);
+      box-shadow: 0 0 0 5px rgba(236, 96, 144, 0.15);
+    }
+
+    .profile-meta {
+      margin-top: 12px;
+    }
+
+    .profile-card .btn,
+    .profile-info .btn {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .profile-card .btn-upload {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .profile-card .btn-logout {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .profile-card .dropdown {
+      position: relative;
+      display: inline-block;
+      margin-top: 12px;
+      z-index: 1600;
+    }
+
+    .profile-card .dropdown .dropdown-btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .profile-card .dropdown .dropdown-content {
+      display: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 260px;
+      background: #1a1722;
+      color: #eaeaea;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+      z-index: 1800;
+      border: 1px solid rgba(236, 96, 144, 0.25);
+    }
+
+    .profile-card .dropdown .dropdown-content input {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0;
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .profile-card .dropdown .dropdown-content input[type="file"] {
+      background: var(--accent);
+      color: #fff;
+      border: 1px dashed rgba(255, 255, 255, 0.45);
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 320px;
+      background: linear-gradient(180deg, rgba(36, 34, 48, 0.92), rgba(25, 27, 37, 0.95));
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-info h2 {
+      margin: 0 0 6px;
+      color: #fff;
+    }
+
+    .profile-info p {
+      margin: 4px 0;
+      color: var(--muted);
+    }
+
+    #data-container {
+      margin-top: 18px;
+      width: 100%;
+    }
+
+    #data-display .category-data {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid rgba(236, 96, 144, 0.18);
+    }
+
+    #load {
+      color: #bdbdbd;
+      font-weight: 600;
+    }
+
+    #custom-alert {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: linear-gradient(90deg, #ec6090, #ff4f95);
+      color: #fff;
+      padding: 12px 25px;
+      border-radius: 8px;
+      z-index: 3000;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      font-weight: 700;
+      min-width: 200px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    #custom-alert.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .processing-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      border-radius: 10px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 4000;
+      text-align: center;
+      padding: 12px;
+      pointer-events: auto;
+    }
+
+    .processing-overlay.show {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin: 4px auto;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .status-text {
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .status-sub {
+      color: #ddd;
+      font-size: 0.92rem;
+    }
+
+    /* Active/hover colour — consolidated into the navbar block above;
+       this rule is kept as a lightweight fallback only */
+    body.profile-page .main-nav .nav li a.active,
+    body.profile-page .main-nav .nav li a:hover {
+      color: var(--accent) !important;
+    }
+
+    .profile-card .btn-upload,
+    .profile-card .dropdown .dropdown-btn,
+    #settingsBtn,
+    #helpBtn {
+      background: linear-gradient(90deg, var(--accent), var(--accent-strong)) !important;
+      color: #fff !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 10px 20px rgba(236, 96, 144, 0.33);
+    }
+
+    .profile-card .btn-upload:hover,
+    .profile-card .dropdown .dropdown-btn:hover,
+    #settingsBtn:hover,
+    #helpBtn:hover,
+    #logout-btn:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    #logout-btn {
+      box-shadow: 0 10px 20px rgba(244, 67, 54, 0.3);
+    }
+
+    .profile-card .btn:focus-visible,
+    .profile-info .btn:focus-visible,
+    .profile-card input:focus-visible,
+    .main-nav a:focus-visible,
+    #changePicBtn:focus-visible,
+    #logout-btn:focus-visible {
+      outline: 3px solid rgba(255, 79, 149, 0.85);
+      outline-offset: 3px;
+    }
+
+    .profile-card .dropdown .dropdown-content input:focus {
+      border-color: rgba(236, 96, 144, 0.65);
+      box-shadow: 0 0 0 3px rgba(236, 96, 144, 0.22);
+    }
+
+    hr {
+      border-color: rgba(236, 96, 144, 0.18) !important;
+    }
+
+    footer {
+      margin-top: 30px;
+      padding: 18px 0;
+      text-align: center;
+      color: #9aa0b4;
+    }
+
+    footer a {
+      color: #f199bd;
+    }
+
+    footer a:hover {
+      color: #ff7fb3;
+    }
+
+    img,
+    input {
+      max-width: 100%;
+      height: auto;
+      box-sizing: border-box;
+    }
+
+    #changePicBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed !important;
+      pointer-events: none;
+    }
+
+    @media (max-width: 991px) {
+      body {
+        padding-top: 8px;
+      }
+
+      main.container {
+        margin-top: 88px;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .profile-wrapper {
+        gap: 16px;
+        margin-top: 12px;
+      }
+
+      .profile-card,
+      .profile-info {
+        border-radius: 14px;
+        padding: 16px;
+        margin-top: 20px;
+      }
+
+      .profile-info {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .profile-thumb {
+        width: min(200px, 62vw);
+        height: min(200px, 62vw);
+      }
+
+      #name {
+        font-size: 1.5rem !important;
+      }
+
+      #email {
+        font-size: 1.05rem !important;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+
+      #settingsBtn,
+      #helpBtn {
+        flex: 1 1 auto;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .profile-thumb {
+        width: min(180px, 66vw);
+        height: min(180px, 66vw);
+      }
+
+      .profile-card .btn,
+      .profile-info .btn,
+      .profile-card .dropdown .dropdown-btn {
+        min-height: 44px;
+        font-size: 1rem;
+        padding: 10px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body class="profile-page">
+  <div id="js-preloader" class="js-preloader" style="display:none;">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <header class="header-area header-sticky">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <nav class="main-nav">
+            <a href="index.html" class="logo">
+              <img src="assets/images/logo.png" alt="Cyborg Gaming home">
+            </a>
+
+            <div class="search-input">
+              <form id="search" action="#">
+                <input type="text" placeholder="Type Something" id="searchText" name="searchKeyword"
+                  onkeypress="handle" />
+                <i class="fa fa-search"></i>
+              </form>
+            </div>
+
+            <ul class="nav">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="browse.html">Browse</a></li>
+              <li><a href="details.html">Details</a></li>
+              <li><a href="streams.html">Streams</a></li>
+              <li><a href="fire-profile.html" class="active">Profile <img src="assets/images/profile-header.jpg"
+                    alt="Profile avatar"></a></li>
+            </ul>
+
+            <a class='menu-trigger'>
+              <span>Menu</span>
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="profile-wrapper">
+      <div class="profile-card" id="profile-card">
+        <div class="processing-overlay" id="processingOverlay" aria-hidden="true">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="status-text" id="processingStatus">Uploading image...</div>
+          <div class="status-sub" id="processingSub">Waiting for server to create thumbnail...</div>
+        </div>
+
+        <img id="profile-pic" class="profile-thumb" src="default-avatar.png" alt="Profile Picture" />
+
+        <div style="margin-top:12px;">
+          <div class="dropdown">
+            <button id="changePicBtn" class="dropdown-btn" type="button">Change Pic</button>
+            <input type="file" id="upload-image" accept="image/*" style="display:none" />
+          </div>
+        </div>
+
+        <div class="profile-meta" style="margin-top:12px;">
+          <div id="name" style="font-weight:700;font-size:1.05rem;color:#fff;">No Name</div>
+          <div id="email" style="color:var(--muted);font-size:0.95rem;margin-top:6px;">No Email</div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <button id="logout-btn" class="btn btn-logout">Logout</button>
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <h2>Player Dashboard</h2>
+        <p>Quick overview of your quiz categories and scores — this updates automatically.</p>
+
+        <div id="data-container">
+          <h4>Your Data</h4>
+          <p id="load">loading data...</p>
+          <div id="data-display"></div>
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.05); margin-top:18px;">
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          <button class="btn" style="background:rgba(255,255,255,0.06); color:#fff;" id="settingsBtn">Settings</button>
+          <button class="btn" style="background:rgba(255,255,255,0.06); color:#fff;" id="helpBtn">Help</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="custom-alert"></div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Copyright © 2036 <a href="#">Cyborg Gaming</a>. Design: <a href="https://templatemo.com"
+          target="_blank">TemplateMo</a></p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { ROUTES, redirectTo, redirectWithAlert } from "../routes.js";
+    import { firebaseConfig, appCheckSiteKey } from "../config.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut,
+      setPersistence,
+      browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+    import {
+      getDatabase,
+      ref as dbRef,
+      get,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+    import {
+      getStorage,
+      ref as storageRef,
+      getDownloadURL,
+      uploadBytesResumable
+    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
+
+    import {
+      initializeAppCheck,
+      ReCaptchaV3Provider,
+      getToken as getAppCheckToken
+    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+
+    const app = initializeApp(firebaseConfig);
+
+    // ── App Check ─────────────────────────────────────────────────────────────
+    // Keep a reference so we can warm the token before the first storage request.
+    let appCheck = null;
+    let appCheckReady = Promise.resolve(); // resolves when first token is obtained
+
+    try {
+      appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        isTokenAutoRefreshEnabled: true
+      });
+      // Pre-fetch the token so it is cached before any Storage call.
+      // This eliminates the race condition where getDownloadURL fires
+      // before App Check has obtained its first valid token.
+      appCheckReady = getAppCheckToken(appCheck, /* forceRefresh= */ false)
+        .then(() => { console.log('[AppCheck] token pre-warmed'); })
+        .catch(err => { console.warn('[AppCheck] pre-warm failed (non-fatal):', err); });
+      console.log('[AppCheck] initialized');
+    } catch (err) {
+      console.warn('[AppCheck] init skipped/failed:', err);
+    }
+
+    const auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence);
+    const database = getDatabase(app);
+    const storage = getStorage(app);
+
+    // ── Cleanup registry — unsubscribed on pagehide ────────────────────────
+    const _cleanups = [];
+    window.addEventListener('pagehide', () => _cleanups.forEach(fn => { try { fn(); } catch (_) { } }), { once: true });
+
+    const dataDisplay = document.getElementById('data-display');
+    const loadingMessage = document.getElementById('load');
+    const profilePicEl = document.getElementById('profile-pic');
+    const uploadInput = document.getElementById('upload-image');
+    const logoutBtn = document.getElementById('logout-btn');
+    const processingOverlay = document.getElementById('processingOverlay');
+    const processingStatus = document.getElementById('processingStatus');
+    const processingSub = document.getElementById('processingSub');
+    const changePicBtn = document.getElementById('changePicBtn');
+
+    const categoryMap = {
+      9: 'General Knowledge',
+      10: 'Entertainment: Books',
+      11: 'Entertainment: Film',
+      12: 'Entertainment: Music',
+      13: 'Entertainment: Musicals & Theatres',
+      14: 'Entertainment: Television',
+      15: 'Entertainment: Video Games',
+      16: 'Entertainment: Board Games',
+      17: 'Science & Nature',
+      18: 'Science: Computers',
+      19: 'Science: Mathematics',
+      20: 'Mythology',
+      21: 'Sports',
+      22: 'Geography',
+      23: 'History',
+      24: 'Politics',
+      25: 'Art',
+      26: 'Celebrities',
+      27: 'Animals',
+      28: 'Vehicles',
+      29: 'Entertainment: Comics',
+      30: 'Science: Gadgets',
+      31: 'Entertainment: Japanese Anime & Manga',
+      32: 'Entertainment: Cartoon & Animations'
+    };
+
+    let lastProfilePicUrl = null;
+    let fallbackTimer = null;
+    let thumbnailPoller = null;
+    let awaitingThumbnail = false;
+
+    // ── calert — fixes re-entrancy (rapid calls now properly reset the timer) ─
+    let _calertTimer = null;
+    function calert(message, ms = 3000) {
+      const box = document.getElementById('custom-alert');
+      box.textContent = message;
+      box.classList.add('show');
+      if (_calertTimer) clearTimeout(_calertTimer);
+      _calertTimer = setTimeout(() => {
+        box.classList.remove('show');
+        _calertTimer = null;
+      }, ms);
+    }
+    window.calert = calert;
+
+    function showProcessing(mainText = 'Processing image...', subText = 'Uploading and creating thumbnail...') {
+      processingStatus.textContent = mainText;
+      processingSub.textContent = subText;
+      processingOverlay.classList.add('show');
+      processingOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideProcessing() {
+      processingOverlay.classList.remove('show');
+      processingOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function stopThumbnailWait() {
+      awaitingThumbnail = false;
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
+      if (thumbnailPoller) {
+        clearInterval(thumbnailPoller);
+        thumbnailPoller = null;
+      }
+    }
+
+    /**
+     * getDownloadURL with exponential-backoff retry.
+     * Fixes the App Check token race condition: if the token isn't ready yet
+     * the SDK throws appCheck/token-error or storage/unauthorized — we wait
+     * for appCheckReady and retry up to `maxAttempts` times.
+     */
+    async function getDownloadURLWithRetry(ref, maxAttempts = 4) {
+      // Ensure the App Check token is warmed up before the very first attempt.
+      await appCheckReady;
+      let delay = 800;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          return await getDownloadURL(ref);
+        } catch (err) {
+          const retryable = [
+            'appCheck/token-error',
+            'storage/unauthorized',
+            'storage/retry-limit-exceeded'
+          ].some(code => err?.code === code);
+          if (!retryable || attempt === maxAttempts) throw err;
+          console.warn(`[Storage] getDownloadURL attempt ${attempt} failed (${err.code}), retrying in ${delay}ms…`);
+          // Force-refresh the App Check token before the next try.
+          if (appCheck) {
+            await getAppCheckToken(appCheck, /* forceRefresh= */ true).catch(() => { });
+          }
+          await new Promise(r => setTimeout(r, delay));
+          delay = Math.min(delay * 2, 8000);
+        }
+      }
+    }
+
+    async function resolveProfilePic(path) {
+      if (!path) return 'default-avatar.png';
+      if (/^https?:\/\//i.test(path)) return path;
+      const imageRef = storageRef(storage, path);
+      return await getDownloadURLWithRetry(imageRef);
+    }
+
+    function setProfileImage(src) {
+      if (!profilePicEl) return;
+      profilePicEl.src = src || 'default-avatar.png';
+    }
+
+    /**
+     * Fetch the download URL for `path` and display it.
+     * Uses a Blob URL for the freshness pass so the browser always re-fetches
+     * the actual image bytes without the ?t= cache-buster leaking into analytics.
+     */
+    async function applyProfilePicFromPath(path, { forceRefresh = false } = {}) {
+      if (!path) {
+        setProfileImage('default-avatar.png');
+        return;
+      }
+      const resolved = await resolveProfilePic(path);
+      lastProfilePicUrl = resolved;
+      if (forceRefresh) {
+        // Append a minimal cache-buster only on forced refreshes.
+        setProfileImage(`${resolved}&_cb=${Date.now()}`);
+      } else {
+        setProfileImage(resolved);
+      }
+    }
+
+    function startThumbnailWait(uid) {
+      stopThumbnailWait();
+      awaitingThumbnail = true;
+
+      const startedAt = Date.now();
+      const TIMEOUT_MS = 40000;
+      const POLL_MS = 2000;
+
+      const poll = async () => {
+        if (!awaitingThumbnail) return;
+
+        if (Date.now() - startedAt > TIMEOUT_MS) {
+          stopThumbnailWait();
+          hideProcessing();
+          uploadInput.disabled = false;
+          changePicBtn.disabled = false;
+          calert('Thumbnail processing delayed. Try refreshing the page.');
+          return;
+        }
+
+        try {
+          const snap = await get(dbRef(database, `users/${uid}/profilePic`));
+          const path = snap.exists() ? snap.val() : null;
+          if (!path) return;
+          await applyProfilePicFromPath(path, { forceRefresh: true });
+        } catch (err) {
+          console.warn('Thumbnail poll failed:', err);
+        }
+      };
+
+      thumbnailPoller = setInterval(poll, POLL_MS);
+      fallbackTimer = setTimeout(() => {
+        if (awaitingThumbnail) {
+          calert('Still waiting for thumbnail...');
+        }
+      }, 12000);
+
+      void poll();
+    }
+
+    profilePicEl.addEventListener('load', () => {
+      if (!awaitingThumbnail) return;
+      stopThumbnailWait();
+      hideProcessing();
+      uploadInput.disabled = false;
+      changePicBtn.disabled = false;
+      calert('Thumbnail updated!');
+    });
+
+    profilePicEl.addEventListener('error', () => {
+      if (awaitingThumbnail) return;
+      profilePicEl.src = 'default-avatar.png';
+    });
+
+    changePicBtn.addEventListener('click', () => {
+      uploadInput.click();
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        const localName = localStorage.getItem('name');
+        if (!localName) {
+          if (window.AppEnhancer) window.AppEnhancer.clearSession();
+          calert('Not logged in — redirecting...');
+          setTimeout(() => {
+            redirectTo('login');
+          }, 900);
+        } else {
+          console.log("Firebase Auth null, but found local session for:", localName);
+          // Update UI with local data while waiting or if logged out of Firebase
+          document.getElementById('name').textContent = localName;
+          const localUID = localStorage.getItem('userUID');
+          if (localUID) {
+            document.getElementById('email').textContent = 'Session active (Firebase reconnecting...)';
+          }
+        }
+        return;
+      }
+
+      if (window.AppEnhancer) {
+        window.AppEnhancer.captureUser({
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || ''
+        });
+      }
+
+      calert('Loading your profile...');
+      const uid = user.uid;
+
+      (async () => {
+        try {
+          const userRef = dbRef(database, `users/${uid}`);
+          const snapshot = await get(userRef);
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            const displayName = data.displayName || data.name || user.displayName || 'No Name';
+            const emailText = data.email || user.email || 'No Email';
+
+            document.getElementById('name').textContent = displayName;
+            document.getElementById('email').textContent = emailText;
+
+            if (data.profilePic) {
+              await applyProfilePicFromPath(data.profilePic, { forceRefresh: true });
+            } else {
+              setProfileImage('default-avatar.png');
+            }
+          } else {
+            document.getElementById('name').textContent = user.displayName || 'No Name';
+            document.getElementById('email').textContent = user.email || 'No Email';
+            setProfileImage('default-avatar.png');
+          }
+        } catch (err) {
+          console.error('Error loading profile:', err);
+          calert('Failed to load profile data.');
+        }
+      })();
+
+      // ── Real-time profile-pic listener (unsubscribed on pagehide) ──────────
+      const profilePicDbRef = dbRef(database, `users/${uid}/profilePic`);
+      const unsubProfilePic = onValue(profilePicDbRef, async (snap) => {
+        const path = snap.val();
+        console.log('[RTDB] users/' + uid + '/profilePic changed ->', path);
+
+        if (!path) return;
+
+        try {
+          await applyProfilePicFromPath(path, { forceRefresh: true });
+          if (awaitingThumbnail) {
+            stopThumbnailWait();
+            hideProcessing();
+            uploadInput.disabled = false;
+            changePicBtn.disabled = false;
+            calert('Thumbnail updated!');
+          }
+        } catch (err) {
+          // Only log the code — never surface raw Firebase internals to the UI.
+          console.error('[Storage] Failed to resolve thumbnail:', err?.code || err);
+          if (awaitingThumbnail) {
+            stopThumbnailWait();
+            hideProcessing();
+            uploadInput.disabled = false;
+            changePicBtn.disabled = false;
+            calert('Could not load thumbnail. Please refresh.');
+          }
+        }
+      }, (err) => {
+        console.error('[RTDB] onValue error:', err?.code || err);
+      });
+      _cleanups.push(unsubProfilePic);
+
+      (async () => {
+        dataDisplay.innerHTML = '';
+        let dataFetched = false;
+        for (let n = 9; n <= 32; n++) {
+          try {
+            const playerRef = dbRef(database, `quiz/category_${n}/players/${uid}`);
+            const snap = await get(playerRef);
+            if (snap.exists()) {
+              const val = snap.val();
+              const score = val.score ?? 0;
+              // Sanitise text before injecting into innerHTML
+              const catName = (categoryMap[n] || 'Unknown').replace(/</g, '&lt;');
+              dataDisplay.innerHTML +=
+                `<div class='category-data'><h5>${catName}</h5><p>Score: ${score}</p></div>`;
+              if (!dataFetched) {
+                loadingMessage.style.display = 'none';
+                dataFetched = true;
+              }
+            }
+          } catch (err) {
+            console.error(`[RTDB] category ${n} fetch error:`, err?.code || err);
+          }
+        }
+        // Show a friendly message when the user has no scores yet
+        if (!dataFetched) {
+          loadingMessage.textContent = 'No quiz data yet — play a quiz to see your scores here!';
+          loadingMessage.style.display = '';
+        }
+      })();
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        if (window.AppEnhancer) window.AppEnhancer.clearSession();
+        localStorage.removeItem('name');
+        localStorage.removeItem('userUID');
+        redirectWithAlert('Logged out.', 'login', 700);
+      } catch (err) {
+        console.error('Logout error:', err);
+        calert('Error during logout: ' + (err.message || err));
+      }
+    });
+
+    // --- IndexedDB Queue Setup for Background Uploads ---
+    const dbName = "UploadQueueDB";
+    const storeName = "uploads";
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(storeName)) {
+            db.createObjectStore(storeName, { keyPath: "id" });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function saveToQueue(id, file, uid) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).put({ id, file, uid, timestamp: Date.now() });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function removeFromQueue(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getQueue() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readonly");
+        const request = tx.objectStore(storeName).getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    let isProcessingQueue = false;
+    async function processQueue() {
+      if (isProcessingQueue) return;
+      isProcessingQueue = true;
+      try {
+        const queue = await getQueue();
+        for (const item of queue) {
+          try {
+            const ext = item.file.name.split('.').pop();
+            const fileName = `upload_${item.id}.${ext}`;
+            const imageRef = storageRef(storage, `profile_pictures/${item.uid}/${fileName}`);
+            
+            await new Promise((resolve, reject) => {
+              const uploadTask = uploadBytesResumable(imageRef, item.file);
+              uploadTask.on('state_changed', null, reject, () => resolve());
+            });
+            
+            await removeFromQueue(item.id);
+            console.log(`[Queue] Successfully uploaded item ${item.id}`);
+          } catch (err) {
+            console.error(`[Queue] Failed to upload item ${item.id}`, err);
+          }
+        }
+      } catch (err) {
+        console.error('[Queue] Error processing queue', err);
+      } finally {
+        isProcessingQueue = false;
+      }
+    }
+    
+    // Attempt to process queue when auth is ready
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        processQueue();
+      }
+    });
+
+    uploadInput.addEventListener('change', async (evt) => {
+      const file = evt.target.files?.[0];
+      if (!file) return;
+
+      const user = auth.currentUser;
+      if (!user) {
+        calert('Please login before uploading.');
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        calert('Only image files allowed.');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        calert('Image must be under 5MB.');
+        return;
+      }
+
+      try {
+        // Optimistic UI update: instantly show the image
+        profilePicEl.src = URL.createObjectURL(file);
+        calert('Profile picture updated locally. Uploading in background...');
+
+        // Save to background queue
+        const id = Date.now().toString();
+        await saveToQueue(id, file, user.uid);
+        
+        // Start processing the queue in the background
+        processQueue();
+      } catch (err) {
+        console.error('Queue save failed:', err);
+        calert('Failed to initiate upload.');
+      }
+    });
+
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      calert('No settings available yet.');
+    });
+
+    document.getElementById('helpBtn').addEventListener('click', () => {
+      calert('Upload a profile picture using the "Change Pic" button.');
+    });
+
+    window.addEventListener('focus', () => {
+      // no-op
+    });
+  </script>
+
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/tabs.js"></script>
+  <script src="assets/js/popup.js"></script>
+  <script src="assets/js/app-enhancer.js"></script>
+  <script src="assets/js/custom.js"></script>
+  <script type="module" src="../routes.js"></script>
+</body>
+
+</html>

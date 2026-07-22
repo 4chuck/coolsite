@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sketch Studio | Tetron</title>
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="../src/css/design-system.css">
+    <link rel="stylesheet" href="../src/css/global.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            overflow: hidden; /* Prevent scrolling during sketching */
+        }
+
+        .sketch-container {
+            width: 100vw;
+            height: 100vh;
+            padding-top: 80px;
+            background: #0a0a0a;
+            position: relative;
+        }
+
+        #sketch-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .sketch-toolbar {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            padding: 15px 25px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow-2xl);
+            z-index: 100;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-right: 20px;
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .tool-group:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s ease;
+        }
+
+        .color-dot.active {
+            transform: scale(1.3);
+            border-color: white;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .brush-preview {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        #brush-indicator {
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .tool-btn:hover, .tool-btn.active {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .sketch-btn-primary {
+            background: var(--accent);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <!-- Navbar -->
+    <nav class="glass-navbar">
+        <div class="navbar-container">
+            <a href="../dashboard/index.html" class="logo-brand">
+                <i class="fas fa-pencil-ruler"></i>
+                <span>TETRON <strong>SKETCH</strong></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="../dashboard/index.html">Dashboard</a></li>
+                <li>
+                    <div class="user-profile">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);">
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="sketch-container">
+        <canvas id="sketch-canvas"></canvas>
+
+        <div class="sketch-toolbar">
+            <!-- Colors -->
+            <div class="tool-group">
+                <div class="color-dot active" style="background: #00f2ff; color: #00f2ff;" data-color="#00f2ff"></div>
+                <div class="color-dot" style="background: #ff00ea; color: #ff00ea;" data-color="#ff00ea"></div>
+                <div class="color-dot" style="background: #77ff00; color: #77ff00;" data-color="#77ff00"></div>
+                <div class="color-dot" style="background: #ffff00; color: #ffff00;" data-color="#ffff00"></div>
+                <div class="color-dot" style="background: #ffffff; color: #ffffff;" data-color="#ffffff"></div>
+            </div>
+
+            <!-- Brush Size -->
+            <div class="tool-group">
+                <button class="tool-btn" id="decrease-brush"><i class="fas fa-minus"></i></button>
+                <div class="brush-preview">
+                    <div id="brush-indicator" style="width: 5px; height: 5px;"></div>
+                </div>
+                <button class="tool-btn" id="increase-brush"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <!-- Utilities -->
+            <div class="tool-group">
+                <button class="tool-btn" id="eraser-tool" title="Eraser"><i class="fas fa-eraser"></i></button>
+                <button class="tool-btn" id="clear-board" title="Clear All"><i class="fas fa-trash-alt"></i></button>
+            </div>
+
+            <button class="sketch-btn-primary" id="export-btn">
+                <i class="fas fa-download"></i> Save
+            </button>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth } from "../src/js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+ 
+        // Auth Protection
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login/fire-login.html";
+            } else if (user.photoURL) {
+                document.getElementById('nav-avatar').src = user.photoURL;
+            }
+        });
+
+        const canvas = document.getElementById('sketch-canvas');
+        const ctx = canvas.getContext('2d');
+        const indicator = document.getElementById('brush-indicator');
+        
+        let isDrawing = false;
+        let brushSize = 5;
+        let brushColor = '#00f2ff';
+        let lastX = 0;
+        let lastY = 0;
+
+        // Init Canvas Size
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Redraw background
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX || e.touches[0].clientX, e.offsetY || e.touches[0].clientY - 80];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const x = e.offsetX || e.touches[0].clientX;
+            const y = (e.offsetY || e.touches[0].clientY) - 80;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = brushColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Add glow
+            ctx.shadowBlur = brushColor === '#0a0a0a' ? 0 : brushSize;
+            ctx.shadowColor = brushColor;
+            
+            ctx.stroke();
+            [lastX, lastY] = [x, y];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.shadowBlur = 0;
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch support
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Tool Logic
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                document.querySelector('.color-dot.active').classList.remove('active');
+                dot.classList.add('active');
+                brushColor = dot.dataset.color;
+                document.getElementById('eraser-tool').classList.remove('active');
+                updateIndicator();
+            });
+        });
+
+        document.getElementById('increase-brush').addEventListener('click', () => {
+            if (brushSize < 50) brushSize += 5;
+            updateIndicator();
+        });
+
+        document.getElementById('decrease-brush').addEventListener('click', () => {
+            if (brushSize > 5) brushSize -= 5;
+            updateIndicator();
+        });
+
+        document.getElementById('eraser-tool').addEventListener('click', (e) => {
+            brushColor = '#0a0a0a';
+            document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+            document.getElementById('eraser-tool').classList.add('active');
+            updateIndicator();
+        });
+
+        document.getElementById('clear-board').addEventListener('click', () => {
+            if(confirm("Clear the entire board?")) resize();
+        });
+
+        document.getElementById('export-btn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `tetron-sketch-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        function updateIndicator() {
+            indicator.style.width = brushSize + 'px';
+            indicator.style.height = brushSize + 'px';
+            indicator.style.background = brushColor === '#0a0a0a' ? 'white' : brushColor;
+        }
+    </script>
+</body>
+</html>

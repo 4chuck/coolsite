@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emoji Memory Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #222;
+      color: white;
+    }
+
+    h1 { margin-bottom: 10px; }
+
+    #grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      width: 70px;
+      height: 70px;
+      background: #444;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: pointer;
+      transition: transform 0.4s;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+
+    .hidden-emoji {
+      transform: rotateY(180deg);
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .front { background: #555; }
+    .back { background: #777; transform: rotateY(180deg); }
+
+    #score { margin-top: 15px; font-size: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Emoji Memory Game</h1>
+  <div id="grid"></div>
+  <div id="score">Score: 0</div>
+
+  <script>
+    const emojis = ["😀","😎","🤖","🐱","🔥","🍎","⭐","⚽"]; // pool
+    let level = 1;
+    let gridSize = 4; // 4x4 initially
+    let score = 0;
+    let revealed = [];
+    let lock = false;
+
+    function generateGrid() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = ""; // clear
+      grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+
+      const needed = (gridSize * gridSize) / 2;
+      let selected = [];
+
+      // pick unique emojis for pairs
+      let pool = [...emojis];
+      for (let i = 0; i < needed; i++) {
+        if (pool.length === 0) pool = [...emojis];
+        const idx = Math.floor(Math.random() * pool.length);
+        const e = pool.splice(idx, 1)[0];
+        selected.push(e, e); // exactly one pair per emoji
+      }
+
+      selected.sort(() => Math.random() - 0.5);(() => Math.random() - 0.5);
+
+      selected.forEach((emoji, index) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.emoji = emoji;
+
+        card.innerHTML = `
+          <div class="front"></div>
+          <div class="back">${emoji}</div>
+        `;
+
+        card.addEventListener("click", () => flip(card));
+        grid.appendChild(card);
+      });
+    }
+
+    function flip(card) {
+      if (lock) return;
+      if (card.classList.contains("flipped")) return;
+
+      card.classList.add("flipped");
+      revealed.push(card);
+
+      if (revealed.length === 3) {
+        // auto close first two
+        revealed[0].classList.remove("flipped");
+        revealed[1].classList.remove("flipped");
+        revealed.shift();
+        revealed.shift();
+      }
+
+      if (revealed.length === 2) {
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const [c1, c2] = revealed;
+      if (c1.dataset.emoji === c2.dataset.emoji) {
+        score++;
+        document.getElementById("score").textContent = `Score: ${score}`;
+        revealed = [];
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      const allFlipped = [...document.querySelectorAll('.card')].every(c => c.classList.contains('flipped'));
+      if (allFlipped) {
+        alert("Level Completed! Increasing grid size.");
+        level++;
+        gridSize++;
+        score = 0;
+        revealed = [];
+        generateGrid();
+      }
+    }
+
+    generateGrid();
+  // --- Added Features ---
+// Sound effects
+const flipSound = new Audio('flip.mp3');
+const matchSound = new Audio('match.mp3');
+const winSound = new Audio('win.mp3');
+
+// Timer mode
+time = 0;
+setInterval(() => {
+  time++;
+}, 1000);
+
+// Haptics
+function vibrate(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
+
+// Modify flip
+function flip(card) {
+  if (lock) return;
+  if (card.classList.contains("flipped")) return;
+
+  flipSound.play();
+  vibrate(30);
+
+  card.classList.add("flipped");
+  revealed.push(card);
+
+  if (revealed.length === 3) {
+    revealed[0].classList.remove("flipped");
+    revealed[1].classList.remove("flipped");
+    revealed.shift();
+    revealed.shift();
+  }
+
+  if (revealed.length === 2) checkMatch();
+}
+
+// Modify match
+function checkMatch() {
+  const [c1, c2] = revealed;
+  if (c1.dataset.emoji === c2.dataset.emoji) {
+    matchSound.play();
+    vibrate(80);
+
+    score++;
+    document.getElementById("score").textContent = `Score: ${score}`;
+    revealed = [];
+    checkWin();
+  }
+}
+
+// Win update
+function checkWin() {
+  const allFlipped = [...document.querySelectorAll('.card')].every(c => c.classList.contains('flipped'));
+  if (allFlipped) {
+    winSound.play();
+    vibrate([100,50,100]);
+
+    alert(`Level Completed! Time: ${time}s`);
+    level++;
+    gridSize++;
+    score = 0;
+    revealed = [];
+    generateGrid();
+  }
+}
+</script>
+</body>
+</html>

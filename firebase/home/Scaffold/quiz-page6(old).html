@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=0.7" name="viewport">
+
+  <title>Multiplayer Quiz Game</title>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style2.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: Scaffold
+  * Updated: Mar 10 2023 with Bootstrap v5.2.3
+  * Template URL: https://bootstrapmade.com/scaffold-bootstrap-metro-style-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top d-flex align-items-center">
+    <div class="container d-flex align-items-center">
+
+      <div class="logo me-auto">
+        <h1><a href="index3.html">Scaffold</a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+      </div>
+
+      <nav id="navbar" class="navbar order-last order-lg-0">
+        <ul>
+          <li><a class="nav-link scrollto " href="#hero">Home</a></li>
+          <li class="dropdown"><a href="#"><span>About</span> <i class="bi bi-chevron-down"></i></a>
+            <ul>
+              <li><a class="nav-link scrollto" href="#about">About Us</a></li>
+              <li><a class="nav-link scrollto" href="#team">Team</a></li>
+              <li><a class="nav-link scrollto" href="#testimonials">Testimonials</a></li>
+              <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-right"></i></a>
+                <ul>
+                  <li><a href="#">Deep Drop Down 1</a></li>
+                  <li><a href="#">Deep Drop Down 2</a></li>
+                  <li><a href="#">Deep Drop Down 3</a></li>
+                  <li><a href="#">Deep Drop Down 4</a></li>
+                  <li><a href="#">Deep Drop Down 5</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li><a class="nav-link scrollto" href="#services">Services</a></li>
+          <li><a class="nav-link scrollto " href="#portfolio">Portfolio</a></li>
+          <li><a class="nav-link scrollto" href="#pricing">Pricing</a></li>
+          <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
+      <div class="header-social-links d-flex align-items-center">
+        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
+      </div>
+
+    </div>
+  </header><!-- End Header -->
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="index3.html">Home</a></li>
+          <li>Quiz Page</li>
+        </ol>
+    <h1>Multiplayer Quiz Game</h1>
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+
+    <div id="customcalert" style="
+    position: relative; top: 20px; left: 50%; transform: translateX(-50%);
+    background: black; color: white; padding: 10px; border-radius: 5px;
+    display: none; z-index: 9999;">
+    This is a non-blocking calert!
+</div>
+
+<script>
+function calert(message) {
+    let calertBox = document.getElementById("customcalert");
+    calertBox.innerText = message;
+    calertBox.style.display = "block";
+
+    // Hide after 3 seconds
+    setTimeout(() => { calertBox.style.display = "none"; }, 3000);
+}
+
+// Show calert without blocking execution
+//calert("This is a non-blocking calert!");
+//console.log("This executes immediately.");
+</script>
+
+    <section class="inner-page">
+        
+     <div class="container">
+ <div class="container"style="border:8px outset #5533ff">
+<!-- </></></></></></>--> 
+ <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      font-size: 22px;
+    }
+    #game-container {
+      padding: 20px;
+    }
+    select, input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 23px;
+      width: 100%;
+      max-width: 90%;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 23px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #answers button {
+      margin: 5px;
+      width: 100%;
+      max-width: 300px;
+    }
+    #leaderboard ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #leaderboard ul li {
+      background: #f4f4f4;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .highlighted-item {
+      background-color: #B2EBF2;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+<body>
+  <div id="game-container">
+  <!-- <select id="category-dropdown">
+      <option value="">Select a Category</option>
+    </select> -->
+      <!-- Play Again button -->
+ <center> <button id="play-again-btn" style="display: none;" onclick="location.reload();">Play Again</button></center>
+ 
+ <div id="player-info">
+  <button id="join-btn">Join Game</button>
+</div>
+
+    <div id="waiting-room" style="display: none;">
+      <h2>Waiting for other players...</h2>
+      <button id="ready-btn">I'm Ready</button>
+    </div>
+    <div id="countdown" style="display: none;">Starting in <span id="countdown-timer">3</span></div>
+    <div id="quiz" style="display: none;">
+      <div id="question-container">
+        <p id="question"></p>
+        <div id="answers"></div>
+      </div>
+      <p id="timer">Time Left: <span id="time">10</span>s</p>
+    </div>
+
+    <div id="online-players" style="display:none; margin-top: 20px;">
+      <h2>Online Players</h2>
+      <ul id="online-players-list" style="list-style: none; padding: 0;"></ul>
+    </div>    
+
+  <div id="leaderboard" style="display: none;">
+    <br>
+  <h2>Leaderboard</h2>
+  <ul id="leaderboard-list"></ul>
+</div>
+
+  </div>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { getDatabase, ref, set, update, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+import { getFirestore, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+    authDomain: "login-b6382.firebaseapp.com",
+    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+    projectId: "login-b6382",
+    storageBucket: "login-b6382.appspot.com",
+    messagingSenderId: "482805184778",
+    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+    measurementId: "G-ZHXBBZHN3W",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const firestore = getFirestore(app);
+  
+  const joinBtn = document.getElementById("join-btn");
+  const waitingRoom = document.getElementById("waiting-room");
+  const readyBtn = document.getElementById("ready-btn");
+  const countdownDiv = document.getElementById("countdown");
+  const countdownTimer = document.getElementById("countdown-timer");
+  const quizDiv = document.getElementById("quiz");
+  const questionEl = document.getElementById("question");
+  const answersEl = document.getElementById("answers");
+  const leaderboardDiv = document.getElementById("leaderboard");
+  const leaderboardList = document.getElementById("leaderboard-list");
+  const timerEl = document.getElementById("time");
+  const play = document.getElementById("play-again-btn");
+
+  let playerId;
+  let playerName = localStorage.getItem("name") || "Player";
+  let currentScore = 0;
+  let questionIndex = 0;
+  let questions = [];
+  let timer;
+  let countdownStarted = false;
+
+  //  Retrieve and validate category ID from localStorage
+  let selectedCategory = localStorage.getItem("categoryId");
+
+  if (!selectedCategory || isNaN(parseInt(selectedCategory, 10))) {
+    calert("No category selected. Redirecting to category selection page...");
+    window.location.href = "category.html";  // Redirects if no valid category is found
+  } else {
+    selectedCategory = parseInt(selectedCategory, 10); // Convert to number
+  }
+
+  console.log("Selected Category ID:", selectedCategory);
+  //confirm("Do you want to continue?")
+  //   Check user authentication
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      playerId = user.uid;
+      console.log("User authenticated: ", playerId);
+    } else {
+      console.log("You are not logged in. Redirecting to login page...");
+      window.location.href = "../../../login/fire-login.html";
+    }
+  });
+
+  //   Join game logic
+  joinBtn.addEventListener("click", async () => {
+    if (!selectedCategory || isNaN(selectedCategory)) {
+      calert("Invalid category. Please select again.");
+      window.location.href = "category.html";
+      return;
+    }
+    calert("Loading quiz.");
+    const storedUid = localStorage.getItem("userUID");
+
+    if (storedUid) {
+      playerId = storedUid;
+      const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}`);
+
+      await set(playerRef, { 
+        name: playerName,
+        ready: false,
+        online: true 
+      });
+
+      //   Correct usage of onDisconnect
+      onDisconnect(playerRef).update({ online: false, ready: false });
+
+      console.log("Player joined the game. Waiting for others...");
+      waitingRoom.style.display = "block";
+      joinBtn.style.display = "none"; // Hide the join button
+      document.getElementById("online-players").style.display = "block"; // Show the online players div
+      listenToOnlinePlayers(); // Start listening to online players
+    } else {
+      console.log("You are not logged in. Redirecting to login page...");
+      window.location.href = "../../../login/fire-login.html";
+    }
+  });
+  
+  function listenToOnlinePlayers() {
+  const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+
+  onValue(playersRef, (snapshot) => {
+    const players = snapshot.val();
+    const onlineList = document.getElementById("online-players-list");
+    onlineList.innerHTML = "";
+
+    if (!players) {
+      onlineList.innerHTML = "<li>No players online yet.</li>";
+      return;
+    }
+
+    Object.values(players).forEach(player => {
+      if (player.online) {
+        const li = document.createElement("li");
+        li.style.background = "#f4f4f4"; // mild grey background
+        li.style.margin = "8px 0";
+        li.style.padding = "12px";
+        li.style.borderRadius = "8px";
+        li.style.fontSize = "20px";
+        li.style.color = "#333"; // dark text
+        li.style.boxShadow = "0px 2px 4px rgba(0,0,0,0.1)"; // soft shadow
+        li.textContent = player.name || "Unknown Player";
+
+        // ✅ Highlight your own name
+        if (player.name === playerName) {
+          li.style.background = "#007BFF"; // Blue background
+          li.style.color = "white";         // White text
+          li.style.fontWeight = "bold";      // Make it pop!
+        }
+
+        onlineList.appendChild(li);
+      }
+    });
+  });
+}
+
+
+
+  //   Mark player as ready
+  readyBtn.addEventListener("click", async () => {
+    console.log("Marking player as ready...");
+    calert("Loading questions.");
+    const playerRef = ref(db, `games/category_${selectedCategory}/players/${playerId}/ready`);
+    await set(playerRef, true);
+
+    document.getElementById("online-players").style.display = "none";
+    readyBtn.style.display = "none"; // Hide the ready button
+    
+    const playersRef = ref(db, `games/category_${selectedCategory}/players`);
+    onValue(playersRef, (snapshot) => {
+      const players = snapshot.val();
+      if (!players) {
+        calert("No players found. Waiting for others...");
+        return;
+      }
+
+      const onlinePlayers = Object.values(players).filter((player) => player.online);
+      const allReady = onlinePlayers.every((player) => player.ready);
+
+      if (allReady) {
+        console.log("All players are ready! Starting countdown...");
+        startCountdown();
+      } else {
+        calert("Waiting for all players to mark ready...");
+      }
+    });
+  });
+
+  //   Start countdown and quiz
+  function startCountdown() {
+    if (countdownStarted) {
+      console.log("Countdown already started.");
+      return;
+    }
+
+    countdownStarted = true;
+    waitingRoom.style.display = "none";
+    joinBtn.style.display = "none";
+    readyBtn.style.display = "none";
+
+    let countdown = 3;
+    countdownDiv.style.display = "block";
+    countdownTimer.textContent = countdown;
+
+    const interval = setInterval(() => {
+      countdown--;
+      countdownTimer.textContent = countdown;
+
+      if (countdown < 0) {
+        clearInterval(interval);
+        countdownDiv.style.display = "none";
+        console.log("Starting quiz...");
+        startQuiz(); 
+      }
+    }, 1000);
+  }
+
+  const categoryMap = {
+  9: "General Knowledge",
+  10: "Entertainment: Books",
+  11: "Entertainment: Film",
+  12: "Entertainment: Music",
+  13: "Entertainment: Musicals & Theatres",
+  14: "Entertainment: Television",
+  15: "Entertainment: Video Games",
+  16: "Entertainment: Board Games",
+  17: "Science & Nature",
+  18: "Science: Computers",
+  19: "Science: Mathematics",
+  20: "Mythology",
+  21: "Sports",
+  22: "Geography",
+  23: "History",
+  24: "Politics",
+  25: "Art",
+  26: "Celebrities",
+  27: "Animals",
+  28: "Vehicles",
+  29: "Entertainment: Comics",
+  30: "Science: Gadgets",
+  31: "Entertainment: Japanese Anime & Manga",
+  32: "Entertainment: Cartoon & Animations"
+};
+
+
+  //   Fetch and start the quiz
+  async function startQuiz() {
+  countdownDiv.style.display = "none";
+  quizDiv.style.display = "block";
+  console.log("Fetching questions from Firestore...");
+
+  
+  const categoryName = categoryMap[selectedCategory];
+  if (!categoryName) {
+    calert("Invalid category selected.");
+    return;
+  }
+
+  try {
+    const qSnap = await getDocs(query(
+      collection(firestore, "questions"),
+      where("category", "==", categoryName),
+      limit(30)
+    ));
+
+    if (qSnap.empty) {
+      calert("No questions found. Please choose another category.");
+      setTimeout(() => window.location.href = "category.html", 1500);
+      return;
+    }
+
+    const docs = qSnap.docs.map(doc => doc.data());
+    const shuffledDocs = shuffle(docs).slice(0, 10); // Random 10
+
+    questions = shuffledDocs.map(q => ({
+      question: q.question,
+      answers: shuffle([q.correct_answer, ...q.incorrect_answers]),
+      correct: q.correct_answer
+    }));
+
+    console.log("Loaded Firestore Questions:", questions);
+    displayQuestion();
+  } catch (error) {
+    console.error("Error loading Firestore questions:", error.message, error.stack);
+    calert("An error occurred while loading questions.");
+  }
+}
+  //   Shuffle function for answers
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  //   Display question logic
+  function displayQuestion() {
+    if (questionIndex >= questions.length) return endGame();
+
+    const { question, answers } = questions[questionIndex];
+    questionEl.innerHTML = question;
+    answersEl.innerHTML = "";
+
+    answers.forEach((answer) => {
+      const btn = document.createElement("button");
+      btn.textContent = answer;
+      btn.onclick = () => checkAnswer(answer);
+      answersEl.appendChild(btn);
+    });
+
+    startTimer();
+  }
+
+  //   Check answer and update score
+  function checkAnswer(selected) {
+    clearInterval(timer);
+    const correct = questions[questionIndex].correct;
+    
+    Array.from(answersEl.children).forEach((btn) => {
+      btn.style.backgroundColor = btn.textContent === correct ? "green" : "red";
+      btn.disabled = true;
+    });
+
+    if (selected === correct) currentScore += 10;
+    updatePlayerScore(currentScore);
+
+    questionIndex++;
+    setTimeout(displayQuestion, 2000);
+  }
+
+  function startTimer() {
+    let time = 10;
+    timerEl.textContent = time;
+    timer = setInterval(() => {
+      time--;
+      timerEl.textContent = time;
+      if (time <= 0) {
+        clearInterval(timer);
+        questionIndex++;
+        displayQuestion();
+      }
+    }, 1000);
+  }
+
+  function endGame() {
+  quizDiv.style.display = "none";
+  leaderboardDiv.style.display = "block";
+
+  onValue(ref(db, `games/category_${selectedCategory}/players`), (snapshot) => {
+    const players = snapshot.val();
+    const uniquePlayers = {};
+
+    Object.values(players).forEach((player) => {
+      const score = player.score;
+
+      // Skip if score is undefined or null
+      if (score === undefined || score === null) return;
+
+      if (!uniquePlayers[player.name]) {
+        uniquePlayers[player.name] = score;
+      } else {
+        uniquePlayers[player.name] = Math.max(uniquePlayers[player.name], score);
+      }
+    });
+
+    const sortedPlayers = Object.entries(uniquePlayers).sort((a, b) => b[1] - a[1]);
+
+    leaderboardList.innerHTML = sortedPlayers
+      .map(
+        ([name, score]) =>
+          `<li style="background-color: ${
+            name === playerName ? "#007BFF" : ""
+          }"><span>${name}</span>: ${score}</li>`
+      )
+      .join("");
+  });
+
+  console.log("Quiz ended! Displaying leaderboard...");
+  play.style.display = "block";
+}
+
+
+function updatePlayerScore(newScore) {
+  if (typeof newScore !== "number" || isNaN(newScore)) {
+    console.warn("Invalid score. Must be a number.");
+    return;
+  }
+
+  const playerRef = ref(
+    db,
+    `games/category_${selectedCategory}/players/${playerId}`
+  );
+
+  update(playerRef, { score: newScore })
+    .then(() => console.log(`Score updated to ${newScore}`))
+    .catch((error) => console.error("Failed to update score:", error));
+}
+
+ 
+</script>
+
+</body>
+</html>
+
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="footer-top">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-lg-3 col-md-6">
+            <div class="footer-info">
+              <h3>Scaffold</h3>
+              <p>
+                A108 Adam Street <br>
+                NY 535022, USA<br><br>
+                <strong>Phone:</strong> +1 5589 55488 55<br>
+                <strong>Email:</strong> info@example.com<br>
+              </p>
+              <div class="social-links mt-3">
+                <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+                <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+                <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+                <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+                <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Home</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">About us</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Services</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Terms of service</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Privacy policy</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-links">
+            <h4>Our Services</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Web Design</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Web Development</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Product Management</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Marketing</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Graphic Design</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-4 col-md-6 footer-newsletter">
+            <h4>Our Newsletter</h4>
+            <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
+            <form action="" method="post">
+              <input type="email" name="email"><input type="submit" value="Subscribe">
+            </form>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Scaffold</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/scaffold-bootstrap-metro-style-template/ -->
+        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

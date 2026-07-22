@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Signup — Modern</title>
+
+  <!-- Example: keep your existing theme files (optional) -->
+  <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <style>
+    /* Minimal local styles for clarity */
+    body { background:#0f1724; color:#eee; font-family:Arial, sans-serif; }
+    .card { background: rgba(0,0,0,0.55); border-radius:12px; padding:24px; }
+    label { font-weight:600; color:#fff; }
+    .form-control { background:transparent; color:#fff; border-radius:8px; border:1px solid rgba(255,255,255,0.08); }
+    .muted { color:#cfcfcf; font-size:0.9rem; }
+    .visually-hidden { position:absolute!important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; }
+    #error[aria-hidden="false"]{ display:block; }
+    #error[aria-hidden="true"]{ display:none; }
+  </style>
+</head>
+<body>
+  <main class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <section class="card">
+          <h1 class="h4 mb-3">Create an account</h1>
+
+          <!-- Accessible live region for errors / status -->
+          <div id="status" role="status" aria-live="polite" class="mb-3 muted"></div>
+          <div id="error" role="alert" aria-live="assertive" aria-hidden="true" class="mb-3 text-danger"></div>
+
+          <form id="signupForm" autocomplete="on" novalidate>
+            <div class="mb-3">
+              <label for="name">Full name</label>
+              <input id="name" name="name" type="text" class="form-control" required autocomplete="name" aria-required="true" placeholder="Your full name">
+            </div>
+
+            <div class="mb-3">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" class="form-control" required autocomplete="email" placeholder="you@example.com">
+            </div>
+
+            <div class="mb-3">
+              <label for="password">Password</label>
+              <div class="input-group">
+                <input id="password" name="password" type="password" class="form-control" minlength="6" required autocomplete="new-password" placeholder="Choose a password">
+                <button type="button" id="togglePassword" class="btn btn-outline-light" aria-label="Toggle password visibility">Show</button>
+              </div>
+              <small id="pwHelp" class="muted">Minimum 6 characters. Use letters and numbers.</small>
+              <div class="mt-2">
+                <progress id="pwStrength" max="4" value="0" style="width:100%" aria-hidden="true"></progress>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button id="submitBtn" type="submit" class="btn btn-primary">Create account</button>
+            </div>
+
+            <div class="mt-3 muted">
+              <a href="fire-login.html">Already have an account? Log in</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modular Firebase SDK loaded via module script -->
+  <script type="module">
+    // --- Configuration: replace with your project's config if different ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+      authDomain: "login-b6382.firebaseapp.com",
+      projectId: "login-b6382",
+      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+      storageBucket: "login-b6382.appspot.com",
+      messagingSenderId: "482805184778",
+      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+    };
+
+    // Imports (modular SDK) — v10
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
+    import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js';
+    import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js';
+
+    // Initialize Firebase (modular)
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // App Check (ReCAPTCHA v3) — optional but recommended
+    try {
+      const appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd'),
+        isTokenAutoRefreshEnabled: true
+      });
+      console.log('AppCheck initialized');
+    } catch (e) {
+      console.warn('AppCheck init skipped:', e?.message || e);
+    }
+
+    // Helpers: UI
+    const form = document.getElementById('signupForm');
+    const statusEl = document.getElementById('status');
+    const errorEl = document.getElementById('error');
+    const submitBtn = document.getElementById('submitBtn');
+    const pwInput = document.getElementById('password');
+    const pwStrength = document.getElementById('pwStrength');
+    const togglePasswordBtn = document.getElementById('togglePassword');
+
+    function setStatus(msg) { statusEl.textContent = msg; }
+    function showError(msg) { errorEl.textContent = msg; errorEl.setAttribute('aria-hidden', 'false'); }
+    function hideError() { errorEl.textContent = ''; errorEl.setAttribute('aria-hidden', 'true'); }
+
+    function disableButton() { submitBtn.disabled = true; submitBtn.textContent = 'Please wait...'; }
+    function enableButton() { submitBtn.disabled = false; submitBtn.textContent = 'Create account'; }
+
+    // Map common Firebase error codes to user-friendly text
+    function getFirebaseErrorMessage(err) {
+      const code = err?.code || '';
+      console.log('Auth error', err);
+      const map = {
+        'auth/email-already-in-use': 'This email is already registered. Try signing in.',
+        'auth/weak-password': 'Password is too weak. Use at least 6 characters.',
+        'auth/invalid-email': 'Please enter a valid email address.',
+        'auth/too-many-requests': 'Too many attempts. Try again later.',
+        'auth/invalid-password': 'Invalid password.',
+        'auth/invalid-login-credentials': 'Email or password is incorrect.',
+        'auth/invalid-credential': 'Email or password is incorrect.'
+      };
+      return map[code] || (err?.message || 'An unexpected error occurred. Please try again.');
+    }
+
+    // Simple password strength (very basic)
+    function calcPasswordStrength(pw) {
+      let score = 0;
+      if (pw.length >= 6) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      return Math.min(4, score);
+    }
+
+    pwInput.addEventListener('input', () => {
+      const s = calcPasswordStrength(pwInput.value);
+      pwStrength.value = s;
+    });
+
+    // Toggle password visibility
+    togglePasswordBtn.addEventListener('click', () => {
+      if (pwInput.type === 'password') { pwInput.type = 'text'; togglePasswordBtn.textContent = 'Hide'; }
+      else { pwInput.type = 'password'; togglePasswordBtn.textContent = 'Show'; }
+    });
+
+    // Helper: verify recaptcha token via cloud function
+    async function verifyRecaptcha(token) {
+      // Your Cloud Function endpoint (keep CORS properly configured server-side)
+      const url = 'https://us-central1-login-b6382.cloudfunctions.net/verifyRecaptcha';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      if (!res.ok) throw new Error('reCAPTCHA verification failed: ' + res.status);
+      return res.json();
+    }
+
+    // Main signup handler using async/await
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      hideError();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = pwInput.value;
+
+      // Client-side validation
+      if (!name || !email || !password) { showError('All fields are required.'); return; }
+      if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+
+      disableButton();
+      setStatus('Verifying you are human...');
+
+      try {
+        // reCAPTCHA v3 client-side call — ensure you include the site key script in HEAD
+        const grecaptchaSiteKey = '6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr';
+        const token = await window.grecaptcha.execute(grecaptchaSiteKey, { action: 'signup' });
+
+        const verification = await verifyRecaptcha(token);
+        console.log('reCAPTCHA verification:', verification);
+        if (!verification.success || verification.score < 0.5) {
+          throw new Error('Suspicious activity detected. Try again.');
+        }
+
+        setStatus('Creating account...');
+
+        // Create user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Update display name
+        await updateProfile(userCredential.user, { displayName: name });
+
+        // Save minimal user record to Realtime DB (ensure DB rules enforce auth.uid === $uid)
+        const userRef = ref(db, 'users/' + userCredential.user.uid);
+        await set(userRef, {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName
+        });
+
+        setStatus('Account created. Redirecting...');
+        // Example redirect
+        window.location.href = '/firebase/home/cyborg/index.html';
+
+      } catch (err) {
+        console.error(err);
+        showError(getFirebaseErrorMessage(err));
+        setStatus('');
+      } finally {
+        enableButton();
+      }
+    });
+
+    // Ensure grecaptcha is ready — if your site includes the script in head it will work
+    if (!window.grecaptcha) {
+      console.warn('grecaptcha not found. Make sure <script src="https://www.google.com/recaptcha/api.js?render=SITE_KEY"></script> is in the page head.');
+    }
+
+  </script>
+
+  <!-- You may keep vendor scripts (Bootstrap) loaded at the end for UI behaviour -->
+  <script src="vendor/jquery/jquery-3.2.1.min.js" defer></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js" defer></script>
+</body>
+</html>

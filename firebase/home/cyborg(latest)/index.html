@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>Cyborg - Awesome HTML5 Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/css/templatemo-cyborg-gaming.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <style>
+      /* Index-only pink theme overrides */
+      :root {
+        --index-pink: #ec6090;
+        --index-pink-strong: #ff4f95;
+      }
+
+      .header-area .main-nav .nav li:hover a,
+      .header-area .main-nav .nav li a.active,
+      .heading-section h4,
+      .main-banner h4 em {
+        color: var(--index-pink) !important;
+      }
+
+      .main-button a {
+        background: linear-gradient(90deg, var(--index-pink), var(--index-pink-strong)) !important;
+        color: #fff !important;
+        box-shadow: 0 10px 22px rgba(236, 96, 144, 0.33) !important;
+      }
+
+      .main-button a:hover {
+        background: linear-gradient(90deg, #ff7cae, #ff5a9a) !important;
+        color: #fff !important;
+      }
+
+      .main-border-button a {
+        color: #ffd2e4 !important;
+        border-color: rgba(236, 96, 144, 0.6) !important;
+        background: rgba(236, 96, 144, 0.12) !important;
+      }
+
+      .main-border-button a:hover {
+        background: #ff79ae !important;
+        color: #231524 !important;
+      }
+
+      .most-popular .item:hover,
+      .featured-games .item:hover,
+      .clips .item:hover,
+      .start-stream .item:hover {
+        border-color: rgba(236, 96, 144, 0.5) !important;
+        box-shadow: 0 16px 26px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(236, 96, 144, 0.18) inset !important;
+      }
+
+      .top-downloaded ul li .download i,
+      .profile-info .btn,
+      .header-area .main-nav .nav li:last-child a {
+        background-color: #ef3c7a !important;
+      }
+
+      .header-area .main-nav .nav li a:focus-visible,
+      .main-button a:focus-visible,
+      .main-border-button a:focus-visible {
+        outline: 3px solid rgba(255, 79, 149, 0.9) !important;
+        outline-offset: 3px;
+      }
+    </style>
+<!--
+
+TemplateMo 579 Cyborg Gaming
+
+https://templatemo.com/tm-579-cyborg-gaming
+
+-->
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/logo.png" alt="Cyborg Gaming home">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Search End ***** -->
+                    <div class="search-input">
+                      <form id="search" action="#">
+                        <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword" onkeypress="handle" />
+                        <i class="fa fa-search"></i>
+                      </form>
+                    </div>
+                    <!-- ***** Search End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                        <li><a href="index.html" class="active">Home</a></li>
+                        <li><a href="browse.html">Browse</a></li>
+                        <li><a href="details.html">Details</a></li>
+                        <li><a href="streams.html">Streams</a></li>
+                        <li><a href="fire-profile.html">Profile <img src="assets/images/profile-header.jpg" alt="Profile avatar"></a></li>
+                    </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+
+          <!-- ***** Banner Start ***** -->
+          <div class="main-banner">
+            <div class="row">
+              <div class="col-lg-7">
+                <div class="header-text">
+                  <h6>Welcome To Cyborg</h6>
+                  <h4><em>Browse</em> Our Popular Games Here</h4>
+                  <div class="main-button">
+                    <a href="browse.html">Browse Now</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Banner End ***** -->
+
+          <!-- ***** Most Popular Start ***** -->
+          <div class="most-popular">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="heading-section">
+                  <h4><em>Most Popular</em> Right Now</h4>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3 col-sm-6">
+                    <div class="item">
+                      <a href="quiz-cyborg.html">
+                        <img src="assets/images/trivia-night.jpg" alt="Quiz Game"></a>
+                      <h4>Quiz Master<br><span>Trivia</span></h4>
+                     <ul>
+                  <li><i class="fa fa-star"></i> 4.9</li>
+              </ul>
+           </div>
+          </div>
+
+                 <div class="col-lg-3 col-sm-6">
+                    <div class="item">
+                      <a href="chess-game/index.html">
+                        <img src="assets/images/chess.jpg" alt="Quiz Game"></a>
+                      <h4>Chess<br><span>master</span></h4>
+                     <ul>
+                  <li><i class="fa fa-star"></i> 4.9</li>
+              </ul>
+           </div>
+          </div>
+                  <div class="col-lg-3 col-sm-6">
+                    <div class="item">
+                      <a href="memory/memory_match_game.html">
+                      <img src="assets/images/memory.png" alt="emoji game"></a>
+                      <h4>Memory Matrix<br><span>Emoji</span></h4>
+                      <ul>
+                        <li><i class="fa fa-star"></i> 4.8</li>
+                        <li><i class="fa fa-download"></i> 2.3M</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-sm-6">
+                    <div class="item">
+                        <a href="2048.html">
+                          <img src="assets/images/popular-05.jpg" alt="2048 Game">
+                        </a>
+                        <h4>2048<br><span>Puzzle</span></h4>
+                        <ul>
+                        <li><i class="fa fa-star"></i> 4.8</li>
+                        <li><i class="fa fa-download"></i> 2.3M</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="item">
+                      <div class="row">
+                        <div class="col-lg-6 col-sm-6">
+                          <div class="item inner-item">
+                      <img src="assets/images/popular-05.jpg" alt="Mini Craft game cover">
+                            <h4>Mini Craft<br><span>Legendary</span></h4>
+                            <ul>
+                              <li><i class="fa fa-star"></i> 4.8</li>
+                              <li><i class="fa fa-download"></i> 2.3M</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-6">
+                          <div class="item">
+                            <img src="assets/images/popular-06.jpg" alt="Eagles Fly game cover">
+                            <h4>Eagles Fly<br><span>Matrix Games</span></h4>
+                            <ul>
+                              <li><i class="fa fa-star"></i> 4.8</li>
+                              <li><i class="fa fa-download"></i> 2.3M</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-sm-6">
+                    <div class="item">
+                      <img src="assets/images/popular-07.jpg" alt="Warface game cover">
+                      <h4>Warface<br><span>Max 3D</span></h4>
+                      <ul>
+                        <li><i class="fa fa-star"></i> 4.8</li>
+                        <li><i class="fa fa-download"></i> 2.3M</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-sm-6">
+                    <div class="item">
+                      <img src="assets/images/popular-08.jpg" alt="Warcraft game cover">
+                      <h4>Warcraft<br><span>Legend</span></h4>
+                      <ul>
+                        <li><i class="fa fa-star"></i> 4.8</li>
+                        <li><i class="fa fa-download"></i> 2.3M</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col-lg-12">
+                    <div class="main-button">
+                      <a href="browse.html">Discover Popular</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Most Popular End ***** -->
+
+          <!-- ***** Gaming Library Start ***** -->
+          <div class="gaming-library">
+            <div class="col-lg-12">
+              <div class="heading-section">
+                <h4><em>Your Gaming</em> Library</h4>
+              </div>
+              <div class="item">
+                <ul>
+                  <li><img src="assets/images/game-01.jpg" alt="" class="templatemo-item"></li>
+                  <li><h4>Dota 2</h4><span>Sandbox</span></li>
+                  <li><h4>Date Added</h4><span>24/08/2036</span></li>
+                  <li><h4>Hours Played</h4><span>634 H 22 Mins</span></li>
+                  <li><h4>Currently</h4><span>Downloaded</span></li>
+                  <li><div class="main-border-button border-no-active"><a href="#">Donwloaded</a></div></li>
+                </ul>
+              </div>
+              <div class="item">
+                <ul>
+                  <li><img src="assets/images/game-02.jpg" alt="" class="templatemo-item"></li>
+                  <li><h4>Fortnite</h4><span>Sandbox</span></li>
+                  <li><h4>Date Added</h4><span>22/06/2036</span></li>
+                  <li><h4>Hours Played</h4><span>740 H 52 Mins</span></li>
+                  <li><h4>Currently</h4><span>Downloaded</span></li>
+                  <li><div class="main-border-button"><a href="#">Donwload</a></div></li>
+                </ul>
+              </div>
+              <div class="item last-item">
+                <ul>
+                  <li><img src="assets/images/game-03.jpg" alt="" class="templatemo-item"></li>
+                  <li><h4>CS-GO</h4><span>Sandbox</span></li>
+                  <li><h4>Date Added</h4><span>21/04/2036</span></li>
+                  <li><h4>Hours Played</h4><span>892 H 14 Mins</span></li>
+                  <li><h4>Currently</h4><span>Downloaded</span></li>
+                  <li><div class="main-border-button border-no-active"><a href="#">Donwloaded</a></div></li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="main-button">
+                <a href="profile.html">View Your Library</a>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Gaming Library End ***** -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved. 
+          
+          <br>Design: <a href="https://templatemo.com" target="_blank" title="free CSS templates">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/tabs.js"></script>
+  <script src="assets/js/popup.js"></script>
+  <script src="assets/js/app-enhancer.js"></script>
+  <script src="assets/js/custom.js"></script>
+
+<a href="../main_ai3.html" class="chatbot-link" title="Chat with us" aria-label="Open chatbot">
+  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Chatbot" class="chatbot-icon">
+</a>
+<style>
+/* 🔹 Chatbot Floating Shortcut Button */
+.chatbot-link {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 9999;
+  background: linear-gradient(160deg, #1f2630, #2a3442);
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: pulse-glow 2s infinite;
+}
+
+/* 🔹 Hover Animation */
+.chatbot-link:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.45);
+}
+
+.chatbot-link:focus-visible {
+  outline: 3px solid #ff4f95;
+  outline-offset: 3px;
+}
+
+/* 🔹 Icon Styling */
+.chatbot-icon {
+  width: 50px;
+  height: 50px;
+  display: block;
+}
+
+/* 🔹 Glow Effect (optional, fits Cyborg theme) */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px #ec6090, 0 0 20px #ec6090; }
+  50% { box-shadow: 0 0 20px #ec6090, 0 0 40px #ec6090; }
+}
+</style>
+  <script type="module" src="../routes.js"></script>
+  <script type="module">
+    import { redirectTo } from "../routes.js";
+    import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+    import { firebaseConfig, appCheckSiteKey } from "../config.js";
+
+    const app = initializeApp(firebaseConfig);
+
+    try {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        isTokenAutoRefreshEnabled: true
+      });
+    } catch (err) {
+      console.warn("App Check failed:", err);
+    }
+
+    const auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence).catch(e => console.error("Persistence error:", e));
+
+    // Immediate UI update
+    const profileLink = document.querySelector('a[href="fire-profile.html"]');
+    const localName = localStorage.getItem('name');
+    if (localName && profileLink) {
+      profileLink.innerHTML = `${localName} <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const name = user.displayName || 'Player';
+        localStorage.setItem('name', name);
+        if (profileLink) profileLink.innerHTML = `${name} <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+      } else {
+        // If logged out, remove local hints
+        localStorage.removeItem('name');
+        localStorage.removeItem('userUID');
+        if (profileLink) profileLink.innerHTML = `Profile <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+      }
+    });
+  </script>
+  </body>
+
+</html>

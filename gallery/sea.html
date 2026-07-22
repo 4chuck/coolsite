@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature Sanctuary | Tetron</title>
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="../src/css/design-system.css">
+    <link rel="stylesheet" href="../src/css/global.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .sanctuary-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('../images/sea.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            text-align: center;
+        }
+
+        .sanctuary-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 50px;
+            border-radius: 40px;
+            max-width: 600px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sanctuary-card h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        .sanctuary-card p {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .nav-links-sanctuary {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn-nature {
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 1px solid white;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-nature:hover {
+            background: white;
+            color: black;
+            transform: scale(1.05);
+        }
+
+        .countdown-ticker {
+            margin-top: 40px;
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 8px;
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <!-- Navbar -->
+    <nav class="glass-navbar">
+        <div class="navbar-container">
+            <a href="../dashboard/index.html" class="logo-brand">
+                <i class="fas fa-wind"></i>
+                <span>TETRON <strong>SANCTUARY</strong></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="../dashboard/index.html">Dashboard</a></li>
+                <li>
+                    <div class="user-profile">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);">
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="sanctuary-container">
+        <div class="sanctuary-card">
+            <h1>Horizon</h1>
+            <p>Step away from the digital noise and find your peace. The horizon is where the sky meets the sea, and your journey finds its rhythm.</p>
+            
+            <div class="nav-links-sanctuary">
+                <a href="ironman.html" class="btn-nature">Back to Lab</a>
+                <a href="../tools/blackboard.html" class="btn-nature">Enter Studio</a>
+            </div>
+
+            <div class="countdown-ticker">
+                <marquee scrollamount="5">🔟--9️⃣--8️⃣--7️⃣--6️⃣--5️⃣--4️⃣--3️⃣--2️⃣--1️⃣--0️⃣</marquee>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth } from "../src/js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+ 
+        // Auth Protection
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login/fire-login.html";
+            } else if (user.photoURL) {
+                document.getElementById('nav-avatar').src = user.photoURL;
+            }
+        });
+    </script>
+</body>
+</html>

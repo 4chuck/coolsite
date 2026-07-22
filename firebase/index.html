@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.49">
+    <title>Redirecting...</title>
+    <style>
+        /* Center the loader on the screen */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Keyframes for spinning animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Style for the message */
+        h1 {
+            text-align: center;
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+        }
+    </style>
+
+    <!-- Preload resources for faster loading of redirect pages -->
+    <!-- Cyborg page resources -->
+    <link rel="preload" href="home/cyborg/vendor/bootstrap/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="home/cyborg/assets/css/templatemo-cyborg-gaming.css" as="style">
+    <link rel="preload" href="home/cyborg/vendor/jquery/jquery.min.js" as="script">
+    <link rel="preload" href="home/cyborg/vendor/bootstrap/js/bootstrap.min.js" as="script">
+    <link rel="preload" href="home/cyborg/assets/js/custom.js" as="script">
+    <!-- Scaffold page resources -->
+    <link rel="preload" href="home/Scaffold/assets/vendor/bootstrap/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="home/Scaffold/assets/css/style2.css" as="style">
+    <link rel="preload" href="home/Scaffold/assets/vendor/bootstrap/js/bootstrap.bundle.min.js" as="script">
+    <link rel="preload" href="home/Scaffold/assets/js/main.js" as="script">
+
+    <script type="module">
+        // *** CORRECT IMPORT URLs for Modular Firebase SDKs (v9+) ***
+        // Import the base Firebase app initialization
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+
+        // Import specific Firebase services and functions you need
+        // For Authentication:
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+        // Example for other services you might need:
+        // import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+        // import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+        // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
+
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+            authDomain: "login-b6382.firebaseapp.com",
+            databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+            projectId: "login-b6382",
+            storageBucket: "login-b6382.appspot.com",
+            messagingSenderId: "482805184778",
+            appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+            measurementId: "G-ZHXBBZHN3W",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); // Get the Auth service instance from the app
+
+        function redirectToPage() {
+            setTimeout(function() {
+                // Use onAuthStateChanged with the auth instance
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        window.location.href = "home/cyborg/index.html";
+                    } else {
+                        window.location.href = "home/Scaffold/index3.html";
+                    }
+                });
+            }, 500); // Redirect after 0.5 seconds
+        }
+
+        // Call the redirect function directly, as imports are resolved before execution
+        redirectToPage();
+    </script>
+</head>
+<body>
+   <div class="loader"></div>
+    <h1>Redirecting, please wait...</h1>
+</body>
+</html>

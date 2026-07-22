@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Profile Page</title>
+
+<style>
+/* ===============================
+   GLOBAL / BACKGROUND
+   =============================== */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+
+  /* Scaffold-style animated gradient */
+  background: linear-gradient(
+    135deg,
+    #5f2eea,
+    #4c6ef5,
+    #3bc9db,
+    #22d3ee
+  );
+  background-size: 400% 400%;
+  animation: gradientMove 18s ease infinite;
+}
+
+/* Smooth animated gradient */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ===============================
+   PAGE LAYOUT
+   =============================== */
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===============================
+   PROFILE CARD
+   =============================== */
+
+.profile-container {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(6px);
+
+  padding: 30px;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+
+  /* Entrance animation */
+  animation: cardEnter 0.8s ease-out forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+/* Card fade + lift */
+@keyframes cardEnter {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ===============================
+   TEXT
+   =============================== */
+
+h1 {
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+.info {
+  margin-top: 14px;
+  color: #374151;
+}
+
+.info h2,
+.info p {
+  margin: 6px 0;
+}
+
+/* ===============================
+   PROFILE IMAGE
+   =============================== */
+
+#profile-pic {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #e5e7eb;
+  margin-bottom: 16px;
+
+  /* Soft border ring */
+  border: 4px solid rgba(255, 255, 255, 0.7);
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-green {
+  background: #4caf50;
+  color: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-green:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(76, 175, 80, 0.4);
+}
+
+.btn-red {
+  background: #f44336;
+  color: white;
+  margin-top: 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-red:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(244, 67, 54, 0.4);
+}
+
+/* ===============================
+   FILE INPUT (HIDDEN)
+   =============================== */
+
+#upload-image {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="profile-container">
+  <h1>Profile Page</h1>
+
+  <img id="profile-pic" src="default-avatar.png" alt="Profile Picture">
+
+  <br>
+  <button id="change-pic-btn" class="btn btn-green">Change Pic</button>
+  <input type="file" id="upload-image" accept="image/*">
+
+  <div class="info">
+    <h2>Name: <span id="name">Loading...</span></h2>
+    <p>Email: <span id="email">Loading...</span></p>
+  </div>
+
+  <button id="logout-btn" class="btn btn-red">Logout</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+  import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  onTokenChanged
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+
+
+  /* Firebase config */
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+    authDomain: "login-b6382.firebaseapp.com",
+    databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+    projectId: "login-b6382",
+    storageBucket: "login-b6382.appspot.com",
+    messagingSenderId: "482805184778",
+    appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"),
+  isTokenAutoRefreshEnabled: true
+});
+
+onTokenChanged(appCheck, (token) => {
+  if (token) {
+    console.log(
+      `[AppCheck] Token generated successfully — length: ${token.token.length}`
+    );
+  } else {
+    console.warn("[AppCheck] Token missing or invalid");
+  }
+});
+
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const storage = getStorage(app);
+
+  /* DOM refs */
+  const profilePicEl = document.getElementById("profile-pic");
+  const nameEl = document.getElementById("name");
+  const emailEl = document.getElementById("email");
+  const uploadInput = document.getElementById("upload-image");
+  const changePicBtn = document.getElementById("change-pic-btn");
+
+  /* Open file picker only on button click */
+  changePicBtn.onclick = () => uploadInput.click();
+
+  /* Load profile */
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      location.href = "fire-login.html";
+      return;
+    }
+
+    emailEl.textContent = user.email || "No Email";
+
+    const snap = await get(ref(db, `users/${user.uid}`));
+    if (snap.exists()) {
+      const data = snap.val();
+      nameEl.textContent = data.displayName || "No Name";
+      if (data.profilePic) {
+        profilePicEl.src = data.profilePic + "&t=" + Date.now();
+      }
+    }
+  });
+
+  /* 🔥 INSTANT PREVIEW + BACKGROUND UPLOAD */
+  uploadInput.addEventListener("change", async () => {
+    const file = uploadInput.files[0];
+    const user = auth.currentUser;
+    if (!file || !user) return;
+
+    /* 1️⃣ Instant local preview */
+    const localURL = URL.createObjectURL(file);
+    profilePicEl.src = localURL;
+
+    try {
+      /* 2️⃣ Background upload */
+      const ext = file.name.split(".").pop();
+      const fileName = `thumb_upload_${Date.now()}.${ext}`;
+
+      const imageRef = sRef(
+        storage,
+        `profile_pictures/${user.uid}/${fileName}`
+      );
+
+      await uploadBytes(imageRef, file);
+      const downloadURL = await getDownloadURL(imageRef);
+
+      /* 3️⃣ Save final URL to RTDB */
+      await set(
+        ref(db, `users/${user.uid}/profilePic`),
+        downloadURL
+      );
+
+      /* 4️⃣ Replace local preview with server image */
+      profilePicEl.src = downloadURL + "&t=" + Date.now();
+      URL.revokeObjectURL(localURL);
+
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed");
+    }
+  });
+
+  /* Logout */
+  document.getElementById("logout-btn").onclick = async () => {
+    await signOut(auth);
+    location.href = "fire-login.html";
+  };
+</script>
+
+</body>
+</html>

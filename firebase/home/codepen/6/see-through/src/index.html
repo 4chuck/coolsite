@@ -1,0 +1,86 @@
+<canvas id="canvas"></canvas>
+<textarea id="codeEditor" class="editor" spellcheck="false" autocorrect="off" autocapitalize="off" translate="no" oninput="render()"></textarea>
+<pre id="error"></pre>
+<div id="indicator"></div>
+<div id="controls">
+  <div class="controls">
+    <input id="btnToggleView" class="icon" type="checkbox" name="toggleView" onclick="toggleView()">
+    <input id="btnToggleResolution" class="icon" type="checkbox" name="toggleResolution" onchange="toggleResolution()">
+    <input id="btnReset" class="icon" type="checkbox" name="reset" onclick="reset()">
+  </div>
+</div>
+<script type="x-shader/x-fragment">#version 300 es
+/*********
+* made by Matthias Hurrle (@atzedent)
+*/
+precision highp float;
+out vec4 O;
+uniform float time;
+uniform vec2 resolution;
+uniform vec2 touch;
+uniform int pointerCount;
+#define mouse (touch/R)
+#define P pointerCount
+#define FC gl_FragCoord.xy
+#define R resolution
+#define T (time*.2)
+#define N normalize
+#define S smoothstep
+#define MN min(R.x,R.y)
+#define hue(a) (.25+.4*cos(3.14*(a)+vec3(0,83,21)))
+#define PI radians(180.)
+#define PI_H (PI/2.)
+mat2 rot(float a) {
+	float c=cos(a), s=sin(a);
+	return mat2(c,-s,s,c);
+}
+void cam(inout vec3 p) {
+	if (P>0) {
+		p.yz*=rot(-mouse.y*6.3+3.14);
+		p.xz*=rot(3.14-mouse.x*6.3);
+	} else {
+		p.yz*=rot(sin(T)*PI_H);
+		p.xz*=rot(T*PI);
+	}
+}
+vec3 bg(vec3 rd) {
+	float z=20.;
+	vec2 sn=PI_H+vec2(atan(rd.z,rd.x),atan(length(rd.xz),rd.y));
+	vec3 col=hue(1.+1.5*exp(-2.*distance(sin(z*.5*sn.x+PI_H),cos(z*sn.y))));
+	col=vec3(dot(col,vec3(.21,.71,.07)));
+	col*=vec3(2,.6,1);
+	return col;
+}
+void main() {
+	vec2 uv=(FC-.5*R)/MN;
+	vec3 col=vec3(0),
+	p=vec3(0,0,-3),
+	rd=N(vec3(uv,1));
+	cam(p); cam(rd);
+	float dd, at, side=1., bnz=.0;
+	for (int i; i++<400;) {
+		float d=(length(p)-1.)*side;
+		if (abs(d)<1e-3) {
+			vec3 n=N(p)*side;
+			float fres=clamp(1.+dot(rd,n),.0,1.);
+			col=clamp(tanh(S(.0,1.,col)),.0,1.);
+			col=mix(col,vec3(1),mix(fres,pow(fres,5.),.75));
+			if (bnz++<1.) {
+				col=mix(col,7.*bg(.5*reflect(rd,n)),pow(fres,5.));	
+			}
+			side=-side;
+			d=5e-2;
+			rd=refract(rd,n,1.+side*.3);
+		}
+		if (dd>10.) {
+			col+=bg(rd);
+			break;
+		}
+		p+=rd*d;
+		dd+=d;
+		at+=.05*(.05/dd);
+	}
+	at*=12.;
+	col+=at*at*at*vec3(2,.6,1);
+  O=vec4(col,1);
+}</script>

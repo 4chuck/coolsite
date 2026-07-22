@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Sign Up - Tetron</title>
+  
+  <script src="https://www.google.com/recaptcha/api.js?render=6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tetron Design System CSS -->
+  <link href="../src/css/design-system.css" rel="stylesheet">
+  <link href="../src/css/global.css" rel="stylesheet">
+  <link href="../src/css/components.css" rel="stylesheet">
+  
+  <style>
+    .auth-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    .auth-bg {
+        flex: 1;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        color: white;
+        text-align: center;
+    }
+    .auth-form-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        background: var(--bg-main);
+        overflow-y: auto;
+    }
+    .auth-card {
+        width: 100%;
+        max-width: 400px;
+    }
+    @media (max-width: 768px) {
+        .auth-container { flex-direction: column; }
+        .auth-bg { display: none; }
+    }
+    #welcome-message { display: none; color: var(--success); margin-bottom: 15px; font-weight: 500; }
+    #error-message { display: none; color: var(--error); margin-bottom: 15px; font-weight: 500; }
+    
+    .password-strength {
+        height: 4px;
+        background: var(--border-color);
+        margin-top: 8px;
+        border-radius: var(--radius-pill);
+        overflow: hidden;
+    }
+    .password-strength-bar {
+        height: 100%;
+        width: 0;
+        transition: width var(--transition-fast), background var(--transition-fast);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-container">
+    <div class="auth-bg">
+      <h1 style="color: white; font-size: 3rem; margin-bottom: 10px;">Tetron</h1>
+      <p style="font-size: 1.2rem; max-width: 400px; opacity: 0.9;">Join the digital frontier. Create your account to start building.</p>
+    </div>
+    <div class="auth-form-wrapper">
+      <div class="auth-card feature-card">
+        <h2 style="margin-bottom: 24px;">Create an Account</h2>
+        
+        <p id="welcome-message"></p>
+        <p id="error-message"></p>
+
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="name" class="form-control" placeholder="Enter your username" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+          <div class="password-strength"><div id="strengthBar" class="password-strength-bar"></div></div>
+          <small class="text-muted" style="display:block; margin-top:4px;">At least 6 characters</small>
+        </div>
+
+        <button id="signupBtn" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Sign Up</button>
+        
+        <div class="text-center mt-3">
+           <span class="text-muted">Already have an account?</span> 
+           <a href="fire-login.html">Log In</a>
+        </div>
+        
+        <div class="text-center text-muted" style="font-size: 0.8rem; margin-top: 30px;">
+           Protected by reCAPTCHA and subject to the Google 
+           <a href="https://policies.google.com/privacy" target="_blank" style="color: inherit; text-decoration: underline;">Privacy Policy</a> and 
+           <a href="https://policies.google.com/terms" target="_blank" style="color: inherit; text-decoration: underline;">Terms of Service</a>.
+        </div>
+        <div class="text-center mt-2">
+            <a href="../index.html" class="text-muted" style="font-size: 0.9rem;">&larr; Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../src/js/firebase-config.js"></script>
+  <script type="module" src="../src/js/notifications.js"></script>
+  <script type="module" src="../src/js/theme.js"></script>
+  <script type="module">
+     import { auth, db } from '../src/js/firebase-config.js';
+     import { createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
+     import { ref, set } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js';
+
+     const signupBtn = document.getElementById('signupBtn');
+     const welcomeMsg = document.getElementById('welcome-message');
+     const errorMsg = document.getElementById('error-message');
+     const strengthBar = document.getElementById('strengthBar');
+     
+     // Password strength indicator
+     document.getElementById('password').addEventListener('input', (e) => {
+         const val = e.target.value;
+         let strength = 0;
+         if(val.length >= 6) strength += 33;
+         if(val.match(/[A-Z]/) && val.match(/[0-9]/)) strength += 33;
+         if(val.match(/[^A-Za-z0-9]/)) strength += 34;
+         
+         strengthBar.style.width = strength + '%';
+         if(strength < 50) strengthBar.style.background = 'var(--error)';
+         else if(strength < 80) strengthBar.style.background = 'var(--warning)';
+         else strengthBar.style.background = 'var(--success)';
+     });
+
+     function getFirebaseErrorMessage(errorCode) {
+        const errors = {
+          "auth/invalid-email": "Please enter a valid email address.",
+          "auth/email-already-in-use": "This email is already registered. Try logging in.",
+          "auth/weak-password": "Password is too weak. Use at least 6 characters.",
+        };
+        return errors[errorCode] || "An unexpected error occurred. Please try again.";
+      }
+
+      function showLocalError(msg) {
+         errorMsg.innerText = msg;
+         errorMsg.style.display = 'block';
+         welcomeMsg.style.display = 'none';
+      }
+
+      function showProcessing(msg) {
+         welcomeMsg.innerText = msg;
+         welcomeMsg.style.display = 'block';
+         errorMsg.style.display = 'none';
+      }
+
+      function validateSignup(name, email, password) {
+          if (!name || !email || !password) return "All fields are required.";
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(email)) return "Invalid email format.";
+          if (password.length < 6) return "Password must be at least 6 characters.";
+          return null;
+      }
+
+      signupBtn.addEventListener('click', () => {
+         const name = document.getElementById("name").value;
+         const email = document.getElementById("email").value;
+         const password = document.getElementById("password").value;
+
+         const localError = validateSignup(name, email, password);
+         if(localError) {
+            showLocalError(localError);
+            return;
+         }
+
+         signupBtn.disabled = true;
+         signupBtn.innerText = "Verifying...";
+         showProcessing("Verifying you are human...");
+
+         grecaptcha.ready(() => {
+            grecaptcha.execute("6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr", { action: "signup" })
+               .then(token => {
+                  fetch("https://us-central1-login-b6382.cloudfunctions.net/verifyRecaptcha", {
+                     method: "POST",
+                     headers: { "Content-Type": "application/json" },
+                     body: JSON.stringify({ token })
+                  })
+                  .then(res => res.json())
+                  .then(result => {
+                     if (!result.success || result.score < 0.5) {
+                        showLocalError("Suspicious activity detected. Please try again.");
+                        signupBtn.disabled = false;
+                        signupBtn.innerText = "Sign Up";
+                        return;
+                     }
+
+                     showProcessing("Creating your account...");
+                      
+                     setPersistence(auth, browserLocalPersistence)
+                       .then(() => createUserWithEmailAndPassword(auth, email, password))
+                       .then((userCredential) => {
+                           const user = userCredential.user;
+                           updateProfile(user, { displayName: name }).then(() => {
+                               // Save to database
+                               set(ref(db, 'users/' + user.uid), {
+                                   uid: user.uid,
+                                   email: user.email,
+                                   displayName: name,
+                                   createdAt: Date.now(),
+                                   role: "user"
+                               }).then(() => {
+                                   window.location.href = "../dashboard/index.html"; // Go to dashboard UI
+                               });
+                           });
+                        })
+                        .catch((error) => {
+                           signupBtn.disabled = false;
+                           signupBtn.innerText = "Sign Up";
+                           showLocalError(getFirebaseErrorMessage(error.code));
+                        });
+                  })
+                  .catch(() => {
+                     showLocalError("Verification failed. Check internet connection.");
+                     signupBtn.disabled = false;
+                     signupBtn.innerText = "Sign Up";
+                  });
+               });
+         });
+      });
+  </script>
+</body>
+</html>

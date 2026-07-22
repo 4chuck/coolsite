@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Editor | Tetron</title>
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="../src/css/design-system.css">
+    <link rel="stylesheet" href="../src/css/global.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        .editor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px 40px 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .editor-container { grid-template-columns: 1fr; }
+        }
+
+        .editor-sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .workspace {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        #preview-img {
+            max-width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            transition: filter 0.2s ease;
+        }
+
+        .filter-group {
+            margin-bottom: 25px;
+        }
+
+        .filter-group h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            padding: 10px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .slider-control {
+            margin-top: 15px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .transform-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .transform-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            height: 40px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .transform-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .editor-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reset { background: rgba(255,255,255,0.1); color: white; }
+        .btn-save { background: var(--accent); color: white; }
+
+        .btn-reset:hover { background: rgba(255,255,255,0.15); }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(var(--accent-rgb), 0.4); }
+
+        .upload-placeholder {
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .upload-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .file-input-wrapper {
+            margin-top: 20px;
+        }
+
+        #file-input { display: none; }
+        .custom-file-btn {
+            background: var(--accent);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <!-- Navbar -->
+    <header class="glass-navbar">
+        <div class="navbar-container">
+            <a href="../index.html" class="logo-brand">
+                <i class="fas fa-cubes"></i> TETRON
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../dashboard/index.html">Dashboard</a></li>
+                <li><a href="../firebase/home/cyborg/index.html">Gaming</a></li>
+                <li><a href="AES.html">Vault</a></li>
+                <li><a href="camera.html">Camera</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button id="open-search-btn" class="icon-btn" title="Search"><i class="bi bi-search"></i></button>
+                <button id="theme-toggle" class="icon-btn" title="Toggle Theme"><i class="bi bi-sun"></i></button>
+                <a href="../dashboard/index.html" class="user-profile">
+                    <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="editor-container">
+        <!-- Sidebar -->
+        <aside class="editor-sidebar">
+            <div class="filter-group">
+                <h4>Filters</h4>
+                <div class="filter-grid">
+                    <button class="filter-btn active" data-filter="brightness">Brightness</button>
+                    <button class="filter-btn" data-filter="saturation">Saturation</button>
+                    <button class="filter-btn" data-filter="inversion">Inversion</button>
+                    <button class="filter-btn" data-filter="grayscale">Grayscale</button>
+                </div>
+                <div class="slider-control">
+                    <div class="slider-header">
+                        <span id="filter-name">Brightness</span>
+                        <span id="filter-value">100%</span>
+                    </div>
+                    <input type="range" id="filter-slider" value="100" min="0" max="200">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h4>Rotate & Flip</h4>
+                <div class="transform-grid">
+                    <button class="transform-btn" id="rotate-left" title="Rotate Left"><i class="fas fa-rotate-left"></i></button>
+                    <button class="transform-btn" id="rotate-right" title="Rotate Right"><i class="fas fa-rotate-right"></i></button>
+                    <button class="transform-btn" id="flip-h" title="Flip Horizontal"><i class="fas fa-arrows-left-right"></i></button>
+                    <button class="transform-btn" id="flip-v" title="Flip Vertical"><i class="fas fa-arrows-up-down"></i></button>
+                </div>
+            </div>
+
+            <div class="editor-actions">
+                <button class="action-btn btn-reset" id="reset-btn">Reset</button>
+                <button class="action-btn btn-save" id="save-btn">Save Image</button>
+            </div>
+        </aside>
+
+        <!-- Workspace -->
+        <section class="workspace">
+            <div class="preview-container" id="drop-zone">
+                <div class="upload-placeholder" id="placeholder">
+                    <i class="fas fa-cloud-arrow-up"></i>
+                    <h3>Drop your image here</h3>
+                    <p>or click to browse your files</p>
+                    <div class="file-input-wrapper">
+                        <label for="file-input" class="custom-file-btn">Choose Image</label>
+                        <input type="file" id="file-input" accept="image/*">
+                    </div>
+                </div>
+                <img id="preview-img" style="display: none;">
+            </div>
+        </section>
+    </main>
+
+    <!-- Search Modal -->
+    <div id="id03" class="modal-overlay">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--text-main);">Quick Search</h3>
+                <button class="toast-close close" style="font-size:1.5rem; color: var(--text-muted);">&times;</button>
+            </div>
+            <div class="form-group">
+                <input type="text" id="global-search-input" class="form-control" placeholder="Type a keyword..." autocomplete="off" style="width:100%; padding:15px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); color:white;">
+            </div>
+            <div class="text-muted" style="font-size:0.9rem;">
+                Keywords: dog, cat, sketch, editor, vault, calci, ironman, dashboard
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from "../src/js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { initTheme } from "../src/js/theme.js";
+        import { initSearch } from "../src/js/search.js";
+
+        // Initialize Platform Engines
+        initTheme();
+        initSearch();
+
+        // Auth Protection
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login/fire-login.html";
+            } else if (user.photoURL) {
+                document.getElementById('nav-avatar').src = user.photoURL;
+            }
+        });
+
+        const fileInput = document.getElementById('file-input');
+        const previewImg = document.getElementById('preview-img');
+        const placeholder = document.getElementById('placeholder');
+        const filterSlider = document.getElementById('filter-slider');
+        const filterName = document.getElementById('filter-name');
+        const filterValue = document.getElementById('filter-value');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const saveBtn = document.getElementById('save-btn');
+
+        let brightness = 100, saturation = 100, inversion = 0, grayscale = 0;
+        let rotate = 0, flipH = 1, flipV = 1;
+
+        const applyFilters = () => {
+            previewImg.style.filter = `brightness(${brightness}%) saturate(${saturation}%) invert(${inversion}%) grayscale(${grayscale}%)`;
+            previewImg.style.transform = `rotate(${rotate}deg) scale(${flipH}, ${flipV})`;
+        }
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if(!file) return;
+            previewImg.src = URL.createObjectURL(file);
+            previewImg.style.display = 'block';
+            placeholder.style.display = 'none';
+            previewImg.addEventListener('load', () => {
+                document.querySelector('.editor-sidebar').style.opacity = '1';
+                document.querySelector('.editor-sidebar').style.pointerEvents = 'auto';
+            });
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.filter-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                filterName.textContent = btn.textContent;
+
+                if(btn.dataset.filter === 'brightness') {
+                    filterSlider.max = '200';
+                    filterSlider.value = brightness;
+                    filterValue.textContent = `${brightness}%`;
+                } else if(btn.dataset.filter === 'saturation') {
+                    filterSlider.max = '200';
+                    filterSlider.value = saturation;
+                    filterValue.textContent = `${saturation}%`;
+                } else if(btn.dataset.filter === 'inversion') {
+                    filterSlider.max = '100';
+                    filterSlider.value = inversion;
+                    filterValue.textContent = `${inversion}%`;
+                } else {
+                    filterSlider.max = '100';
+                    filterSlider.value = grayscale;
+                    filterValue.textContent = `${grayscale}%`;
+                }
+            });
+        });
+
+        filterSlider.addEventListener('input', () => {
+            filterValue.textContent = `${filterSlider.value}%`;
+            const selectedFilter = document.querySelector('.filter-btn.active').dataset.filter;
+
+            if(selectedFilter === 'brightness') {
+                brightness = filterSlider.value;
+            } else if(selectedFilter === 'saturation') {
+                saturation = filterSlider.value;
+            } else if(selectedFilter === 'inversion') {
+                inversion = filterSlider.value;
+            } else {
+                grayscale = filterSlider.value;
+            }
+            applyFilters();
+        });
+
+        document.getElementById('rotate-left').addEventListener('click', () => { rotate -= 90; applyFilters(); });
+        document.getElementById('rotate-right').addEventListener('click', () => { rotate += 90; applyFilters(); });
+        document.getElementById('flip-h').addEventListener('click', () => { flipH = flipH === 1 ? -1 : 1; applyFilters(); });
+        document.getElementById('flip-v').addEventListener('click', () => { flipV = flipV === 1 ? -1 : 1; applyFilters(); });
+
+        resetBtn.addEventListener('click', () => {
+            brightness = 100; saturation = 100; inversion = 0; grayscale = 0;
+            rotate = 0; flipH = 1; flipV = 1;
+            filterBtns[0].click();
+            applyFilters();
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = previewImg.naturalWidth;
+            canvas.height = previewImg.naturalHeight;
+
+            ctx.filter = `brightness(${brightness}%) saturate(${saturation}%) invert(${inversion}%) grayscale(${grayscale}%)`;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            if(rotate !== 0) ctx.rotate(rotate * Math.PI / 180);
+            ctx.scale(flipH, flipV);
+            ctx.drawImage(previewImg, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+
+            const link = document.createElement('a');
+            link.download = 'tetron-edited-image.jpg';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        // Initialize state
+        document.querySelector('.editor-sidebar').style.opacity = '0.5';
+        document.querySelector('.editor-sidebar').style.pointerEvents = 'none';
+    </script>
+</body>
+</html>

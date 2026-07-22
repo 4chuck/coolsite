@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass Calculator | Tetron</title>
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="../src/css/design-system.css">
+    <link rel="stylesheet" href="../src/css/global.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .calc-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 100px 20px 40px 20px;
+        }
+
+        .calc-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: var(--shadow-2xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calc-display {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 25px;
+            text-align: right;
+            position: relative;
+        }
+
+        #prev-val {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            min-height: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        #current-val {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .calc-btn {
+            aspect-ratio: 1/1;
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calc-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .calc-btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-op {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .btn-eq {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.4);
+            grid-column: span 2;
+            aspect-ratio: auto;
+        }
+
+        .btn-clear {
+            color: #ff4b2b;
+            background: rgba(255, 75, 43, 0.1);
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <!-- Navbar -->
+    <nav class="glass-navbar">
+        <div class="navbar-container">
+            <a href="../dashboard/index.html" class="logo-brand">
+                <i class="fas fa-calculator"></i>
+                <span>TETRON <strong>CALC</strong></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="../dashboard/index.html">Dashboard</a></li>
+                <li>
+                    <div class="user-profile">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);">
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="calc-container">
+        <div class="calc-card">
+            <div class="calc-display">
+                <div id="prev-val"></div>
+                <div id="current-val">0</div>
+            </div>
+
+            <div class="calc-grid">
+                <!-- Row 1 -->
+                <button class="calc-btn btn-clear" onclick="clearDisplay()">AC</button>
+                <button class="calc-btn btn-op" onclick="appendOp('/')">÷</button>
+                <button class="calc-btn btn-op" onclick="appendOp('*')">×</button>
+                <button class="calc-btn btn-op" onclick="deleteChar()"><i class="fas fa-backspace"></i></button>
+
+                <!-- Row 2 -->
+                <button class="calc-btn" onclick="appendNum('7')">7</button>
+                <button class="calc-btn" onclick="appendNum('8')">8</button>
+                <button class="calc-btn" onclick="appendNum('9')">9</button>
+                <button class="calc-btn btn-op" onclick="appendOp('-')">−</button>
+
+                <!-- Row 3 -->
+                <button class="calc-btn" onclick="appendNum('4')">4</button>
+                <button class="calc-btn" onclick="appendNum('5')">5</button>
+                <button class="calc-btn" onclick="appendNum('6')">6</button>
+                <button class="calc-btn btn-op" onclick="appendOp('+')">+</button>
+
+                <!-- Row 4 -->
+                <button class="calc-btn" onclick="appendNum('1')">1</button>
+                <button class="calc-btn" onclick="appendNum('2')">2</button>
+                <button class="calc-btn" onclick="appendNum('3')">3</button>
+                <button class="calc-btn" onclick="appendNum('.')">.</button>
+
+                <!-- Row 5 -->
+                <button class="calc-btn" style="grid-column: span 1;" onclick="appendNum('0')">0</button>
+                <button class="calc-btn btn-eq" onclick="calculate()">=</button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth } from "../src/js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+ 
+        // Auth Protection
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login/fire-login.html";
+            } else if (user.photoURL) {
+                document.getElementById('nav-avatar').src = user.photoURL;
+            }
+        });
+
+        const currentEl = document.getElementById('current-val');
+        const prevEl = document.getElementById('prev-val');
+        let currentInput = '0';
+        let prevInput = '';
+        let operation = null;
+        let shouldReset = false;
+
+        window.appendNum = (num) => {
+            if (currentInput === '0' || shouldReset) {
+                currentInput = num;
+                shouldReset = false;
+            } else {
+                if (num === '.' && currentInput.includes('.')) return;
+                currentInput += num;
+            }
+            updateDisplay();
+        };
+
+        window.appendOp = (op) => {
+            if (operation !== null) calculate();
+            prevInput = currentInput;
+            operation = op;
+            shouldReset = true;
+            updateDisplay();
+        };
+
+        window.clearDisplay = () => {
+            currentInput = '0';
+            prevInput = '';
+            operation = null;
+            updateDisplay();
+        };
+
+        window.deleteChar = () => {
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === '') currentInput = '0';
+            updateDisplay();
+        };
+
+        window.calculate = () => {
+            if (operation === null || shouldReset) return;
+            let result;
+            const prev = parseFloat(prevInput);
+            const current = parseFloat(currentInput);
+
+            switch(operation) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '*': result = prev * current; break;
+                case '/': result = prev / current; break;
+                default: return;
+            }
+
+            currentInput = result.toString();
+            operation = null;
+            prevInput = '';
+            shouldReset = true;
+            updateDisplay();
+        };
+
+        function updateDisplay() {
+            currentEl.textContent = currentInput;
+            if (operation) {
+                prevEl.textContent = `${prevInput} ${operation}`;
+            } else {
+                prevEl.textContent = '';
+            }
+        }
+    </script>
+</body>
+</html>

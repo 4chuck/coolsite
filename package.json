@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "dev": "http-server -o",
+    "start": "http-server"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

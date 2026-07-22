@@ -1,0 +1,22 @@
+Script started on 2025-10-07 14:22:00+00:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="156" LINES="44"]
+[?2004h]0;chuck4@AYUSH: /mnt/c/git/coolsite[01;32mchuck4@AYUSH[00m:[01;34m/mnt/c/git/coolsite[00m$ sudo[K[K[K[Kwg[K[Kuname
+[?2004lLinux
+[?2004h]0;chuck4@AYUSH: /mnt/c/git/coolsite[01;32mchuck4@AYUSH[00m:[01;34m/mnt/c/git/coolsite[00m$ tty
+[?2004l/dev/pts/2
+[?2004h]0;chuck4@AYUSH: /mnt/c/git/coolsite[01;32mchuck4@AYUSH[00m:[01;34m/mnt/c/git/coolsite[00m$ stty
+[?2004lspeed 38400 baud; line = 0;
+-brkint -imaxbel
+[?2004h]0;chuck4@AYUSH: /mnt/c/git/coolsite[01;32mchuck4@AYUSH[00m:[01;34m/mnt/c/git/coolsite[00m$ who
+[?2004lchuck4   pts/1        2025-10-07 14:19
+[?2004h]0;chuck4@AYUSH: /mnt/c/git/coolsite[01;32mchuck4@AYUSH[00m:[01;34m/mnt/c/git/coolsite[00m$ inote
+[?2004lCommand 'inote' not found, did you mean:
+  command 'qnote' from snap qnote (2.0.0)
+  command 'rnote' from snap rnote (0.10.2)
+  command 'enote' from snap enote (0.1.7)
+  command 'gnote' from deb gnote (45.1-1)
+  command 'note' from deb note (1.3.26-3)
+See 'snap info <snapname>' for additional versions.
+[?2004h]0;chuck4@AYUSH: /mnt/c/git/coolsite[01;32mchuck4@AYUSH[00m:[01;34m/mnt/c/git/coolsite[00m$ exit
+[?2004lexit
+
+Script done on 2025-10-07 14:23:34+00:00 [COMMAND_EXIT_CODE="127"]

@@ -1,0 +1,10 @@
+all this linked to web-app of firebase project :login.
+authentication also linked to it.
+database related file :real-time-database.html.
+real time database is currently linked to login web-app(can be changed)
+
+
+firebase deploy --only hosting
+
+site 1 : login-b6382 (fire)
+site 2 : ohm-shiva

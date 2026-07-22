@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Login - Tetron</title>
+  
+  <script src="https://www.google.com/recaptcha/api.js?render=6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tetron Design System CSS -->
+  <link href="../src/css/design-system.css" rel="stylesheet">
+  <link href="../src/css/global.css" rel="stylesheet">
+  <link href="../src/css/components.css" rel="stylesheet">
+  
+  <style>
+    .auth-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    .auth-bg {
+        flex: 1;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        color: white;
+        text-align: center;
+    }
+    .auth-form-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        background: var(--bg-main);
+    }
+    .auth-card {
+        width: 100%;
+        max-width: 400px;
+    }
+    @media (max-width: 768px) {
+        .auth-container { flex-direction: column; }
+        .auth-bg { display: none; }
+    }
+    #welcome-message { display: none; color: var(--success); margin-bottom: 15px; font-weight: 500; }
+    #error-message { display: none; color: var(--error); margin-bottom: 15px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-container">
+    <div class="auth-bg">
+      <h1 style="color: white; font-size: 3rem; margin-bottom: 10px;">Tetron</h1>
+      <p style="font-size: 1.2rem; max-width: 400px; opacity: 0.9;">Welcome back! Log in to access your digital sandbox and advanced tools.</p>
+    </div>
+    <div class="auth-form-wrapper">
+      <div class="auth-card feature-card">
+        <h2 style="margin-bottom: 24px;">Log In</h2>
+        
+        <p id="welcome-message"></p>
+        <p id="error-message"></p>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="email" class="form-control" placeholder="Type your email" required autocomplete="email">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Type your password" required autocomplete="current-password">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+           <a href="#" id="forgot-btn" style="font-size: 0.9rem;">Forgot Password?</a>
+        </div>
+
+        <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Log In</button>
+        
+        <div class="text-center mt-3">
+           <span class="text-muted">Don't have an account?</span> 
+           <a href="fire-signup.html">Sign Up</a>
+        </div>
+        
+        <div class="text-center text-muted" style="font-size: 0.8rem; margin-top: 30px;">
+           Protected by reCAPTCHA and subject to the Google 
+           <a href="https://policies.google.com/privacy" target="_blank" style="color: inherit; text-decoration: underline;">Privacy Policy</a> and 
+           <a href="https://policies.google.com/terms" target="_blank" style="color: inherit; text-decoration: underline;">Terms of Service</a>.
+        </div>
+        <div class="text-center mt-2">
+            <a href="../index.html" class="text-muted" style="font-size: 0.9rem;">&larr; Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotModal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+        <h3>Reset Password</h3>
+        <button class="toast-close close" id="closeForgot" style="font-size:1.5rem;">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="resetEmail" class="form-control" placeholder="Type your email" required>
+      </div>
+      <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1rem;">We will send you a password reset link.</p>
+      <p id="resetMessage" style="margin-bottom:1rem; font-weight:500;"></p>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+         <button class="btn btn-outline" id="cancelForgot">Cancel</button>
+         <button class="btn btn-primary" id="sendResetBtn">Send Link</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../src/js/firebase-config.js"></script>
+  <script type="module" src="../src/js/notifications.js"></script>
+  <script type="module" src="../src/js/theme.js"></script>
+  <script type="module">
+     import { auth } from '../src/js/firebase-config.js';
+     import { signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
+     import { showNotification, showError } from '../src/js/notifications.js';
+
+     const loginBtn = document.getElementById('loginBtn');
+     const welcomeMsg = document.getElementById('welcome-message');
+     const errorMsg = document.getElementById('error-message');
+
+     function getFirebaseErrorMessage(errorCode) {
+        const errors = {
+          "auth/invalid-email": "Please enter a valid email address.",
+          "auth/invalid-credential": "Incorrect email or password.",
+          "auth/user-not-found": "No account found with this email.",
+          "auth/wrong-password": "Incorrect password. Please try again.",
+          "auth/too-many-requests": "Too many attempts. Please wait a moment."
+        };
+        return errors[errorCode] || "An unexpected error occurred. Please try again.";
+      }
+
+      function showLocalError(msg) {
+         errorMsg.innerText = msg;
+         errorMsg.style.display = 'block';
+         welcomeMsg.style.display = 'none';
+      }
+
+      function showProcessing(msg) {
+         welcomeMsg.innerText = msg;
+         welcomeMsg.style.display = 'block';
+         errorMsg.style.display = 'none';
+      }
+
+      loginBtn.addEventListener('click', () => {
+         const email = document.getElementById("email").value;
+         const password = document.getElementById("password").value;
+
+         if(!email || !password) {
+            showLocalError("Email and password are required.");
+            return;
+         }
+
+         loginBtn.disabled = true;
+         loginBtn.innerText = "Verifying...";
+         showProcessing("Verifying you are human...");
+
+         grecaptcha.ready(() => {
+            grecaptcha.execute("6Le7KT0sAAAAAPxH8HbrFQSvM1uia1jGlAOxXoyr", { action: "login" })
+               .then(token => {
+                  fetch("https://us-central1-login-b6382.cloudfunctions.net/verifyRecaptcha", {
+                     method: "POST",
+                     headers: { "Content-Type": "application/json" },
+                     body: JSON.stringify({ token })
+                  })
+                  .then(res => res.json())
+                  .then(result => {
+                     if (!result.success || result.score < 0.5) {
+                        showLocalError("Suspicious activity detected. Please try again.");
+                        loginBtn.disabled = false;
+                        loginBtn.innerText = "Log In";
+                        return;
+                     }
+
+                     showProcessing("Logging in...");
+                      
+                     setPersistence(auth, browserLocalPersistence)
+                       .then(() => signInWithEmailAndPassword(auth, email, password))
+                       .then(() => {
+                           window.location.href = "../dashboard/index.html"; // Redirect to new dashboard
+                       })
+                        .catch((error) => {
+                           loginBtn.disabled = false;
+                           loginBtn.innerText = "Log In";
+                           showLocalError(getFirebaseErrorMessage(error.code));
+                        });
+                  })
+                  .catch(() => {
+                     showLocalError("Verification failed. Check internet connection.");
+                     loginBtn.disabled = false;
+                     loginBtn.innerText = "Log In";
+                  });
+               });
+         });
+      });
+
+      // Forgot Password Modal Logic
+      const forgotModal = document.getElementById('forgotModal');
+      document.getElementById('forgot-btn').addEventListener('click', (e) => {
+          e.preventDefault();
+          forgotModal.style.display = 'flex';
+      });
+      document.getElementById('closeForgot').addEventListener('click', () => forgotModal.style.display = 'none');
+      document.getElementById('cancelForgot').addEventListener('click', () => forgotModal.style.display = 'none');
+      
+      document.getElementById('sendResetBtn').addEventListener('click', () => {
+          const email = document.getElementById('resetEmail').value;
+          const msg = document.getElementById('resetMessage');
+          if(!email) {
+              msg.style.color = "var(--warning)";
+              msg.innerText = "Please enter your email.";
+              return;
+          }
+          sendPasswordResetEmail(auth, email)
+            .then(() => {
+                msg.style.color = "var(--success)";
+                msg.innerText = "Password reset link sent successfully!";
+            })
+            .catch(error => {
+                msg.style.color = "var(--error)";
+                msg.innerText = error.message;
+            });
+      });
+      
+      // Auto-hello layout
+      onAuthStateChanged(auth, (user) => {
+         if (user && user.displayName) {
+             const firstName = user.displayName.split(" ")[0];
+             welcomeMsg.innerText = `Welcome back, ${firstName}`;
+             welcomeMsg.style.display = 'block';
+         }
+      });
+  </script>
+</body>
+</html>

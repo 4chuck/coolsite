@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Settings | Tetron</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="../src/css/design-system.css" rel="stylesheet">
+  <link href="../src/css/global.css" rel="stylesheet">
+  <link href="../src/css/components.css" rel="stylesheet">
+  
+  <style>
+      body {
+          font-family: 'Outfit', sans-serif;
+          background: var(--bg-main);
+          color: var(--text-main);
+          overflow: hidden;
+          transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .dashboard-layout {
+          display: flex;
+          height: 100vh;
+          padding-top: 80px;
+      }
+
+      /* Sidebar */
+      .sidebar {
+          width: 280px;
+          background: rgba(255, 255, 255, 0.02);
+          backdrop-filter: blur(20px);
+          border-right: 1px solid var(--glass-border);
+          padding: 30px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          z-index: 10;
+      }
+
+      .sidebar-link {
+          padding: 12px 18px;
+          border-radius: 15px;
+          color: var(--text-muted);
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          font-weight: 500;
+      }
+
+      .sidebar-link i {
+          font-size: 1.2rem;
+          width: 24px;
+          text-align: center;
+      }
+
+      .sidebar-link:hover, .sidebar-link.active {
+          background: rgba(var(--accent-rgb), 0.1);
+          color: var(--accent);
+          transform: translateX(5px);
+      }
+
+      .sidebar-group-title {
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          color: var(--text-muted);
+          opacity: 0.5;
+          margin: 20px 0 10px 18px;
+      }
+
+      /* Main Content */
+      .main-content {
+          flex: 1;
+          padding: 40px;
+          overflow-y: auto;
+          background: radial-gradient(circle at top right, rgba(var(--accent-rgb), 0.05), transparent);
+      }
+
+      .settings-container {
+          max-width: 800px;
+          margin: 0 auto;
+      }
+
+      .settings-card {
+          background: var(--glass-bg);
+          backdrop-filter: blur(var(--glass-blur));
+          border: 1px solid var(--glass-border);
+          padding: 35px;
+          border-radius: 24px;
+          margin-bottom: 30px;
+          box-shadow: var(--shadow-xl);
+      }
+
+      .settings-card h2 {
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+          font-weight: 600;
+      }
+
+      .settings-card p {
+          color: rgba(255,255,255,0.5);
+          font-size: 0.9rem;
+          margin-bottom: 25px;
+      }
+
+      .form-group {
+          margin-bottom: 20px;
+      }
+
+      .form-group label {
+          display: block;
+          font-size: 0.85rem;
+          color: rgba(255,255,255,0.6);
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+      }
+
+      .form-input {
+          width: 100%;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid var(--glass-border);
+          padding: 12px 16px;
+          border-radius: 12px;
+          color: white;
+          font-family: inherit;
+          transition: all 0.3s ease;
+      }
+
+      .form-input:focus {
+          border-color: var(--accent);
+          background: rgba(var(--accent-rgb), 0.05);
+          outline: none;
+      }
+
+      .btn-update {
+          background: var(--accent);
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .btn-update:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(var(--accent-rgb), 0.3);
+      }
+
+      .btn-outline {
+          background: transparent;
+          border: 1px solid var(--glass-border);
+          color: white;
+      }
+
+      .btn-outline:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: white;
+      }
+
+      .admin-panel-link {
+          margin-top: auto;
+          background: rgba(255, 0, 0, 0.1);
+          color: #ff4444;
+          border: 1px solid rgba(255, 0, 0, 0.2);
+          display: none;
+      }
+  </style>
+</head>
+<body style="opacity: 0; transition: opacity .5s ease">
+
+  <!-- Navbar -->
+  <header class="glass-navbar">
+    <div class="navbar-container">
+      <a href="../index.html" class="logo-brand">
+          <i class="fas fa-cubes"></i> TETRON
+      </a>
+      <div class="nav-actions">
+        <button class="icon-btn" title="Toggle Theme" id="theme-toggle"><i class="fas fa-sun"></i></button>
+        <button id="logout-btn" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-layout">
+     <aside class="sidebar">
+        <div class="sidebar-group-title">Main</div>
+        <a href="index.html" class="sidebar-link"><i class="fas fa-user"></i> <span>Profile Hub</span></a>
+        <a href="settings.html" class="sidebar-link active"><i class="fas fa-cog"></i> <span>Settings & Security</span></a>
+        
+        <div class="sidebar-group-title">Tools</div>
+        <a href="../tools/img_edit.html" class="sidebar-link"><i class="fas fa-magic"></i> <span>Studio Editor</span></a>
+        <a href="../tools/AES.html" class="sidebar-link"><i class="fas fa-shield-alt"></i> <span>Secure Vault</span></a>
+        <a href="../tools/blackboard.html" class="sidebar-link"><i class="fas fa-pencil-alt"></i> <span>Sketch Studio</span></a>
+        
+        <a href="admin.html" id="adminLink" class="sidebar-link admin-panel-link"><i class="fas fa-user-shield"></i> <span>Admin Panel</span></a>
+     </aside>
+     
+     <main class="main-content">
+        <div class="settings-container">
+            <h1 style="font-size: 2rem; margin-bottom: 30px;">System Configuration</h1>
+
+            <!-- Profile Section -->
+            <section class="settings-card">
+                <h2>Account Identity</h2>
+                <p>Manage your public persona and contact coordinates.</p>
+                
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="displayEmail" class="form-input" disabled style="opacity: 0.5; cursor: not-allowed;">
+                </div>
+                
+                <div class="form-group">
+                    <label>Display Name</label>
+                    <input type="text" id="newName" class="form-input" placeholder="Enter full name">
+                </div>
+                
+                <button id="updateNameBtn" class="btn-update">Synchronize Profile</button>
+            </section>
+
+            <!-- Security Section -->
+            <section class="settings-card">
+                <h2>Access Protocol</h2>
+                <p>Re-configure your authentication key for enhanced security.</p>
+                
+                <div class="form-group">
+                    <label>New Passphrase</label>
+                    <input type="password" id="newPassword" class="form-input" placeholder="••••••••••••">
+                </div>
+                
+                <button id="updatePasswordBtn" class="btn-update btn-outline">Update Credentials</button>
+            </section>
+        </div>
+     </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+     import { initAuthGuard } from '../src/js/auth.js';
+     import { auth, db } from '../src/js/firebase-config.js';
+     import { initTheme } from '../src/js/theme.js';
+     import { updateProfile, updatePassword } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
+     import { ref, update, get, child } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js';
+     import { showNotification, showError } from '../src/js/notifications.js';
+
+     document.addEventListener('DOMContentLoaded', () => {
+         initTheme();
+         initAuthGuard(true).then(user => {
+             if(user) {
+                 document.body.style.opacity = '1';
+                 document.getElementById('displayEmail').value = user.email;
+                 document.getElementById('newName').value = user.displayName || '';
+                 
+                 const dbRef = ref(db);
+                 get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
+                     if (snapshot.exists() && snapshot.val().role === 'admin') {
+                         document.getElementById('adminLink').style.display = 'flex';
+                     }
+                 });
+
+                 // Update Logic
+                 document.getElementById('updateNameBtn').addEventListener('click', async () => {
+                    const name = document.getElementById('newName').value.trim();
+                    if(!name) return showError("Identity name required.");
+                    
+                    try {
+                        await updateProfile(user, { displayName: name });
+                        await update(ref(db, `users/${user.uid}`), { displayName: name });
+                        showNotification("Profile synchronized.");
+                    } catch (err) {
+                        showError(err.message);
+                    }
+                 });
+
+                 document.getElementById('updatePasswordBtn').addEventListener('click', async () => {
+                    const pass = document.getElementById('newPassword').value;
+                    if(pass.length < 6) return showError("Passphrase must be 6+ characters.");
+                    
+                    try {
+                        await updatePassword(user, pass);
+                        showNotification("Credentials updated.");
+                        document.getElementById('newPassword').value = '';
+                    } catch (err) {
+                        showError("Security re-auth required. Please log in again.");
+                    }
+                 });
+             }
+         });
+     });
+  </script>
+</body>
+</html>

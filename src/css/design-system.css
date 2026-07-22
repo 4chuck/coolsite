@@ -1,0 +1,73 @@
+/* --- Design System Tokens --- */
+:root {
+  /* HSL Color Palette - Light Mode */
+  --primary-hue: 210;
+  --primary-saturation: 100%;
+  --primary-lightness: 50%;
+  --color-primary: hsl(var(--primary-hue), var(--primary-saturation), var(--primary-lightness));
+  --color-primary-hover: hsl(var(--primary-hue), var(--primary-saturation), calc(var(--primary-lightness) - 10%));
+
+  --color-secondary: hsl(280, 100%, 60%);
+  --color-secondary-hover: hsl(280, 100%, 50%);
+
+  --bg-main: hsl(0, 0%, 98%);
+  --bg-surface: hsl(0, 0%, 100%);
+  --bg-surface-glass: hsla(0, 0%, 100%, 0.8);
+
+  --text-main: hsl(220, 20%, 15%);
+  --text-muted: hsl(220, 15%, 45%);
+
+  --border-color: hsl(220, 15%, 85%);
+
+  --success: hsl(150, 60%, 45%);
+  --error: hsl(350, 70%, 55%);
+  --warning: hsl(40, 90%, 50%);
+
+  /* Glassmorphism Tokens - Light Mode */
+  --glass-bg: hsla(0, 0%, 100%, 0.7);
+  --glass-border: hsla(0, 0%, 0%, 0.08);
+  --glass-blur: 15px;
+  --accent: var(--color-primary);
+  --accent-rgb: 37, 99, 235;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --shadow-2xl: 0 30px 60px rgba(0, 0, 0, 0.3);
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+}
+
+/* Dark Mode Tokens */
+[data-theme="dark"] {
+  --bg-main: hsl(220, 30%, 8%);
+  --bg-surface: hsl(220, 25%, 14%);
+  --bg-surface-glass: hsla(220, 25%, 14%, 0.8);
+  
+  /* Glassmorphism Tokens - Dark Mode */
+  --glass-bg: hsla(220, 25%, 10%, 0.75);
+  --glass-border: hsla(0, 0%, 100%, 0.1);
+  --accent-rgb: 100, 150, 255;
+
+  --text-main: hsl(0, 0%, 95%);
+  --text-muted: hsl(220, 10%, 70%);
+
+  --border-color: hsl(220, 20%, 25%);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.7);
+}

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>High Command | Tetron</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="../src/css/design-system.css" rel="stylesheet">
+  <link href="../src/css/global.css" rel="stylesheet">
+  <link href="../src/css/components.css" rel="stylesheet">
+  
+  <style>
+      body {
+          font-family: 'Outfit', sans-serif;
+          background: var(--bg-main);
+          color: var(--text-main);
+          overflow: hidden;
+          transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .dashboard-layout {
+          display: flex;
+          height: 100vh;
+          padding-top: 80px;
+      }
+
+      /* Sidebar */
+      .sidebar {
+          width: 280px;
+          background: rgba(255, 255, 255, 0.02);
+          backdrop-filter: blur(20px);
+          border-right: 1px solid var(--glass-border);
+          padding: 30px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          z-index: 10;
+      }
+
+      .sidebar-link {
+          padding: 12px 18px;
+          border-radius: 15px;
+          color: var(--text-muted);
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          font-weight: 500;
+      }
+
+      .sidebar-link i {
+          font-size: 1.2rem;
+          width: 24px;
+          text-align: center;
+      }
+
+      .sidebar-link:hover, .sidebar-link.active {
+          background: rgba(var(--accent-rgb), 0.1);
+          color: var(--accent);
+          transform: translateX(5px);
+      }
+
+      .sidebar-group-title {
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          color: var(--text-muted);
+          opacity: 0.5;
+          margin: 20px 0 10px 18px;
+      }
+
+      /* Main Content */
+      .main-content {
+          flex: 1;
+          padding: 40px;
+          overflow-y: auto;
+          background: radial-gradient(circle at bottom left, rgba(255, 0, 0, 0.05), transparent);
+      }
+
+      .admin-container {
+          max-width: 1200px;
+          margin: 0 auto;
+      }
+
+      .control-panel {
+          background: var(--glass-bg);
+          backdrop-filter: blur(var(--glass-blur));
+          border: 1px solid var(--glass-border);
+          border-radius: 30px;
+          padding: 40px;
+          box-shadow: var(--shadow-2xl);
+      }
+
+      .control-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+          gap: 20px;
+          flex-wrap: wrap;
+      }
+
+      .admin-search {
+          flex: 1;
+          max-width: 400px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid var(--glass-border);
+          padding: 12px 20px;
+          border-radius: 15px;
+          color: white;
+          font-family: inherit;
+          transition: all 0.3s ease;
+      }
+
+      .admin-search:focus {
+          border-color: #ff4444;
+          background: rgba(255, 0, 0, 0.05);
+          outline: none;
+      }
+
+      /* Table Styles */
+      .admin-table {
+          width: 100%;
+          border-collapse: collapse;
+      }
+
+      .admin-table th {
+          text-align: left;
+          padding: 15px 20px;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          color: rgba(255,255,255,0.4);
+          border-bottom: 1px solid var(--glass-border);
+      }
+
+      .admin-table td {
+          padding: 20px;
+          border-bottom: 1px solid rgba(255,255,255,0.03);
+      }
+
+      .admin-table tr:last-child td {
+          border-bottom: none;
+      }
+
+      .admin-table tr:hover td {
+          background: rgba(255,255,255,0.02);
+      }
+
+      .user-role-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          letter-spacing: 1px;
+      }
+
+      .badge-admin {
+          background: rgba(255, 0, 0, 0.15);
+          color: #ff4444;
+          border: 1px solid rgba(255, 0, 0, 0.3);
+          box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+      }
+
+      .badge-user {
+          background: rgba(255, 255, 255, 0.05);
+          color: rgba(255,255,255,0.6);
+          border: 1px solid var(--glass-border);
+      }
+
+      .action-btn {
+          background: transparent;
+          border: 1px solid var(--glass-border);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .action-btn:hover {
+          background: white;
+          color: black;
+          border-color: white;
+      }
+
+      .sidebar-admin-link {
+          margin-top: auto;
+          color: #ff4444 !important;
+          background: rgba(255, 0, 0, 0.1) !important;
+      }
+  </style>
+</head>
+<body style="opacity: 0; transition: opacity .5s ease">
+
+  <!-- Navbar -->
+  <header class="glass-navbar">
+    <div class="navbar-container">
+      <a href="../index.html" class="logo-brand">
+          <i class="fas fa-cubes"></i> TETRON <span style="color:#ff4444; font-size:0.8rem; margin-left:10px;">HIGH COMMAND</span>
+      </a>
+      <div class="nav-actions">
+        <button class="icon-btn" title="Toggle Theme" id="theme-toggle"><i class="fas fa-sun"></i></button>
+        <button id="logout-btn" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-layout">
+     <aside class="sidebar">
+        <div class="sidebar-group-title">Main</div>
+        <a href="index.html" class="sidebar-link"><i class="fas fa-user"></i> <span>Profile Hub</span></a>
+        <a href="settings.html" class="sidebar-link"><i class="fas fa-cog"></i> <span>Settings & Security</span></a>
+        
+        <div class="sidebar-group-title">System Control</div>
+        <a href="admin.html" class="sidebar-link active sidebar-admin-link"><i class="fas fa-users-cog"></i> <span>User Management</span></a>
+     </aside>
+     
+     <main class="main-content">
+        <div class="admin-container">
+            <div class="control-panel">
+                <div class="control-header">
+                    <h2 style="margin:0; font-size:1.8rem;">Protocol Members</h2>
+                    <input type="text" id="user-search" class="admin-search" placeholder="Search by email or identity...">
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Identity</th>
+                                <th>Coordinates (Email)</th>
+                                <th>Protocol Level</th>
+                                <th>Deployment Date</th>
+                                <th>Control</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            <tr><td colspan="5" class="text-center" style="padding:100px; opacity:0.5;">Accessing Database...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+     </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+     import { initAuthGuard } from '../src/js/auth.js';
+     import { auth, db } from '../src/js/firebase-config.js';
+     import { initTheme } from '../src/js/theme.js';
+     import { ref, get, child, update } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js';
+     import { showNotification, showError } from '../src/js/notifications.js';
+
+     let allUsers = [];
+
+     document.addEventListener('DOMContentLoaded', () => {
+         initTheme();
+         initAuthGuard(true).then(user => {
+             if(user) {
+                 const dbRef = ref(db);
+                 get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
+                     if (snapshot.exists() && snapshot.val().role === 'admin') {
+                         document.body.style.opacity = '1';
+                         loadUsers();
+                     } else {
+                         window.location.href = "index.html";
+                     }
+                 }).catch(() => {
+                     window.location.href = "index.html";
+                 });
+             }
+         });
+         
+         document.getElementById('user-search').addEventListener('input', (e) => {
+             const term = e.target.value.toLowerCase();
+             const filtered = allUsers.filter(u => 
+                 (u.email && u.email.toLowerCase().includes(term)) || 
+                 (u.displayName && u.displayName.toLowerCase().includes(term))
+             );
+             renderTable(filtered);
+         });
+     });
+     
+     function loadUsers() {
+         const usersRef = ref(db, 'users');
+         get(usersRef).then((snapshot) => {
+             if(snapshot.exists()) {
+                 const data = snapshot.val();
+                 allUsers = Object.values(data).sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+                 renderTable(allUsers);
+             }
+         }).catch(err => {
+             console.error(err);
+             document.getElementById('user-table-body').innerHTML = `<tr><td colspan="5" class="text-center" style="color:#ff4444">Critical Error: Database Unreachable</td></tr>`;
+         });
+     }
+     
+     function renderTable(users) {
+         const tbody = document.getElementById('user-table-body');
+         tbody.innerHTML = '';
+         
+         if(users.length === 0) {
+             tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:40px; opacity:0.5;">No results found in current segment.</td></tr>`;
+             return;
+         }
+         
+         users.forEach(u => {
+             const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—';
+             const isAdmin = u.role === 'admin';
+             const roleClass = isAdmin ? 'badge-admin' : 'badge-user';
+             const roleLabel = isAdmin ? 'ADMIN' : 'USER';
+             const btnText = isAdmin ? 'DEMOTE' : 'PROMOTE';
+             
+             const tr = document.createElement('tr');
+             tr.innerHTML = `
+                 <td><strong>${u.displayName || 'Unidentified'}</strong></td>
+                 <td style="opacity:0.7;">${u.email}</td>
+                 <td><span class="user-role-badge ${roleClass}">${roleLabel}</span></td>
+                 <td style="opacity:0.5; font-size:0.85rem;">${date}</td>
+                 <td>
+                    <button class="action-btn toggle-role-btn" data-uid="${u.uid}" data-role="${u.role || 'user'}">
+                       ${btnText}
+                    </button>
+                 </td>
+             `;
+             tbody.appendChild(tr);
+         });
+
+         document.querySelectorAll('.toggle-role-btn').forEach(btn => {
+             btn.addEventListener('click', async (e) => {
+                 const uid = e.target.dataset.uid;
+                 const currentRole = e.target.dataset.role;
+                 const newRole = currentRole === 'admin' ? 'user' : 'admin';
+                 
+                 if(uid === auth.currentUser.uid) {
+                     return showError("Self-demotion protocol blocked.");
+                 }
+
+                 try {
+                     await update(ref(db, `users/${uid}`), { role: newRole });
+                     showNotification(`Member updated to ${newRole.toUpperCase()} status.`);
+                     loadUsers();
+                 } catch (err) {
+                     showError("Protocol update failed.");
+                 }
+             });
+         });
+     }
+  </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinematic Gallery | Tetron</title>
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="../src/css/design-system.css">
+    <link rel="stylesheet" href="../src/css/global.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 20px 40px 20px;
+        }
+
+        .viewport-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            height: 600px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-2xl);
+        }
+
+        #main-viewport {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: black;
+        }
+
+        #main-viewport img, #main-viewport video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.5s ease;
+        }
+
+        .viewport-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        .viewport-info h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .viewport-info p {
+            margin: 5px 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .nav-btns {
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .thumb-item {
+            aspect-ratio: 1/1;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .thumb-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .thumb-item.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.4);
+        }
+
+        .video-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <!-- Navbar -->
+    <nav class="glass-navbar">
+        <div class="navbar-container">
+            <a href="../dashboard/index.html" class="logo-brand">
+                <i class="fas fa-film"></i>
+                <span>TETRON <strong>CINEMA</strong></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="../dashboard/index.html">Dashboard</a></li>
+                <li>
+                    <div class="user-profile">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);">
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="gallery-container">
+        <!-- Hero Viewport -->
+        <div class="viewport-card">
+            <div id="main-viewport">
+                <img id="view-img" src="../images/dog/pana1.jpg" alt="Active Image">
+            </div>
+            <div class="viewport-overlay">
+                <div class="viewport-info">
+                    <h2 id="view-title">Canine Collection</h2>
+                    <p id="view-index">Image 1 of 24</p>
+                </div>
+                <div class="nav-btns">
+                    <a href="../index.html" class="nav-btn">Home</a>
+                    <a href="cat.html" class="nav-btn">Next: Felines</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thumbnail Grid -->
+        <div class="thumbnail-grid" id="thumb-container">
+            <!-- Dynamically generated -->
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth } from "../src/js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+ 
+        // Auth Protection
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login/fire-login.html";
+            } else if (user.photoURL) {
+                document.getElementById('nav-avatar').src = user.photoURL;
+            }
+        });
+
+        const images = [
+            { src: "../images/dog/pana1.jpg", type: "image" },
+            { src: "../images/dog/dog2.jpg", type: "image" },
+            { src: "../images/dog/dog3.jpg", type: "image" },
+            { src: "../images/dog/dog4.jpg", type: "image" },
+            { src: "../images/dog/dog5.jpg", type: "image" },
+            { src: "../images/dog/dog6.jpg", type: "image" },
+            { src: "../images/dog/dog7.jpg", type: "image" },
+            { src: "../images/dog/dog8.jpg", type: "image" },
+            { src: "../images/dog/dog9.jpg", type: "image" },
+            { src: "../images/dog/dog10.jpg", type: "image" },
+            { src: "../images/dog/dog11.jpg", type: "image" },
+            { src: "../images/dog/dog12.jpg", type: "image" },
+            { src: "../images/dog/dog13.jpg", type: "image" },
+            { src: "../images/dog/dog14.jpg", type: "image" },
+            { src: "../images/dog/dog15.jpg", type: "image" },
+            { src: "../images/dog/dog16.jpg", type: "image" },
+            { src: "../images/dog/dog17.jpg", type: "video", videoSrc: "../images/dog/dog17.mp4" },
+            { src: "../images/dog/dog18.jpg", type: "image" },
+            { src: "../images/dog/dog19.jpg", type: "image" },
+            { src: "../images/dog/dog20.jpg", type: "image" },
+            { src: "../images/dog/dog21.jpg", type: "image" },
+            { src: "../images/dog/dog22.jpg", type: "image" },
+            { src: "../images/dog/dog23.jpg", type: "image" },
+            { src: "../images/dog/dog24.jpg", type: "image" }
+        ];
+
+        const viewport = document.getElementById('main-viewport');
+        const thumbContainer = document.getElementById('thumb-container');
+        const viewIndex = document.getElementById('view-index');
+
+        let currentIndex = 0;
+
+        // Init Thumbnails
+        images.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = `thumb-item ${index === 0 ? 'active' : ''}`;
+            div.innerHTML = `
+                <img src="${item.src}" alt="Thumb ${index + 1}">
+                ${item.type === 'video' ? '<span class="video-badge">VIDEO</span>' : ''}
+            `;
+            div.onclick = () => selectItem(index);
+            thumbContainer.appendChild(div);
+        });
+
+        function selectItem(index) {
+            currentIndex = index;
+            const item = images[index];
+
+            // Update Active Thumb
+            document.querySelectorAll('.thumb-item').forEach((t, i) => {
+                t.classList.toggle('active', i === index);
+            });
+
+            // Update Viewport
+            viewport.innerHTML = '';
+            if (item.type === 'video') {
+                const video = document.createElement('video');
+                video.src = item.videoSrc;
+                video.controls = true;
+                video.autoplay = true;
+                video.style.opacity = '0';
+                viewport.appendChild(video);
+                setTimeout(() => video.style.opacity = '1', 50);
+            } else {
+                const img = document.createElement('img');
+                img.src = item.src;
+                img.style.opacity = '0';
+                viewport.appendChild(img);
+                setTimeout(() => img.style.opacity = '1', 50);
+            }
+
+            viewIndex.textContent = `Item ${index + 1} of ${images.length}`;
+        }
+
+        // Auto-play interval
+        let interval = setInterval(() => {
+            if (images[currentIndex].type !== 'video') {
+                let next = (currentIndex + 1) % images.length;
+                selectItem(next);
+            }
+        }, 5000);
+
+        // Pause auto-play on interaction
+        thumbContainer.addEventListener('mousedown', () => clearInterval(interval));
+    </script>
+</body>
+</html>

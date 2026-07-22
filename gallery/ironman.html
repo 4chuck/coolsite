@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armor Lab | Tetron</title>
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="../src/css/design-system.css">
+    <link rel="stylesheet" href="../src/css/global.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .lab-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud-frame {
+            position: relative;
+            background: rgba(255, 0, 0, 0.05);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        .hud-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .armor-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5)); }
+            50% { transform: scale(1.02); filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8)); }
+        }
+
+        .data-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            font-family: 'Courier New', Courier, monospace;
+            color: #ff0000;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .lab-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-stark {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            padding: 12px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-stark:hover {
+            background: #ff0000;
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .btn-gold {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            color: #ffd700;
+        }
+
+        .btn-gold:hover {
+            background: #ffd700;
+            color: black;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .emoji-ticker {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(255,255,255,0.05);
+            padding: 10px 0;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <!-- Navbar -->
+    <nav class="glass-navbar">
+        <div class="navbar-container">
+            <a href="../dashboard/index.html" class="logo-brand">
+                <i class="fas fa-microchip"></i>
+                <span>STARK <strong>LAB</strong></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="../dashboard/index.html">Dashboard</a></li>
+                <li>
+                    <div class="user-profile">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);">
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="lab-container">
+        <div class="hud-frame">
+            <div class="data-overlay">
+                SYSTEM: ONLINE<br>
+                POWER: 100%<br>
+                ARMOR: MARK LXXXV
+            </div>
+            <img src="../images/ironman.jpg" alt="Iron Man" class="armor-img">
+        </div>
+
+        <div class="lab-actions">
+            <a href="cat.html" class="btn-stark">Back to Gallery</a>
+            <a href="sea.html" class="btn-stark btn-gold">Proceed to Nature</a>
+        </div>
+
+        <div class="emoji-ticker">
+            <div class="ticker-content">
+                😀 😁 😂 🤣 😃 😄 😅 😆 😉 😊 🙂 🤔 🤨 😐 😑 😶 🙄 😏 😣 😮 🤐 😯 😪 😌 😛 😜 😝 🤤 😒 😔 😕 🙃 🤑 😲 🤯 😬 😳 🤪 😇 🤠 🤭 🧐 🤓 😺 😸 😼 🙀
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth } from "../src/js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        // Auth Protection
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login/fire-login.html";
+            } else if (user.photoURL) {
+                document.getElementById('nav-avatar').src = user.photoURL;
+            }
+        });
+    </script>
+</body>
+</html>

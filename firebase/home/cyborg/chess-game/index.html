@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chess Master - Cyborg</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="../assets/css/fontawesome.css">
+  <link rel="stylesheet" href="../assets/css/templatemo-cyborg-gaming.css">
+  <link rel="stylesheet" href="../assets/css/owl.css">
+  <link rel="stylesheet" href="../assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="style3.css">
+
+  <style>
+    /* Global loader overlay */
+    .loader-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.75);
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Spinner */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #ec6090;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Difficulty modal */
+    .modal-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 10000;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: #1f2122;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #ec6090;
+      color: white;
+      text-align: center;
+    }
+
+    .difficulty-btn {
+      background: #ec6090;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .difficulty-btn:hover {
+      background: #ff77a9;
+    }
+
+    /* Timer styles */
+    #timers {
+      margin-top: 0;
+      margin-left: 12px;
+    }
+
+    #timers .btn-timer {
+      font-size: 15px;
+      font-weight: bold;
+      color: white;
+      background: #27292A;
+      border: 1px solid #ec6090;
+      border-radius: 6px;
+      padding: 4px 12px;
+      margin-right: 6px;
+      display: none;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    #timers .active {
+      background: #ec6090;
+      color: #fff;
+    }
+
+    @media (max-width: 600px) {
+      #timers .btn-timer {
+        min-width: 50px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header-area header-sticky">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <nav class="main-nav">
+            <a href="../index.html" class="logo">
+              <img src="../assets/images/logo.png" alt="">
+            </a>
+            <!-- ***** Search End ***** -->
+            <div class="search-input">
+              <form id="search" action="#">
+                <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword"
+                  onkeypress="handle" />
+                <i class="fa fa-search"></i>
+              </form>
+            </div>
+            <!-- ***** Search End ***** -->
+            <ul class="nav">
+              <li><a href="../index.html" class="active">Home</a></li>
+              <li><a href="../browse.html">Browse</a></li>
+              <li><a href="../details.html">Details</a></li>
+              <li><a href="../streams.html">Streams</a></li>
+              <li><a href="../profile.html">Profile <img src="../assets/images/profile-header.jpg"
+                    alt="Profile avatar"></a></li>
+            </ul>
+            <a class='menu-trigger'>
+              <span>Menu</span>
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content" style="padding:auto auto auto auto">
+
+          <div class="main-banner" style="min-height: 150px; padding: 30px 100px;">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="header-text">
+                  <h2 style="color:aqua">Chess Master</h2>
+                  <h4><em>Compete</em> in Real-Time or vs AI</h4>
+                </div>
+              </div>
+            </div>
+          </div><br><br>
+
+          <p id="auth-status"></p>
+
+          <!-- Game Lobby -->
+          <div id="game-lobby" style="display: none;">
+            <h2>Game Lobby</h2>
+            <button id="create-game-btn">Create New Game</button>
+            <button id="play-ai-btn">Play vs AI</button>
+            <ul id="game-list" style="background-color: #4A4A4A;color:white;"></ul>
+            <p>Join a game:</p>
+            <input type="text" id="game-id-input" placeholder="Enter Game ID">
+            <button id="join-game-btn">Join Game</button>
+          </div>
+
+          <!-- Chess Game -->
+          <div id="chess-game" style="display: none;">
+            <h2 id="game-title"></h2>
+
+            <div id="custom-alert" class="hidden"></div>
+            <div id="chessboard"></div>
+            <br>
+            <div class="game-controls"
+              style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+              <button id="undo-btn">Undo</button>
+              <div id="timers"
+                style="display: flex; gap: 8px; margin-top: 6px; margin-left: 0; justify-content: center; width: 100%;">
+                <div id="white-timer" class="btn-timer" style="display:none;">White: <span>30s</span></div>
+                <div id="black-timer" class="btn-timer" style="display:none;">Black: <span>30s</span></div>
+              </div>
+            </div>
+            <br>
+            <div id="game-info">
+              <p>Turn: <span id="current-turn"></span></p>
+              <p>Status: <span id="game-status"></span></p>
+            </div>
+
+            <!-- Chat -->
+            <div id="chat-box">
+              <div id="messages" style="height: 150px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px;"></div>
+              <input type="text" id="chat-input" placeholder="Type a message...">
+              <button id="send-chat-btn">Send</button>
+            </div>
+
+            <div style="margin-top:20px;">
+              <button id="leave-game-btn">Leave Game</button>
+            </div>
+          </div>
+
+          <!-- Game Over Modal -->
+          <div id="game-over-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+              <h2>Game Over</h2>
+              <p id="game-over-message"></p>
+            </div>
+          </div>
+
+          <!-- Difficulty Modal -->
+          <div id="difficulty-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+              <h2>Select Difficulty</h2>
+              <div style="margin: 10px;">
+                <button class="difficulty-btn" data-diff="easy">Easy</button>
+                <button class="difficulty-btn" data-diff="medium">Medium</button>
+                <button class="difficulty-btn" data-diff="hard">Hard</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  Global Stockfish Loader 
+  <div id="stockfish-loader" class="loader-overlay hidden">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:15px;">
+      <div class="loader"></div>
+      <div style="color:white;font-size:1.1em;">Loading Stockfish AI...</div>
+    </div>
+  </div>
+  -->
+  <div id="stockfish-loader" class="loader-overlay hidden" style="display:none;">
+    <div
+      style="background:#1f2122;border:2px solid #ec6090;padding:18px;border-radius:10px;color:white;display:flex;flex-direction:column;align-items:center;">
+      <div
+        style="width:46px;height:46px;border-radius:50%;border:6px solid rgba(255,255,255,0.2);border-top-color:#ec6090;animation:sfspin 1s linear infinite;margin-bottom:12px">
+      </div>
+      <div>Loading Stockfish AI...</div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="../vendor/jquery/jquery.min.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+  <script src="../assets/js/isotope.min.js"></script>
+  <script src="../assets/js/owl-carousel.js"></script>
+  <script src="../assets/js/tabs.js"></script>
+  <script src="../assets/js/popup.js"></script>
+  <script src="../assets/js/custom.js"></script>
+
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import { Chess } from "https://esm.run/chess.js";
+
+    window.Chess = Chess;
+    window.STOCKFISH_PATH = "stockfish/stockfish-17.1-lite-single-03e3232.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJs9fp6w30ZpxycPLGy2bntvFeNy2TFxk",
+      authDomain: "login-b6382.firebaseapp.com",
+      databaseURL: "https://login-b6382-default-rtdb.firebaseio.com",
+      projectId: "login-b6382",
+      storageBucket: "login-b6382.appspot.com",
+      messagingSenderId: "482805184778",
+      appId: "1:482805184778:web:0d146b1daf3aa25ad7a2f3",
+      measurementId: "G-ZHXBBZHN3W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Set modular persistence (matches index3.html/index4.html)
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+    // Initialize App Check
+    try {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider("6LcRQjwsAAAAADdvmJvORK_-hWHEe9dNqe6ZXUFd"),
+        isTokenAutoRefreshEnabled: true
+      });
+    } catch (e) { console.warn("App Check init failed:", e); }
+
+    // Export to window for script22.js
+    window.firebaseApp = app;
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+    window.firebaseModular = { onAuthStateChanged };
+
+    // Load app logic as a module
+    import("./script22.js").catch(err => console.error("Failed to load script22.js", err));
+  </script>
+
+</body>
+
+</html>
