@@ -126,7 +126,7 @@ https://templatemo.com/tm-579-cyborg-gaming
                         <li><a href="browse.html">Browse</a></li>
                         <li><a href="details.html">Details</a></li>
                         <li><a href="streams.html">Streams</a></li>
-                        <li><a href="profile.html">Profile <img src="assets/images/profile-header.jpg" alt="Profile avatar"></a></li>
+                        <li><a href="profile.html" class="active"><span id="profileLinkText">Profile</span> <img id="profileHeaderAvatar" src="assets/images/profile-header.jpg" alt="Profile avatar"></a></li>
                     </ul>   
                     <a class='menu-trigger'>
                         <span>Menu</span>
@@ -391,6 +391,8 @@ https://templatemo.com/tm-579-cyborg-gaming
     import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app-check.js";
+    import { db, storage } from "../../../src/js/firebase-config.js";
+    import { getOrFetchCachedProfileAvatar } from "../../../src/js/avatar.js";
     import { firebaseConfig, appCheckSiteKey } from "../config.js";
 
     const app = initializeApp(firebaseConfig);
@@ -409,21 +411,31 @@ https://templatemo.com/tm-579-cyborg-gaming
 
     // Immediate UI update
     const profileLink = document.querySelector('a[href="profile.html"]');
+    const profileLinkText = document.getElementById('profileLinkText');
+    const profileAvatar = document.getElementById('profileHeaderAvatar');
     const localName = localStorage.getItem('name');
-    if (localName && profileLink) {
-      profileLink.innerHTML = `${localName} <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+    if (localName && profileLinkText) {
+      profileLinkText.textContent = localName;
     }
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         const name = user.displayName || 'Player';
         localStorage.setItem('name', name);
-        if (profileLink) profileLink.innerHTML = `${name} <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+        if (profileLinkText) profileLinkText.textContent = name;
+        if (profileAvatar) {
+          try {
+            await getOrFetchCachedProfileAvatar(profileAvatar, user, db, storage);
+          } catch (err) {
+            console.warn('Avatar sync failed:', err);
+          }
+        }
       } else {
         // If logged out, remove local hints
         localStorage.removeItem('name');
         localStorage.removeItem('userUID');
-        if (profileLink) profileLink.innerHTML = `Profile <img src="assets/images/profile-header.jpg" alt="Profile avatar">`;
+        if (profileLinkText) profileLinkText.textContent = 'Profile';
+        if (profileAvatar) profileAvatar.src = 'assets/images/profile-header.jpg';
       }
     });
   </script>

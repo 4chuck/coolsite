@@ -165,16 +165,20 @@
     </main>
 
     <script type="module">
-        import { auth } from "../src/js/firebase-config.js";
+        import { auth, db, storage } from "../src/js/firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
- 
+        import { getOrFetchCachedProfileAvatar } from "../src/js/avatar.js";
+
+        const avatarElem = document.getElementById('nav-avatar');
+
         // Auth Protection
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "../login/fire-login.html";
-            } else if (user.photoURL) {
-                document.getElementById('nav-avatar').src = user.photoURL;
+                return;
             }
+            if (!avatarElem) return;
+            await getOrFetchCachedProfileAvatar(avatarElem, user, db, storage);
         });
 
         const currentEl = document.getElementById('current-val');

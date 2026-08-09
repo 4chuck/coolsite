@@ -687,6 +687,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getCachedProfileAvatar, cacheProfileAvatarUrl } from "../../../src/js/avatar.js";
     import {
       getAuth,
       onAuthStateChanged,
@@ -989,7 +990,16 @@
             document.getElementById('email').textContent = emailText;
 
             if (data.profilePic) {
-              await applyProfilePicFromPath(data.profilePic, { forceRefresh: true });
+              const cachedAvatar = getCachedProfileAvatar(uid);
+              if (cachedAvatar?.url && cachedAvatar.path === data.profilePic) {
+                setProfileImage(cachedAvatar.url);
+              } else {
+                await applyProfilePicFromPath(data.profilePic, { forceRefresh: true });
+                const resolvedUrl = lastProfilePicUrl;
+                if (resolvedUrl) {
+                  cacheProfileAvatarUrl(uid, resolvedUrl, data.profilePic);
+                }
+              }
             } else {
               setProfileImage('default-avatar.png');
             }
@@ -1014,6 +1024,10 @@
 
         try {
           await applyProfilePicFromPath(path, { forceRefresh: true });
+          const resolvedUrl = lastProfilePicUrl;
+          if (resolvedUrl) {
+            cacheProfileAvatarUrl(uid, resolvedUrl, path);
+          }
           if (awaitingThumbnail) {
             stopThumbnailWait();
             hideProcessing();

@@ -927,7 +927,7 @@
                         <li><a href="../../../dashboard/index.html">Dashboard</a></li>
                         <li><a href="browse.html">Browse</a></li>
                         <li><a href="streams.html">Streams</a></li>
-                        <li><a href="profile.html" class="active">Profile <img src="assets/images/profile-header.jpg" alt=""></a></li>
+                        <li><a href="profile.html" class="active"><span id="profileLinkText">Profile</span> <img id="profileHeaderAvatar" src="assets/images/profile-header.jpg" alt="Profile avatar"></a></li>
                     </ul>   
                     <a class='menu-trigger'>
                         <span>Menu</span>
@@ -1025,6 +1025,8 @@
       onValue
     } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+    import { getOrFetchCachedProfileAvatar, fetchProfileAvatarData } from "../../../src/js/avatar.js";
+
     import {
       ref as storageRef,
       getDownloadURL,
@@ -1044,6 +1046,8 @@
     const processingSub = document.getElementById("processingSub");
 
     const changePicBtn = document.getElementById("changePicBtn");
+    const profileLinkText = document.getElementById('profileLinkText');
+    const profileHeaderAvatar = document.getElementById('profileHeaderAvatar');
     let lastProfilePicUrl = null;
     let fallbackTimer = null;
 
@@ -1135,7 +1139,7 @@ changePicBtn.addEventListener("click", () => {
        =========================== */
     let authCheckStarted = false;
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User detected! Cancel any pending redirect
         if (window.authRedirectTimer) {
@@ -1143,9 +1147,27 @@ changePicBtn.addEventListener("click", () => {
           window.authRedirectTimer = null;
         }
 
+        const name = user.displayName || "Player";
         console.log("[Auth] User verified:", user.uid);
         localStorage.setItem("userUID", user.uid);
-        localStorage.setItem("name", user.displayName || "Player");
+        localStorage.setItem("name", name);
+        if (profileLinkText) profileLinkText.textContent = name;
+
+        if (profileHeaderAvatar) {
+          try {
+            await getOrFetchCachedProfileAvatar(profileHeaderAvatar, user, database, storage);
+          } catch (err) {
+            console.warn('Header avatar sync failed:', err);
+          }
+        }
+
+        if (profilePicEl) {
+          try {
+            await getOrFetchCachedProfileAvatar(profilePicEl, user, database, storage);
+          } catch (err) {
+            console.warn('Profile card avatar sync failed:', err);
+          }
+        }
 
         if (!authCheckStarted) {
           calert("Welcome back!");
@@ -1189,9 +1211,8 @@ changePicBtn.addEventListener("click", () => {
 
             if (data.profilePic) {
               try {
-                const imageRef = storageRef(storage, data.profilePic);
-                const downloadUrl = await getDownloadURL(imageRef);
-                setProfileImage(downloadUrl);
+                const profileData = await fetchProfileAvatarData(database, storage, user);
+                setProfileImage(profileData?.url || "default-avatar.png");
               } catch {
                 setProfileImage("default-avatar.png");
               }
@@ -1225,10 +1246,10 @@ changePicBtn.addEventListener("click", () => {
       }
     
       try {
-        const imageRef = storageRef(storage, path);
-        const downloadUrl = await getDownloadURL(imageRef);
-      
-        if (downloadUrl !== lastProfilePicUrl) {
+        const profileData = await fetchProfileAvatarData(database, storage, user);
+        const downloadUrl = profileData?.url;
+        
+        if (downloadUrl && downloadUrl !== lastProfilePicUrl) {
           lastProfilePicUrl = downloadUrl;
           setProfileImage(downloadUrl);
           hideProcessing();
@@ -1240,7 +1261,7 @@ changePicBtn.addEventListener("click", () => {
         }
       
       } catch (err) {
-        console.error("Failed to getDownloadURL:", err);
+        console.error("Failed to resolve profile avatar:", err);
         setProfileImage("default-avatar.png");
       }
     }, (err) => {

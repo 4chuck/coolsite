@@ -307,22 +307,26 @@
     </div>
 
     <script type="module">
-        import { auth } from "../src/js/firebase-config.js";
+        import { auth, db, storage } from "../src/js/firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { initTheme } from "../src/js/theme.js";
         import { initSearch } from "../src/js/search.js";
+        import { getOrFetchCachedProfileAvatar } from "../src/js/avatar.js";
+
+        const avatarElem = document.getElementById('nav-avatar');
 
         // Initialize Platform Engines
         initTheme();
         initSearch();
 
         // Auth Protection
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "../login/fire-login.html";
-            } else if (user.photoURL) {
-                document.getElementById('nav-avatar').src = user.photoURL;
+                return;
             }
+            if (!avatarElem) return;
+            await getOrFetchCachedProfileAvatar(avatarElem, user, db, storage);
         });
 
         const video = document.getElementById('video');
